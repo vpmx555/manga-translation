@@ -9,16 +9,17 @@ import torch
 model = AutoModel.from_pretrained("ragavsachdeva/magiv2", trust_remote_code=True).eval()
 
 def read_image(path_to_image):
+    
     with open(path_to_image, "rb") as file:
         image = Image.open(file).convert("L").convert("RGB")
         image = np.array(image)
     return image
 
 # 1. Đường dẫn tới thư mục chứa ảnh chapter
-image_folder = r"C:\Users\pxv23\Downloads\Manga\Manga\VN\Chapter 214"
+image_folder = r"C:\Users\pxv23\Downloads\Manga\Manga\EN\New folder"
 
 # 2. Lấy danh sách tất cả các file ảnh (.png, .jpg, .jpeg) và sắp xếp theo thứ tự
-image_extensions = ("*.png", "*.jpg", "*.jpeg", "*.PNG", "*.JPG", "*.JPEG")
+image_extensions = ("*.png", "*.jpg", "*.jpeg")
 chapter_page_paths = []
 
 for ext in image_extensions:
@@ -40,11 +41,26 @@ character_bank = {
     "names": []
 }
 
+
+MagiClass = type(model)
+original_predict_det = MagiClass.predict_detections_and_associations
+
+def patched_predict_detections_and_associations(self, images, *args, **kwargs):
+    # Đặt giá trị text_detection_threshold mong muốn tại đây (ví dụ: 0.15)
+    kwargs.setdefault('text_detection_threshold', 0.15)
+    return original_predict_det(self, images, *args, **kwargs)
+
+# Ghi đè vào Lớp để giữ nguyên binding của 'self'
+MagiClass.predict_detections_and_associations = patched_predict_detections_and_associations
+
+
+
 # 4. Chạy dự đoán OCR và trích xuất hội thoại cho cả Chapter
 with torch.no_grad():
     per_page_results = model.do_chapter_wide_prediction(chapter_pages, character_bank, use_tqdm=True, do_ocr=True)
 
 # 5. Xuất kết quả trực quan hóa và ghi file transcript.txt
+
 transcript = []
 
 for i, (image, page_result) in enumerate(zip(chapter_pages, per_page_results)):
