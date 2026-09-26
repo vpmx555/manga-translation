@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated story-specific character banks (embeddings and reference crops)
+data/character_banks/
