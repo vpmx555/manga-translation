@@ -1,0 +1,14 @@
+{
+  "model": "qwen3.5:9b",
+  "num_ctx": 16384,
+  "num_predict": 2048,
+  "max_targets": 12,
+  "overlap": 2,
+  "max_images": 2,
+  "image_max_side": 1024,
+  "image_tokens": 2048,
+  "reserve_tokens": 512,
+  "timeout": 600,
+  "think": false,
+  "unload_after": true
+}

@@ -17,11 +17,12 @@ from character_assignment import (
 )
 from character_bank import CharacterBank
 from character_postprocessing import AmbiguousMatchPostprocessor
+from dialogue_data import build_raw_document, normalize_document, read_json, write_json
 
 
 MODEL_ID = "ragavsachdeva/magiv2"
 MODEL_FINGERPRINT = "ragavsachdeva/magiv2@fbc890fec52977142e8ee00bfe26e9458b65517c"
-DEFAULT_IMAGE_FOLDER = Path(r"C:\Users\pxv23\Downloads\Manga\Manga\EN\New folder")
+DEFAULT_IMAGE_FOLDER = Path(r"D:\download\Chapter 1-20260928T085804Z-1-001\Chapter 1")
 
 
 def read_image(path_to_image: Path) -> np.ndarray:
@@ -85,6 +86,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=project_root / "data" / "character_banks",
     )
     parser.add_argument("--output", type=Path, default=project_root / "transcript.txt")
+    parser.add_argument("--raw-json", type=Path, help="Lossless MAGI output; default: <output>.raw.json")
+    parser.add_argument("--normalized-json", type=Path, help="Normalized dialogue; default: <output>.normalized.json")
+    parser.add_argument("--overwrite-json", action="store_true", help="Explicitly replace existing raw/normalized JSON")
+    parser.add_argument("--content-overrides", type=Path, help="Confirmed source-ID content classifications")
+    parser.add_argument("--merge-groups", type=Path, help="Confirmed logical merges; source boxes are retained")
+    parser.add_argument("--no-visualizations", action="store_true")
     parser.add_argument("--visualization-dir", type=Path, default=project_root)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument("--text-detection-threshold", type=float, default=0.15)
@@ -110,6 +117,16 @@ def run(
     image_folder = args.image_folder.resolve()
     story_name = args.story_name or image_folder.name
     chapter_id = args.chapter_id or image_folder.name
+    raw_path = args.raw_json or args.output.with_suffix(".raw.json")
+    normalized_path = args.normalized_json or args.output.with_suffix(".normalized.json")
+    if not args.bank_only:
+        targets = [args.output.resolve(), raw_path.resolve(), normalized_path.resolve()]
+        if len(set(targets)) != len(targets):
+            raise ValueError("Transcript, raw and normalized outputs must be different paths")
+        if not args.overwrite_json and any(p.exists() for p in (raw_path, normalized_path)):
+            raise FileExistsError("JSON output already exists; choose another path or use --overwrite-json")
+    overrides = read_json(args.content_overrides) if args.content_overrides else None
+    merges = read_json(args.merge_groups) if args.merge_groups else None
 
     with CharacterBank(
         args.bank_root.resolve(),
@@ -138,7 +155,9 @@ def run(
             device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             device = args.device
-        model = AutoModel.from_pretrained(MODEL_ID, trust_remote_code=True).eval().to(device)
+        model = AutoModel.from_pretrained(
+            MODEL_ID, revision=MODEL_FINGERPRINT.split("@", 1)[1], trust_remote_code=True,
+        ).eval().to(device)
 
         assigner = DynamicCharacterAssigner(bank, page_keys, postprocessors)
         assigner.bind(model)
@@ -158,11 +177,12 @@ def run(
         for page_number, (image, page_result) in enumerate(
             zip(chapter_pages, per_page_results), start=1
         ):
-            model.visualise_single_image_prediction(
-                image,
-                page_result,
-                str(args.visualization_dir / f"page_{page_number}.png"),
-            )
+            if not args.no_visualizations:
+                model.visualise_single_image_prediction(
+                    image,
+                    page_result,
+                    str(args.visualization_dir / f"page_{page_number}.png"),
+                )
             transcript.append(f"--- Trang {page_number} ---")
             speaker_by_text = {
                 int(text_index): page_result["character_names"][int(character_index)]
@@ -175,9 +195,25 @@ def run(
                 speaker = speaker_by_text.get(text_index, "Other")
                 transcript.append(f"<{speaker}>: {text}")
 
+        identity_pages = []
+        offset = 0
+        for result in per_page_results:
+            count = len(result["characters"])
+            identity_pages.append(assigner.last_character_ids[offset:offset + count])
+            offset += count
+        raw = build_raw_document(
+            chapter_pages, chapter_page_paths, per_page_results,
+            story_id=str(bank.metadata["story_key"]), chapter_id=chapter_id,
+            model_fingerprint=MODEL_FINGERPRINT, character_ids=identity_pages,
+        )
+        normalized = normalize_document(raw, overrides=overrides, merge_groups=merges)
+        normalized["raw_json_path"] = str(raw_path.resolve())
+        write_json(raw_path, raw, overwrite=args.overwrite_json)
+        write_json(normalized_path, normalized, overwrite=args.overwrite_json)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text("\n".join(transcript) + "\n", encoding="utf-8")
         print(f"Done. Transcript saved to '{args.output}'.")
+        print(f"Raw extraction: '{raw_path}'. Normalized dialogue: '{normalized_path}'.")
         return args.output
 
 

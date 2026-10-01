@@ -219,3 +219,13 @@ __marimo__/
 
 # Generated story-specific character banks (embeddings and reference crops)
 data/character_banks/
+
+# Local experiment environments, caches and generated outputs
+venv-scenes/
+data/scene_embeddings/
+data/scene_models/
+runs/
+outputs/
+
+# Local conversation journals
+codex-session-*.md

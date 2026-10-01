@@ -103,6 +103,8 @@ class DynamicCharacterAssigner:
         self.postprocessors = tuple(postprocessors)
         self.bank.metadata["postprocessors"] = postprocessor_manifest(self.postprocessors)
         self._current_pending_occurrences: dict[str, list[int]] = {}
+        # Stable bank identity is separate from the editable display label.
+        self.last_character_ids: list[int | None] = []
 
     def bind(self, model) -> None:
         """Bind the override to one final model instance, never the global class."""
@@ -308,6 +310,7 @@ class DynamicCharacterAssigner:
     ) -> list[str]:
         del character_bank, eta  # Persistent bank/config replace the upstream arguments.
         total = sum(len(bboxes) for bboxes in character_bboxes)
+        self.last_character_ids = [None] * total
         if total == 0:
             return []
         if len(self.page_keys) != len(images):
@@ -339,6 +342,7 @@ class DynamicCharacterAssigner:
                     character_id = self.bank.promote_pending(pending_id)
                     for previous_index in self._current_pending_occurrences.pop(pending_id, []):
                         labels[previous_index] = self.bank.display_label(character_id)
+                        self.last_character_ids[previous_index] = character_id
                     self._add_prototypes(character_id, observation)
                 elif len(observation.detection_indices) >= 2:
                     prefix = f"new-{uuid.uuid4().hex[:8]}"
@@ -370,6 +374,7 @@ class DynamicCharacterAssigner:
             label = self.bank.display_label(character_id)
             for global_index in observation.global_indices:
                 labels[global_index] = label
+                self.last_character_ids[global_index] = character_id
             for panel_id in observation.panel_ids:
                 used_by_page_panel.setdefault(
                     (observation.page_index, panel_id), set()

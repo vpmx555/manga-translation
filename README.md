@@ -69,6 +69,21 @@ Pass plugin instances to `main.run(args, postprocessors=[...])`. This keeps the
 base bank independent of `imgutils`, Hugging Face authentication, gated model
 downloads, and CAFormer licensing until that optional integration is enabled.
 
+## Structured dialogue
+
+MAGI runs now also export `<output>.raw.json` and `<output>.normalized.json`.
+Raw JSON keeps all OCR boxes and preliminary speaker links. Normalized JSON
+preserves source boxes for inpaint, keeps narration/thought, audits noise filtering,
+and distinguishes unresolved identities from missing speaker links.
+
+See [pipeline usage](docs/pipeline_usage.md) for standalone import and normalization.
+See [reasoning usage](docs/reasoning_usage.md) for visual scene reasoning and
+Stage 3 speaker, identity, addressee and same-page reading-order correction.
+Hardware profiles are in `configs/reasoning.*.json`; the pipeline checkpoints
+validated model requests and preserves source text, boxes and bank metadata.
+The three-model scene clustering experiment is archived on the
+[`cluster-scene-model` branch](https://github.com/vpmx555/manga-translation/tree/cluster-scene-model).
+
 ## Tests
 
 ```powershell
