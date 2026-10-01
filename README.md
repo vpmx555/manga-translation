@@ -69,6 +69,21 @@ Pass plugin instances to `main.run(args, postprocessors=[...])`. This keeps the
 base bank independent of `imgutils`, Hugging Face authentication, gated model
 downloads, and CAFormer licensing until that optional integration is enabled.
 
+## Structured dialogue and scene evaluation
+
+MAGI runs now also export `<output>.raw.json` and `<output>.normalized.json`.
+Raw JSON keeps all OCR boxes and preliminary speaker links. Normalized JSON
+preserves source boxes for inpaint, keeps narration/thought, audits noise filtering,
+and distinguishes unresolved identities from missing speaker links.
+
+See [pipeline usage](docs/pipeline_usage.md) for standalone normalization,
+independent human review, three embedding backends, and leakage-checked benchmarks.
+Scene proposals are uncalibrated until evaluated on reviewed reference labels;
+no embedding is selected automatically for production.
+
+The embedding tools use a **separate optional environment** because newer
+embedding models require newer Transformers than the existing MAGI environment.
+
 ## Tests
 
 ```powershell

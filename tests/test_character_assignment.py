@@ -79,6 +79,7 @@ class CharacterAssignmentTests(unittest.TestCase):
             )
             self.assertEqual(labels, ["1", "1"])
             self.assertIn("1", bank.characters)
+            self.assertEqual(assigner.last_character_ids, [1, 1])
 
     def test_singleton_reappearance_on_another_page_promotes_and_rewrites(self):
         embeddings = [
@@ -103,6 +104,7 @@ class CharacterAssignmentTests(unittest.TestCase):
             )
             self.assertEqual(labels, ["1", "1"])
             self.assertEqual(bank.pending, {})
+            self.assertEqual(assigner.last_character_ids, [1, 1])
 
     def test_singleton_does_not_confirm_on_same_page_key(self):
         with self._bank() as bank:

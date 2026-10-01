@@ -1,0 +1,4 @@
+# Optional scene embedding environment. Do NOT upgrade MAGI's transformers 4.44
+# environment in-place: newer embedding architectures require newer transformers.
+sentence-transformers>=5.1,<6
+transformers>=4.56,<5
