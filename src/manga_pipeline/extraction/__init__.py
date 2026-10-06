@@ -1,0 +1,1 @@
+"""Chapter-wide MAGI extraction."""

@@ -1,0 +1,28 @@
+{
+  "dialogue_analysis": "essential-v3",
+  "speaker_policy": "individual-v1",
+  "noise_filter": {"policy": "whole-box-rules-v1", "rules_path": null},
+  "translation": {"policy": "vi-dual-v1", "batch_size": 3, "context_radius": 2,
+    "num_predict": 1536, "glossary_path": null, "overrides_path": null, "instructions": ""},
+  "ner": {
+    "backend": "gliner",
+    "model": "gliner-community/gliner_small-v2.5",
+    "revision": "f227d3cd637bd4e6757ae143935316d062393341",
+    "threshold": 0.85,
+    "device": "cpu"
+  },
+  "device": "auto",
+  "text_detection_threshold": 0.15,
+  "character_character_matching_threshold": 0.85,
+  "visualizations": true,
+  "spacy_model": "en_core_web_sm",
+  "ollama": {
+    "host": "http://127.0.0.1:11434",
+    "model": "gemma4:e4b-it-q4_K_M",
+    "num_ctx": 8192,
+    "num_predict": 768,
+    "image_max_side": 768,
+    "timeout": 600,
+    "retries": 1
+  }
+}

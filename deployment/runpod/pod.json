@@ -1,0 +1,6 @@
+{
+  "name": "manga-bocchi-4090",
+  "cloud": "SECURE",
+  "templateId": "t3of29w78l",
+  "gpu": {"id": "NVIDIA GeForce RTX 4090", "count": 1, "minCudaVersion": "12.8"}
+}

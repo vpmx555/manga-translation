@@ -1,0 +1,16 @@
+{
+  "name": "Manga Translate - RTX 5090 reusable",
+  "image": "runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404",
+  "category": "NVIDIA",
+  "public": false,
+  "serverless": false,
+  "disk": 30,
+  "mounts": {"persistent": {"path": "/workspace", "size": 50}},
+  "ports": ["22/tcp"],
+  "startSsh": true,
+  "startJupyter": false,
+  "allowedCudaVersions": ["12.8", "12.9", "13.0", "13.1", "13.2", "13.3", "13.4"],
+  "env": {"MANGA_RUNTIME": "/workspace/manga-runtime"},
+  "entrypoint": ["/bin/bash", "-lc"],
+  "cmd": ["set -e; umask 077; mkdir -p /workspace/manga-runtime/ssh /workspace/manga-runtime/logs; if [ ! -s /workspace/manga-runtime/ssh/ssh_host_ed25519_key ]; then ssh-keygen -q -t ed25519 -N '' -f /workspace/manga-runtime/ssh/ssh_host_ed25519_key; fi; cp /workspace/manga-runtime/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key; cp /workspace/manga-runtime/ssh/ssh_host_ed25519_key.pub /etc/ssh/ssh_host_ed25519_key.pub; chmod 600 /etc/ssh/ssh_host_ed25519_key; chmod 644 /etc/ssh/ssh_host_ed25519_key.pub; if [ -f /workspace/manga-translate-v2/deployment/runpod/manage.py ]; then /usr/bin/python3 /workspace/manga-translate-v2/deployment/runpod/manage.py start >> /workspace/manga-runtime/logs/boot.log 2>&1 & fi; exec /start.sh"]
+}

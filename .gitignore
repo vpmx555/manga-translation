@@ -226,6 +226,11 @@ data/scene_embeddings/
 data/scene_models/
 runs/
 outputs/
+banks/
+models/ner/
 
 # Local conversation journals
 codex-session-*.md
+
+# Runpod connection details, host keys and generated deployment state
+.runpod/

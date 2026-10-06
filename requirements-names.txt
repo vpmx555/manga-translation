@@ -1,0 +1,5 @@
+# NER for new runs; pinned to retain the MAGI Transformers 4.44 environment.
+gliner==0.2.22
+# Legacy v2 runs can still resume with spaCy.
+spacy>=3.8,<4
+# Then: python -m spacy download en_core_web_sm
