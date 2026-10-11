@@ -4,11 +4,11 @@ from pathlib import Path
 
 from ..pipeline import PROJECT, Pipeline, create_run, load_config, reanalyze_run, translate_store
 from ..progress import NullProgress, TerminalProgress
-from ..storage.runs import ALL_STEPS, TRANSLATE_STEPS, RunStore
+from ..storage.runs import ALL_STEPS, TRANSLATE_STEPS, VISUAL_STEPS, V6_STEPS, RunStore
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(description="MAGI + text semantics/name binding + Vietnamese translation; resumable pipeline v4 (v2/v3 compatible)")
+    parser = argparse.ArgumentParser(description="Koharu layout + MAGI + semantics/translation + independent inpaint; resumable v6 (v2/v3/v4/v5 compatible)")
     commands = parser.add_subparsers(dest="command", required=True)
     p = commands.add_parser("reanalyze", help="New essential-only run reusing completed MAGI extraction")
     p.add_argument("--run-dir", required=True, type=Path)
@@ -28,7 +28,8 @@ def build_parser():
         p.add_argument("--no-visualizations", action="store_true")
         p.add_argument("--no-progress", action="store_true", help="Disable terminal progress bars")
         if command == "run":
-            p.add_argument("--until", choices=TRANSLATE_STEPS, default=None)
+            p.add_argument("--until", choices=tuple(dict.fromkeys((*V6_STEPS, *VISUAL_STEPS, *TRANSLATE_STEPS))), default=None,
+                           help="Run ancestors of this stage; default includes translation, inpaint is opt-in")
     for command in ("resume", "review", *ALL_STEPS[1:]):
         help_text = "Write compact review files without model inference" if command == "review" else "Continue a saved run; completed targets are skipped"
         if command in {"classify", "link"}:
@@ -41,12 +42,26 @@ def build_parser():
         if command == "resume":
             p.add_argument("--until", choices=ALL_STEPS, default=None)
             p.add_argument("--device", choices=("auto", "cpu", "cuda"), help="Only affects incomplete extraction")
+    p = commands.add_parser("person-revert", help="Revert the latest unchanged v6 person operation; MAGI bank stays intact")
+    p.add_argument("--run-dir", required=True, type=Path)
+    p.add_argument("--operation", required=True)
     return parser
 
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
     try:
+        if args.command == "person-revert":
+            from ..v6.persons import bank_snapshot, registry_path, revert
+            store = RunStore(args.run_dir)
+            if store.manifest["pipeline_version"] != 6:
+                raise ValueError("person-revert requires a v6 run")
+            before = bank_snapshot(store.manifest["bank_path"])
+            revert(registry_path(store), args.operation)
+            if before != bank_snapshot(store.manifest["bank_path"]):
+                raise ValueError("Source bank changed while reverting person registry")
+            print(f"Reverted person operation: {args.operation}")
+            return 0
         if args.command == "reanalyze":
             store = reanalyze_run(args.run_dir, args.output_root, load_config(args.config))
             print(f"Run directory: {store.directory}", flush=True)
@@ -58,10 +73,12 @@ def main(argv=None):
             store = create_run(args.image_folder, args.story, args.chapter or args.image_folder.name,
                                args.output_root, args.bank_root, config)
             print(f"Run directory: {store.directory}", flush=True)
-            until = args.until if args.command == "run" else "extract"
+            until = args.until if args.command == "run" else "bubble_geometry"
         else:
             store = RunStore(args.run_dir)
-            if args.command == "translate":
+            if args.command == "translate" and store.manifest["pipeline_version"] == 6 and args.config:
+                raise ValueError("V6 config changes require a new run/reanalyze revision")
+            if args.command == "translate" and store.manifest["pipeline_version"] != 6:
                 progress = NullProgress() if args.no_progress else TerminalProgress()
                 try:
                     progress.start("translate", 1, 1)
@@ -76,7 +93,12 @@ def main(argv=None):
                 from ..review.renderer import write_reviews
                 from ..storage.locking import exclusive_lock
                 with exclusive_lock(store.directory / ".run.lock", timeout=1):
-                    path = write_reviews(RunStore(args.run_dir))
+                    if store.manifest["pipeline_version"] == 6:
+                        from ..v6.stages import write_review
+                        write_review(store)
+                        path = store.directory / "review.md"
+                    else:
+                        path = write_reviews(RunStore(args.run_dir))
                 print(f"Review: {path}")
                 return 0
             until = args.until if args.command == "resume" else args.command

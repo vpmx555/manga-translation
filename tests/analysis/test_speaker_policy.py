@@ -222,7 +222,9 @@ class SpeakerPolicyTests(unittest.TestCase):
                 self.assertNotIn("speaker_policy", read_json(path)["request"])
             self.assertNotIn("speaker_policy", store.read("analyze"))
             preserved = {p: file_hash(p) for p in [store.path, store.directory / "snapshots/config.json", *base.rglob("*.json")]}
-            fresh = reanalyze_run(store.directory, Path(root) / "reanalyzed", load_config())
+            config = load_config()
+            config["layout"]["enabled"] = False
+            fresh = reanalyze_run(store.directory, Path(root) / "reanalyzed", config)
             self.assertEqual(fresh.manifest["config"]["speaker_policy"], POLICY)
             self.assertEqual(fresh.read("extract"), store.read("extract"))
             self.assertEqual(preserved, {p: file_hash(p) for p in preserved})

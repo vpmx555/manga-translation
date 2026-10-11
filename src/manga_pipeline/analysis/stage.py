@@ -7,12 +7,16 @@ from .binding import bind_batch
 from .context import bank_view, memory, request_for
 from .contract import POLICY, speakers
 from .text import classify_batch
+from . import speech
+import copy
 
 
 def analyze(store, raw, document, scanned, provider, *, progress=None):
     if document.get("analysis_policy") != "essential-v3":
         raise ValueError("analyze requires an essential-v3 run; reanalyze into a new run to upgrade")
     speaker_policy = store.manifest["config"].get("speaker_policy")
+    # Saved v5 manifests without this key retain their original request contract.
+    speech_policy = store.manifest.get("speech_style_policy")
     speakers(speaker_policy)
     progress = progress if progress is not None else NullProgress()
     rows, previous, utterances, links, batches = document["utterances"], {}, [], [], []
@@ -29,9 +33,11 @@ def analyze(store, raw, document, scanned, provider, *, progress=None):
                 raise ValueError("Analyze batch plan changed/corrupt")
             if plan["request"].get("speaker_policy") != speaker_policy:
                 raise ValueError("Analyze batch speaker policy changed")
+            if plan["request"].get("speech_style_policy") != speech_policy:
+                raise ValueError("Analyze batch speech style policy changed")
         else:
             bank = bank_view(NameBank(store.manifest["bank_path"]).read())
-            request = request_for(rows, start, mentions, previous, bank, speaker_policy)
+            request = request_for(rows, start, mentions, previous, bank, speaker_policy, speech_policy)
             plan = {"request": request, "bank": bank, "hash": fingerprint([request, bank])}
             atomic_json(path, plan)
         request, key = plan["request"], f"batch:{start}"
@@ -40,6 +46,11 @@ def analyze(store, raw, document, scanned, provider, *, progress=None):
         if committed is None:
             text = classify_batch(store, request, mentions, provider, start, progress)
             text, outcomes = bind_batch(store, raw, rows, text, plan["bank"], provider, start, progress)
+            if speech_policy:
+                sources = {row["id"]: row for row in rows}
+                text = [{**row, **{k: copy.deepcopy(sources[row["utterance_id"]][k])
+                        for k in (*speech.VISUAL_FIELDS, "source_text_ids", "page", "panel_index")
+                        if k in sources[row["utterance_id"]]}} for row in text]
             committed = {"utterances": text, "links": outcomes, "memory_after": memory({
                 **previous, **{row["utterance_id"]: row for row in text}})}
             progress.set_phase(f"batch {start // 3 + 1}: checkpoint")
@@ -53,5 +64,6 @@ def analyze(store, raw, document, scanned, provider, *, progress=None):
                         "memory_after": committed["memory_after"]})
     warnings = [{"utterance_id": row["utterance_id"], **warning} for row in utterances for warning in row["warnings"]]
     return {"policy": POLICY, **({"speaker_policy": speaker_policy} if speaker_policy is not None else {}),
+            **({"speech_style_policy": speech_policy} if speech_policy else {}),
             "utterances": utterances, "links": links,
             "warnings": warnings, "batches": batches, "failures": []}

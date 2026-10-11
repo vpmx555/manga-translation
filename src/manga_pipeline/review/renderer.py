@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 from ..storage.io import atomic_bytes, read_json
 from ..policies import is_essential_policy
+from ..stage_groups import stage_group
 
 LABELS = {
     "completed": "Hoàn thành", "partial": "Còn lỗi", "failed": "Lỗi",
@@ -92,7 +93,7 @@ class Review:
             if item.get("status") in {"completed", "partial"}:
                 store._check_artifact(step, item)
                 self.data[step] = read_json(store.artifact_path(step))
-        self.raw = self.data.get("extract", {})
+        self.raw = self.data.get("bubble_geometry", self.data.get("extract", {}))
         self.normalized = self.data.get("normalize", {})
         self.raw_rows = {r["id"]: r for r in self.raw.get("texts", [])}
         self.rows = {r["id"]: r for r in self.normalized.get("utterances", [])}
@@ -165,18 +166,24 @@ class Review:
                 self.speaker(x) for x in item.get("addressee_ids", []))
             return (reference(source), source.get("text"), LABELS.get(item.get("content_type"), "Chưa rõ"),
                     self.speaker(item.get("speaker_id")), recipients, self.potential(item, "identity_candidates"),
-                    names or "—", item.get("evidence"), "; ".join(dict.fromkeys(warnings)) or "—")
+                    names or "—", item.get("evidence"),
+                    item.get("speech_style", "—"), item.get("speech_style_evidence", "—"),
+                    " / ".join(item.get(k, "—") for k in ("speech_style_source", "speech_style_status")),
+                    "; ".join(dict.fromkeys(warnings)) or "—")
         return table(["Câu", "Nội dung", "Loại", "Người nói", "Đối tượng tiếp nhận", "Ứng viên ID / nguồn",
-                      "Tên / vai trò / ID", "Bằng chứng", "Cảnh báo"], map(render, rows))
+                      "Tên / vai trò / ID", "Bằng chứng", "Speech style", "Style evidence",
+                      "Style source / review", "Cảnh báo"], map(render, rows))
 
     def pages(self, rows, headers, render, base):
         groups = {}
         for row in rows:
             groups.setdefault(row.get("page", 0), []).append(row)
+        for page in self.raw.get("pages", []):
+            groups.setdefault(page["page"], [])
         parts = []
-        for number, page_rows in groups.items():
+        for number, page_rows in sorted(groups.items()):
             page = next((p for p in self.raw.get("pages", []) if p.get("page") == number), {})
-            visual = self.root / "01_extract" / "visualizations" / f"page_{number}.png"
+            visual = self.store.artifact_path("extract").parent / "visualizations" / f"page_{number}.png"
             source = Path(page.get("image_path", ""))
             title = f"Trang {number}" + (f" · {source.name}" if page.get("image_path") else "")
             image = visual if visual.is_file() else source
@@ -205,6 +212,25 @@ class Review:
         parts = [f"# {self.store.steps.index(step) + 1:02d} · {step}\n", LABELS.get(status, status) + ".\n"]
         if step not in self.data:
             parts.append("Chưa có kết quả đã commit cho bước này.\n")
+        elif step == "layout":
+            parts.append("Koharu: panel và bubble trong tọa độ ảnh gốc.\n")
+            for page in output.get("pages", []):
+                overlay = next((p for p in page.get("files", {}) if "/overlays/" in p), None)
+                label = f"Trang {page['page']}: {len(page['panels'])} panel, {len(page['bubbles'])} bubble"
+                parts.append((link(label, self.root / overlay, base) if overlay else label) + "\n")
+        elif step == "bubble_geometry":
+            parts.append("Hình học là bằng chứng gợi ý; không thay thế kết luận loại câu.\n")
+            parts.append(table(["Câu", "Bubble", "Hình dạng", "Viền", "Style gợi ý", "Mapping"], (
+                (reference(r), r.get("bubble_id"), r.get("bubble_geometry", {}).get("bubble_shape"),
+                 r.get("bubble_geometry", {}).get("border_style"),r.get("bubble_geometry", {}).get("bubble_style"),
+                 r.get("bubble_mapping", {}).get("reason")) for r in output.get("texts", []))))
+        elif step == "inpaint":
+            parts.append("Nền sạch và mask; chưa đặt bản dịch vào ảnh.\n")
+            for page in output.get("pages", []):
+                parts.append(link(f"Trang {page['page']} — nền sạch", self.root / page["clean_path"], base) + "\n")
+                parts.append(table(["Text nguồn", "Cách xóa", "Nền", "Cần kiểm tra"], (
+                    (d["source_text_id"], d["method"], d["background"]["reason"],d["requires_review"])
+                    for d in page["decisions"])))
         elif step == "extract":
             rows = output.get("texts", [])
             if is_essential_policy(self.store.manifest["config"].get("dialogue_analysis")):
@@ -225,7 +251,7 @@ class Review:
             parts.append("## Text bị loại\n")
             parts.append(table(["Câu", "Text", "Lý do"], ((reference(self.row(x["source_text_id"])),
                 self.row(x["source_text_id"]).get("text"), "; ".join(REASONS.get(v, v) for v in x.get("reasons", []))) for x in output.get("excluded", []))))
-            parts.append("Text giữ nguyên xem ở " + link("extract", self.root / "01_extract" / "review.md", base) + ".\n")
+            parts.append("Text giữ nguyên xem ở " + link("extract", self.store.artifact_path("extract").parent / "review.md", base) + ".\n")
             flagged = [r for r in [*rows, *output.get("translation_only", [])] if r.get("content_review_status") == "needs_review"]
             if flagged:
                 parts.append("## Text nghi ngờ nhưng được giữ\n")
@@ -312,6 +338,11 @@ class Review:
 
     def summary(self, step):
         data = self.data.get(step, {})
+        if step in {"layout", "inpaint"}:
+            return f"{len(data.get('pages', []))} trang, {len(data.get('failures', []))} lỗi"
+        if step == "bubble_geometry":
+            stats = data.get("geometry_statistics", {})
+            return f"{stats.get('unmatched_texts', 0)} text chưa ghép bubble, {stats.get('unknown_styles', 0)} style chưa rõ"
         if step == "extract":
             return f"{len(data.get('pages', []))} trang, {len(data.get('texts', []))} text"
         if step == "normalize":
@@ -349,11 +380,12 @@ class Review:
             review = self.root / self.store.directories[step] / "review.md"
             open_link = link("Kiểm tra", review, self.root) if review.exists() or step in available_steps else "—"
             summary = self.summary(step) if step in self.data else "—"
-            lines.append(f"| {index:02d} · {step} | {cell(LABELS.get(state, state))} | {runtime(item.get('runtime_seconds'))} | {cell(summary)} | {open_link} |")
+            lines.append(f"| {index:02d} · {stage_group(step)} / {step} | {cell(LABELS.get(state, state))} | {runtime(item.get('runtime_seconds'))} | {cell(summary)} | {open_link} |")
         parts.append("\n".join(lines) + "\n")
-        visual = self.root / "01_extract" / "visualizations"
+        visual = self.store.artifact_path("extract").parent / "visualizations"
         if visual.is_dir():
-            parts.append(link("Ảnh MAGI", visual, self.root) + "\n")
+            label = "Ảnh Koharu panel + MAGI text/character" if self.store.manifest["pipeline_version"] == 5 else "Ảnh MAGI"
+            parts.append(link(label, visual, self.root) + "\n")
         if "export" in self.data:
             rows = self.data["export"].get("utterances", [])
             policy = self.data["export"].get("analysis_policy")
@@ -377,10 +409,11 @@ class Review:
 
 
 def write_reviews(store, *, steps=None):
-    review = Review(store)
-    selected = store.steps if steps is None else steps
-    for step in selected:
-        if step in store.manifest["steps"]:
-            atomic_bytes(store.directory / store.directories[step] / "review.md", review.render_step(step).encode("utf-8"))
-    atomic_bytes(store.directory / "review.md", review.render_index().encode("utf-8"))
+    with store.verification_pass():
+        review = Review(store)
+        selected = store.steps if steps is None else steps
+        for step in selected:
+            if step in store.manifest["steps"]:
+                atomic_bytes(store.directory / store.directories[step] / "review.md", review.render_step(step).encode("utf-8"))
+        atomic_bytes(store.directory / "review.md", review.render_index().encode("utf-8"))
     return store.directory / "review.md"

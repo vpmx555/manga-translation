@@ -10,15 +10,15 @@ Tên được lấy bằng offset trên text nguồn. Không tự sửa MAD01 th
 
 ### Thử lại ở ngưỡng 0.7
 
-[Review scan ngưỡng 0.7](../../outputs/after-school-we-do/chapter-001/20261004T105519Z-7340a5df/03_scan/review.md): 52 câu essential, 11 ứng viên (giảm từ 13), 0 lỗi, khoảng 11.5 giây khi model đã cache. Loại được nenenero 5 và Ah; vẫn giữ Arase Mahoru, Madoi Ayame, MAD01 AYAME, arase- San, Madol-san và Ayase-San. Nhiễu Clench, CONTRRI/BUTE và username goage04469 vẫn còn. Run thử chỉ hoàn thành đến scan, không thay tên trong bank hoặc kết quả run cũ.
+Review scan ngưỡng 0.7 (artifact local: `../../outputs/after-school-we-do/chapter-001/20261004T105519Z-7340a5df/03_scan/review.md`): 52 câu essential, 11 ứng viên (giảm từ 13), 0 lỗi, khoảng 11.5 giây khi model đã cache. Loại được nenenero 5 và Ah; vẫn giữ Arase Mahoru, Madoi Ayame, MAD01 AYAME, arase- San, Madol-san và Ayase-San. Nhiễu Clench, CONTRRI/BUTE và username goage04469 vẫn còn. Run thử chỉ hoàn thành đến scan, không thay tên trong bank hoặc kết quả run cũ.
 
 ### Ngưỡng 0.85 và lưu confidence
 
-[Review scan ngưỡng 0.85](../../outputs/after-school-we-do/chapter-001/20261004T105833Z-a2124d39/03_scan/review.md): 52 câu essential, 8 ứng viên, 0 lỗi. So với 0.7, loại CONTRRI, BUTE và cả arase- San. Arase Mahoru đạt 0.9415, Madoi Ayame 0.9561, Madol-san 0.9767. Clench vẫn đạt 0.9693 dù là ứng viên nhiễu: score cao không xác nhận đây là tên nhân vật. Confidence lưu đầy đủ trong JSON và trình bày 4 chữ số thập phân trong review. Không sửa run cũ, không ghi bank.
+Review scan ngưỡng 0.85 (artifact local: `../../outputs/after-school-we-do/chapter-001/20261004T105833Z-a2124d39/03_scan/review.md`): 52 câu essential, 8 ứng viên, 0 lỗi. So với 0.7, loại CONTRRI, BUTE và cả arase- San. Arase Mahoru đạt 0.9415, Madoi Ayame 0.9561, Madol-san 0.9767. Clench vẫn đạt 0.9693 dù là ứng viên nhiễu: score cao không xác nhận đây là tên nhân vật. Confidence lưu đầy đủ trong JSON và trình bày 4 chữ số thập phân trong review. Không sửa run cũ, không ghi bank.
 
 ### Bản đối chiếu ở ngưỡng 0.5
 
-[Mở review scan mới](../../outputs/after-school-we-do/chapter-001/20261004T104555Z-f77ddcdd/03_scan/review.md).
+Mở review scan mới (artifact local: `../../outputs/after-school-we-do/chapter-001/20261004T104555Z-f77ddcdd/03_scan/review.md`).
 
 52 câu essential, 13 ứng viên tên, 0 lỗi. Bước scan khoảng 11.4 giây khi trọng số đã có trong cache, gồm load model và inference. Kết quả tiêu biểu:
 
@@ -47,3 +47,6 @@ Run thử dừng ở scan; dùng lại MAGI, chưa chạy classify/link/export, 
 ```
 
 Nguồn model và API: [model card GLiNER small v2.5](https://huggingface.co/gliner-community/gliner_small-v2.5), [GLiNER chính thức](https://github.com/urchade/GLiNER).
+
+Các đường dẫn báo cáo trong `outputs/` ở trên là artifact local, không có sẵn
+chỉ với git clone; các tham chiếu này không thuộc tuyến điều hướng tài liệu.

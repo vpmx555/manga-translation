@@ -39,4 +39,8 @@ def view(row):
     return {"id": row["id"], "bucket": row["bucket"], "text": source["text"],
             **{key: copy.deepcopy(source[key]) for key in ("page", "reading_order", "content_type",
                "speaker_id", "speaker_name", "addressee_ids", "addressee_type", "mentions",
-               "content_review_status", "normalization_reasons") if key in source}}
+               "content_review_status", "normalization_reasons") if key in source},
+            **{key: copy.deepcopy(source[key]) for key in ("source_boxes", "bubble_id",
+               "bubble_bbox", "bubble_mapping", "bubble_geometry", "speech_style",
+               "speech_style_evidence", "speech_style_source", "speech_style_status") if key in source
+               and ("bubble_geometry" in source or "speech_style" in source)}}

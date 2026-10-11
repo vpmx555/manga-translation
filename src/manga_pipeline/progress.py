@@ -1,6 +1,7 @@
 """Sequential terminal bars; progress never participates in checkpoint state."""
 import sys
 import threading
+from .stage_groups import stage_group
 
 
 class NullProgress:
@@ -45,7 +46,7 @@ class TerminalProgress(NullProgress):
 
     def start(self, step, index, steps, *, reused=False):
         with self._lock:
-            self._prefix = f"[{index}/{steps}] {step}"
+            self._prefix = f"[{index}/{steps}] {step} ({stage_group(step)})"
             self._phase = None
             self._reused, self._failed = int(reused), 0
             self._bar = self._tqdm(total=1 if reused else None, desc=self._prefix,

@@ -1,0 +1,6 @@
+{
+  "character_character_matching_threshold": 0.75,
+  "character_detection_threshold": 0.35,
+  "layout": {"enabled": true},
+  "inpaint": {"enabled": false}
+}

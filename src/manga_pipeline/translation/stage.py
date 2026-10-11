@@ -134,7 +134,8 @@ def translate(document, source_path, directory, config, ollama_config, *, provid
     rows = targets(document)
     inputs = {"source_hash": fingerprint(document), "source_adapter": "page-text-order-v1", "config": config, "ollama": ollama_config,
               "glossary": glossary_for(glossary_path), "prompts": {
-                  s: contract.prompt(s, config["instructions"]) for s in contract.STYLES}}
+                  s: contract.prompt(s, config["instructions"], document.get("speech_style_policy"))
+                  for s in contract.STYLES}}
     if context_provider is not None:
         views = tuple({**view(row), "source_position": {
             "page": source_order(row)[0], "text_index": source_order(row)[1]}} for row in rows)

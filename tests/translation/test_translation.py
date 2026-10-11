@@ -199,7 +199,9 @@ class TranslationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             old = store_for(root)
             self.assertNotIn("translate", old.steps)
-            store = RunStore.create(Path(root) / "v4", source=old.manifest["source"], config=load_config(),
+            config = load_config()
+            config["layout"]["enabled"] = False
+            store = RunStore.create(Path(root) / "v4", source=old.manifest["source"], config=config,
                                     bank_path=old.manifest["bank_path"])
             translator = Translator()
             runner = Pipeline(store, provider=AnalysisModel(), translation_provider=translator,
@@ -220,7 +222,9 @@ class TranslationTests(unittest.TestCase):
     def test_pipeline_can_stop_at_export_then_resume_only_failed_style(self):
         with tempfile.TemporaryDirectory() as root:
             old = store_for(root)
-            store = RunStore.create(Path(root) / "v4", source=old.manifest["source"], config=load_config(),
+            config = load_config()
+            config["layout"]["enabled"] = False
+            store = RunStore.create(Path(root) / "v4", source=old.manifest["source"], config=config,
                                     bank_path=old.manifest["bank_path"])
             def fail_localized(model, task, data, value):
                 if task.endswith("localized"):

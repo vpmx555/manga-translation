@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+FROM runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404
+
+LABEL org.opencontainers.image.title="manga-translate-v2-fast"
+LABEL org.opencontainers.image.description="Prepared local-disk manga environments; real CUDA preflight still required on the Pod"
+
+ENV MANGA_RUNTIME=/workspace/manga-runtime \
+    MANGA_EXECUTION_ROOT=/opt/manga-execution \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /workspace/manga-translate-v2
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
+COPY --chown=root:root . /workspace/manga-translate-v2
+
+# Build without a GPU; this deliberately records CUDA as NOT verified. A normal
+# setup/doctor on the allocated Pod must perform the real checks before inference.
+RUN python3 -m compileall -q run.py src deployment/runpod scripts \
+    && python3 deployment/runpod/manage.py setup --prepare-only \
+    && python3 -c "import sys,tempfile,pathlib,json; sys.path.insert(0,'deployment/runpod'); import sync; p=pathlib.Path(tempfile.gettempdir())/'manga-image-bundle.zip'; m=sync.bundle(p); pathlib.Path('__bundle__.json').write_text(json.dumps(m),encoding='utf-8'); p.unlink()" \
+    && python3 -c "import shutil; shutil.rmtree('/opt/manga-execution/cache/uv',ignore_errors=True); shutil.rmtree('/workspace/manga-runtime/cache/downloads',ignore_errors=True)"
+
+# Inherit the official /start.sh SSH entrypoint and CMD.

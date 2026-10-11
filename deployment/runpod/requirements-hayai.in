@@ -1,0 +1,7 @@
+# Isolated OCR environment with the managed runtime's CUDA wheel family.
+--extra-index-url https://download.pytorch.org/whl/cu128
+-r ../../requirements-hayai.txt
+torch==2.8.0+cu128
+transformers==4.57.6
+numpy==2.2.6
+pillow==11.3.0

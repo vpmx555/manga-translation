@@ -15,6 +15,7 @@ import torch
 from PIL import Image
 
 from .identity import CharacterBank
+from ..extraction.config import DETECTION_DEFAULTS
 from .postprocessing import (
     AmbiguousMatch,
     AmbiguousMatchPostprocessor,
@@ -97,10 +98,14 @@ class DynamicCharacterAssigner:
         bank: CharacterBank,
         page_keys: Sequence[str],
         postprocessors: Sequence[AmbiguousMatchPostprocessor] = (),
+        panel_assignment: str = "legacy",
     ) -> None:
         self.bank = bank
         self.page_keys = list(page_keys)
         self.postprocessors = tuple(postprocessors)
+        if panel_assignment not in {"legacy", "overlap"}:
+            raise ValueError("Unsupported panel assignment rule")
+        self.panel_assignment = panel_assignment
         self.bank.metadata["postprocessors"] = postprocessor_manifest(self.postprocessors)
         self._current_pending_occurrences: dict[str, list[int]] = {}
         # Stable bank identity is separate from the editable display label.
@@ -161,11 +166,17 @@ class DynamicCharacterAssigner:
                         embeddings=group_embeddings,
                         representative=representative,
                         crops=crops,
-                        panel_ids={_panel_for_bbox(bboxes[index], panels) for index in indices},
+                        panel_ids={self._panel_for_character(bboxes[index], panels) for index in indices},
                     )
                 )
             global_offset += len(bboxes)
         return observations
+
+    def _panel_for_character(self, bbox, panels):
+        if self.panel_assignment == "overlap":
+            from ..extraction.document import panel_for_box
+            return panel_for_box(bbox, panels)
+        return _panel_for_bbox(bbox, panels)
 
     def _candidate_scores(
         self,
@@ -402,15 +413,21 @@ class DynamicCharacterAssigner:
         return labels
 
 
-def install_detection_patch(model, text_detection_threshold: float = 0.15,
-                            character_character_matching_threshold: float = 0.65) -> None:
-    """Set the text threshold and retain panel boxes for panel-aware constraints."""
+def install_detection_patch(model, text_detection_threshold: float = DETECTION_DEFAULTS["text_detection_threshold"],
+                            character_character_matching_threshold: float = DETECTION_DEFAULTS["character_character_matching_threshold"],
+                            *, character_detection_threshold: float = DETECTION_DEFAULTS["character_detection_threshold"],
+                            text_character_matching_threshold: float = DETECTION_DEFAULTS["text_character_matching_threshold"],
+                            text_classification_threshold: float = DETECTION_DEFAULTS["text_classification_threshold"]) -> None:
+    """Set extraction thresholds and retain panels for panel-aware constraints."""
 
     original = model.predict_detections_and_associations
 
     def patched(model_self, images, *args, **kwargs):
         kwargs.setdefault("text_detection_threshold", text_detection_threshold)
         kwargs.setdefault("character_character_matching_threshold", character_character_matching_threshold)
+        kwargs.setdefault("character_detection_threshold", character_detection_threshold)
+        kwargs.setdefault("text_character_matching_threshold", text_character_matching_threshold)
+        kwargs.setdefault("text_classification_threshold", text_classification_threshold)
         results = original(images, *args, **kwargs)
         panel_buffer = getattr(model_self, "_character_assignment_panels", None)
         if panel_buffer is None:

@@ -75,8 +75,8 @@ def environment():
     env = dict(os.environ)
     env.update({
         "HF_HOME": str(RUNTIME / "cache" / "huggingface"),
-        "UV_CACHE_DIR": str(RUNTIME / "cache" / "uv"),
-        "UV_PYTHON_INSTALL_DIR": str(RUNTIME / "python"),
+        "UV_CACHE_DIR": str(execution_root() / "cache" / "uv"),
+        "UV_PYTHON_INSTALL_DIR": str(execution_root() / "python"),
         "UV_PYTHON_PREFERENCE": "only-managed",
         "UV_HTTP_TIMEOUT": "600",
         "UV_HTTP_RETRIES": "3",
@@ -114,13 +114,100 @@ def dependency_signature(requirements=None):
     return hashlib.sha256("\n".join(values).encode()).hexdigest()[:20]
 
 
+def execution_root():
+    """Optionally keep Python/package I/O off a slow mounted data volume."""
+    return Path(os.environ.get("MANGA_EXECUTION_ROOT", str(RUNTIME)))
+
+
 def current_python():
     signature = dependency_signature()
-    marker = read_json(RUNTIME / "envs" / signature / "ready.json")
-    python = RUNTIME / "envs" / signature / "venv" / "bin" / "python"
+    marker = read_json(execution_root() / "envs" / signature / "ready.json")
+    python = execution_root() / "envs" / signature / "venv" / "bin" / "python"
     if not marker or marker.get("signature") != signature or not python.exists():
         raise RuntimeError("Environment is not ready for these requirements; run: manga setup")
     return python
+
+
+def visual_signature():
+    requirements = PROJECT / "deployment/runpod/requirements-visual.in"
+    content = (PROJECT / "requirements-visual-layout.txt").read_text(encoding="utf-8").replace("\r\n", "\n")
+    return hashlib.sha256((dependency_signature(requirements) + content).encode()).hexdigest()[:20]
+
+
+def visual_python(*, require_ready=True):
+    signature = visual_signature()
+    root = execution_root() / "envs" / ("visual-" + signature)
+    python = root / "venv/bin/python"
+    marker = read_json(root / "ready.json") if require_ready else None
+    if require_ready and (not marker or marker.get("signature") != signature or not python.exists()):
+        raise RuntimeError("Koharu environment is not ready; run: manga setup")
+    return python
+
+
+def hayai_python():
+    content = ((PROJECT / "requirements-hayai.txt").read_bytes()
+               + (PROJECT / "deployment/runpod/requirements-hayai.in").read_bytes())
+    signature = hashlib.sha256(content).hexdigest()[:20]
+    return execution_root() / "envs" / ("hayai-" + signature) / "venv/bin/python"
+
+
+def setup_hayai(uv, *, verify_cuda=True):
+    python = hayai_python()
+    root = python.parents[2]
+    ready = root / "ready.json"
+    if ready.exists() and python.exists():
+        if verify_cuda:
+            cuda_check(python)
+        return
+    root.mkdir(parents=True, exist_ok=True)
+    if not python.exists():
+        call([uv, "venv", "--python", PYTHON_VERSION, root / "venv"])
+    locked = root / "requirements.lock"
+    if not locked.exists():
+        pending = root / "requirements.lock.pending"
+        call([uv, "pip", "compile", PROJECT / "deployment/runpod/requirements-hayai.in", "--python", python,
+              "--generate-hashes", "--output-file", pending])
+        pending.replace(locked)
+    call([uv, "pip", "sync", "--python", python, "--require-hashes", locked])
+    call([uv, "pip", "check", "--python", python])
+    call([python, "-c", "from transformers import AutoProcessor, Siglip2VisionModel, PreTrainedTokenizerFast"])
+    if verify_cuda:
+        cuda_check(python)
+    atomic_json(ready, {"created_at": time.time()})
+
+
+def setup_visual(uv, *, verify_cuda=True):
+    signature = visual_signature()
+    python = visual_python(require_ready=False)
+    root = python.parents[2]
+    ready = root / "ready.json"
+    if read_json(ready, {}).get("signature") == signature and python.exists():
+        say("Koharu dependencies unchanged; reusing isolated worker")
+        if verify_cuda:
+            cuda_check(python)
+        return
+    root.mkdir(parents=True, exist_ok=True)
+    resuming = python.exists()
+    if not resuming:
+        call([uv, "venv", "--python", PYTHON_VERSION, root / "venv"])
+    locked = root / "requirements.lock"
+    if not locked.exists():
+        pending = root / "requirements.lock.pending"
+        call([uv, "pip", "compile", PROJECT / "deployment/runpod/requirements-visual.in",
+              "--python", python, "--index-strategy", "unsafe-best-match",
+              "--generate-hashes", "--output-file", pending])
+        pending.replace(locked)
+    args = [uv, "pip", "sync", "--python", python, "--require-hashes",
+            "--extra-index-url", "https://download.pytorch.org/whl/cu128",
+            "--index-strategy", "unsafe-best-match", locked]
+    if resuming:
+        args.append("--reinstall")
+    call(args)
+    call([uv, "pip", "check", "--python", python])
+    call([python, "-c", "from rfdetr import RFDETRSeg2XLarge; from importlib.metadata import version; "
+          "assert version('rfdetr')=='1.7.0'; assert version('transformers').split('.')[0]=='5'"])
+    gpu = cuda_check(python) if verify_cuda else {"verified": False, "reason": "CPU image preparation only"}
+    atomic_json(ready, {"signature": signature, "gpu": gpu, "created_at": time.time()})
 
 
 def download(url, path, digest):
@@ -157,7 +244,7 @@ def file_hash(path):
 
 
 def ensure_uv():
-    root = RUNTIME / "tools" / "uv" / UV_VERSION
+    root = execution_root() / "tools" / "uv" / UV_VERSION
     binary = root / "uv-x86_64-unknown-linux-gnu" / "uv"
     if not binary.exists():
         archive = RUNTIME / "cache" / "downloads" / f"uv-{UV_VERSION}.tar.gz"
@@ -171,7 +258,7 @@ def ensure_uv():
 
 
 def ollama_binary():
-    return RUNTIME / "tools" / "ollama" / OLLAMA_VERSION / "bin" / "ollama"
+    return execution_root() / "tools" / "ollama" / OLLAMA_VERSION / "bin" / "ollama"
 
 
 def attach_data(project=PROJECT):
@@ -224,7 +311,7 @@ def cuda_check(python):
     return json.loads(call([python, "-c", script], capture=True, timeout=120))
 
 
-def setup():
+def setup(*, verify_cuda=True):
     if sys.platform != "linux" or platform.machine() != "x86_64":
         raise RuntimeError("Setup requires a Linux x86_64 GPU Pod")
     with lock("launch"), lock("pipeline"), lock("setup"):
@@ -233,7 +320,7 @@ def setup():
         attach_data()
         uv = ensure_uv()
         signature = dependency_signature()
-        root = RUNTIME / "envs" / signature
+        root = execution_root() / "envs" / signature
         python = root / "venv" / "bin" / "python"
         ready = root / "ready.json"
         if not ready.exists() or not python.exists():
@@ -256,12 +343,15 @@ def setup():
                 sync_args.append("--reinstall")
             call(sync_args)
             call([uv, "pip", "check", "--python", python])
-            gpu = cuda_check(python)
+            gpu = cuda_check(python) if verify_cuda else {"verified": False, "reason": "CPU image preparation only"}
             atomic_json(ready, {"signature": signature, "gpu": gpu, "created_at": time.time()})
-            say("Environment installed and CUDA verified")
+            say("Environment installed" + (" and CUDA verified" if verify_cuda else "; CUDA verification deferred to the GPU Pod"))
         else:
             say("Dependencies unchanged; reusing the existing environment")
-            say(json.dumps(cuda_check(python)))
+            if verify_cuda:
+                say(json.dumps(cuda_check(python)))
+        setup_visual(uv, verify_cuda=verify_cuda)
+        setup_hayai(uv, verify_cuda=verify_cuda)
         binary = ollama_binary()
         ollama_ready = binary.parent.parent / "ready.json"
         if not binary.exists() or not ollama_ready.exists():
@@ -282,6 +372,7 @@ def setup():
         atomic_json(RUNTIME / "config/runtime.json", {
             "python": PYTHON_VERSION, "ollama": OLLAMA_VERSION, "uv": UV_VERSION,
             "host": HOST, "signature": signature,
+            "visual_signature": visual_signature(), "visual_python": str(visual_python()),
         })
         say("Setup ready. Code edits do not change the dependency signature.")
 
@@ -374,11 +465,27 @@ def stop():
 
 
 def configuration(path=None):
-    path = Path(path) if path else PROJECT / "configs/pipeline.json"
-    result = read_json(path)
+    default_path = PROJECT / "configs/pipeline.json"
+    result = read_json(default_path)
     if not isinstance(result, dict):
-        raise RuntimeError("Missing or invalid pipeline config: " + str(path))
+        raise RuntimeError("Missing or invalid pipeline config: " + str(default_path))
+    if path:
+        path = Path(path)
+        supplied = read_json(path)
+        if not isinstance(supplied, dict):
+            raise RuntimeError("Missing or invalid pipeline config: " + str(path))
+        for key, value in supplied.items():
+            if isinstance(value, dict) and isinstance(result.get(key), dict):
+                result[key].update(value)
+            else:
+                result[key] = value
     result.setdefault("ollama", {})["host"] = HOST
+    result.setdefault("ocr", {"backend": "hayai", "model": "JustANormalTinkerer/hayai-ocr-v2.5-nova",
+                              "revision": "2803d0dc005fa4396ab1e7c5a472d2c450a247f7"})
+    # Interpreter/assets belong to the persistent managed runtime, not the image.
+    result.setdefault("layout", {}).update(enabled=True, python=str(visual_python(require_ready=False)),
+                                          model_root=str(RUNTIME / "models/visual"))
+    result.setdefault("inpaint", {}).setdefault("enabled", False)
     return result
 
 
@@ -393,6 +500,13 @@ def ensure_model(config):
 
 def prefetch():
     with lock("pipeline"):
+        call([hayai_python(), "-c",
+              "from huggingface_hub import snapshot_download; "
+              "snapshot_download('JustANormalTinkerer/hayai-ocr-v2.5-nova',revision='2803d0dc005fa4396ab1e7c5a472d2c450a247f7'); "
+              "snapshot_download('google/siglip2-base-patch16-naflex',revision='b53b807d3a2d5e2b3911292f2d69e5341cdc064c',allow_patterns=['*.json','preprocessor_config.json'])"])
+        worker = visual_python()
+        call([worker, "-B", PROJECT / "scripts/setup_visual_models.py", "--only", "layout",
+              "--model-root", RUNTIME / "models/visual"])
         start()
         config = configuration()
         ensure_model(config)
@@ -412,20 +526,36 @@ def doctor(*, inference=False):
         return _doctor(inference=inference)
 
 
+def visual_preflight(config):
+    worker = visual_python()
+    script = ("import json,sys; from manga_pipeline.visual.config import LAYOUT_CONFIG,preflight; "
+              "preflight({**LAYOUT_CONFIG,**json.loads(sys.argv[1])}); print('Koharu ready')")
+    env = environment()
+    env["PYTHONPATH"] = str(PROJECT / "src")
+    subprocess.run([str(worker), "-B", "-c", script, json.dumps(config["layout"])],
+                   cwd=PROJECT, env=env, check=True)
+
+
 def _doctor(*, inference=False):
     python = current_python()
+    visual_preflight(configuration())
+    visual_gpu = cuda_check(visual_python())
+    hayai_gpu = cuda_check(hayai_python())
     gpu = cuda_check(python)
     call([ensure_uv(), "pip", "check", "--python", python])
     version = start()
     config = configuration()
     report = {"gpu": gpu, "ollama": version, "signature": dependency_signature(),
+              "visual_gpu": visual_gpu, "visual_signature": visual_signature(),
+              "hayai_gpu": hayai_gpu, "hayai_python": str(hayai_python()),
+              "execution_root": str(execution_root()),
               "runtime": str(RUNTIME), "disk_free_gb": round(shutil.disk_usage(RUNTIME).free / 2**30, 2)}
     if inference:
         model = ensure_model(config)
         reply = http("/api/chat", {
             "model": model, "stream": False, "think": False,
             "messages": [{"role": "user", "content": "Reply with the word OK."}],
-            "options": {"num_ctx": 8192, "num_predict": 32},
+            "options": {"num_ctx": config["ollama"]["num_ctx"], "num_predict": 32},
         }, timeout=600)
         if not reply.get("message", {}).get("content", "").strip():
             raise RuntimeError("Model returned empty output")
@@ -453,7 +583,6 @@ def run_pipeline(arguments):
                 "id": job_id, "status": "running", "identity": service_identity(os.getpid()),
                 "command": list(arguments), "started_at": time.time(),
             })
-        start()
         config_path = None
         args = list(arguments)
         if "--config" in args:
@@ -463,6 +592,13 @@ def run_pipeline(arguments):
             config_path = args[pos + 1]
             del args[pos:pos + 2]
         config = configuration(config_path)
+        if config.get("ocr", {}).get("backend") == "hayai":
+            if not hayai_python().exists():
+                raise RuntimeError("Hayai environment is missing; run manga setup before inference")
+            config["ocr"]["python"] = str(hayai_python())
+        if args[0] in {"run", "extract"}:
+            visual_preflight(config)
+        start()
         model = ensure_model(config)
         # MAGI owns the GPU first; release an earlier Ollama model before extraction.
         for loaded in http("/api/ps").get("models", []):
@@ -604,12 +740,12 @@ def install_update(archive):
                     old = PROJECT / name
                     if old.exists() and not old.is_symlink() and any(old.iterdir()):
                         raise RuntimeError("Unmanaged data must be backed up before updating: " + str(old))
-                PROJECT.rename(backup)
+                shutil.move(str(PROJECT), str(backup))
             try:
-                staging.rename(PROJECT)
+                shutil.move(str(staging), str(PROJECT))
             except BaseException:
                 if existed:
-                    backup.rename(PROJECT)
+                    shutil.move(str(backup), str(PROJECT))
                 raise
             atomic_json(RUNTIME / "config/code-version.json", manifest)
             say("Code updated atomically; data, caches and environments were preserved")
@@ -625,7 +761,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == "setup":
-            setup()
+            if args.arguments not in ([], ["--prepare-only"]):
+                raise ValueError("setup accepts only --prepare-only (CPU image preparation; not CUDA verification)")
+            setup(verify_cuda="--prepare-only" not in args.arguments)
         elif args.command == "start":
             start()
         elif args.command == "stop":

@@ -1,0 +1,6 @@
+# Independent Koharu worker; never sync these into MAGI's Transformers 4 venv.
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.8.0+cu128
+torchvision==0.23.0+cu128
+transformers>=5,<6
+-r ../../requirements-visual-layout.txt

@@ -26,4 +26,7 @@ Run `20261004T115947Z-569a1a27` có 49 câu hoàn thành và 3 target lỗi. P01
 
 Đây là kết quả mới của LLM, không phải nhãn tham chiếu đã xác nhận. Câu P01/T01 “Hello, everyone!” vẫn được model chọn single dù lời gọi gợi ý nhiều người; cần đánh giá lại chất lượng phân loại nhóm. Sửa schema/cache loại bỏ mâu thuẫn cấu trúc, không tự bảo đảm model hiểu đúng người nghe. Không dùng code để âm thầm đổi kết luận này thành group.
 
-Mở [review classify của run](../../outputs/after-school-we-do/chapter-001/20261004T115947Z-569a1a27/04_classify/review.md). Link/export chưa được chạy trong lần sửa lỗi này.
+Mở review classify của run (artifact local: `../../outputs/after-school-we-do/chapter-001/20261004T115947Z-569a1a27/04_classify/review.md`). Link/export chưa được chạy trong lần sửa lỗi này.
+
+Các đường dẫn báo cáo trong `outputs/` ở trên là artifact local, không có sẵn
+chỉ với git clone; các tham chiếu này không thuộc tuyến điều hướng tài liệu.

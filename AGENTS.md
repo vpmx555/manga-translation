@@ -97,3 +97,47 @@ After /clear or /compact: knowledge base and session stats preserved. Use `ctx p
 **Windows drive letters** — Sandbox runs Git Bash / MSYS2. `X:\path` → `/x/path` (lowercase, no `/mnt/`). Never emit `/mnt/<letter>/`.
 
 **Quote paths** — Spaces in paths cause splits. Always double-quote: `rg "symbol" "$REPO_ROOT/some dir/Source"`.
+
+## Runpod authorization (user instruction, 2026-10-11)
+
+Local execution is not automatic authorization for testing. Never automatically open, provision, start, connect to,
+upload to, or execute work on Runpod in any circumstances. Use Runpod only when
+the user explicitly authorizes it AND directly requests Runpod for the current task.
+Slow local execution, insufficient local GPU/VRAM, an existing pod, or prior Runpod
+usage does not grant authorization. This rule persists across sessions and takes
+precedence over Runpod workflow defaults below.
+
+## Validation scope (user instruction, 2026-10-11)
+
+Do not run long CPU/local tests or local model pilots, and do not fix individual
+content cases by repeatedly executing the pipeline locally. Static integration
+review and conflict fixes are allowed. Preparing Runpod scripts/configuration
+does not authorize deployment, infrastructure access or test execution. Run no
+tests for the current v6 Runpod preparation task unless the user requests them.
+
+## Runpod — mandatory fast-batch policy
+
+## Default input data source (user instruction, 2026-10-10)
+
+When the user says "lấy dữ liệu" (get data), use the existing local source
+`D:\download\EN-data\...` by default. Find the requested series/chapter under
+that root. This preference persists across sessions; use another source only
+when the user explicitly specifies it.
+
+Runpod stages must still automatically produce their Markdown review files.
+Agents must not read or assess those Markdown files as stage approval gates.
+
+New runs use `JustANormalTinkerer/hayai-ocr-v2.5-nova` for OCR. MAGI still
+detects text and characters; Koharu provides layout. Hayai runs in a separate
+environment (`requirements-hayai.txt`) to preserve MAGI's pinned dependencies.
+Runpod setup and prefetch must prepare that environment and model before inference.
+
+Before any Runpod planning, deployment, execution, transfer, monitoring, or teardown, read
+[`docs/news/runpod_agent_fast_policy_vi.md`](docs/news/runpod_agent_fast_policy_vi.md) completely.
+This is the project-specific policy approved on 2026-10-09: prepare before renting a GPU,
+prefer local execution storage, retain full outputs/visualizations, minimize repeated checks,
+report progress every 2 minutes, and investigate 10 minutes without measurable progress.
+Distinguish implemented features from proposed optimizations in that document; do not invent
+CLI flags, bypass integrity checks, or claim a paused/failed job is running successfully.
+Never leave a billable pod waiting for documentation, offline tests, or an agent response.
+After verified retrieval/backup, terminate only the task-owned resources authorized by the user.

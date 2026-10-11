@@ -20,9 +20,10 @@ REMOTE_PROJECT = "/workspace/manga-translate-v2"
 REMOTE_RUNTIME = "/workspace/manga-runtime"
 REMOTE_MANAGE = REMOTE_PROJECT + "/deployment/runpod/manage.py"
 SKIP = {"__pycache__", ".git", ".venv", "venv", "node_modules", ".runpod"}
-EXTENSIONS = {".py", ".json", ".md", ".txt", ".in"}
-CODE_ROOTS = ["src", "configs", "deployment/runpod", "scripts", "tests", "docs/news"]
-CODE_FILES = ["run.py", "README.md", "requirements-names.txt", "runpod.ps1"]
+EXTENSIONS = {".py", ".json", ".md", ".txt", ".in", ".ps1"}
+CODE_ROOTS = ["src", "configs", "deployment/runpod", "scripts", "tests", "docs/news", "docs/v6"]
+CODE_FILES = ["run.py", "README.md", "requirements-names.txt", "requirements-visual-layout.txt",
+              "requirements-hayai.txt", "runpod.ps1", "runpod-v6.ps1", "AGENTS.md"]
 
 
 def load_connection():
@@ -92,24 +93,78 @@ def upload(config, local, destination):
     execute([ssh_executable("scp"), *ssh_options(config, scp=True), ssh_path(local), target])
 
 
-def fetch_data(config, kind, destination):
+TRANSFER_ARCHIVE = r'''
+import contextlib, hashlib, importlib.util, json, pathlib, sys, zipfile
+project=pathlib.Path(sys.argv[1])
+runtime=pathlib.Path(sys.argv[2])
+archive=pathlib.Path(sys.argv[3])
+kind=sys.argv[4]
+story=sys.argv[5]
+chapter=sys.argv[6]
+sys.path.insert(0,str(project/'deployment/runpod'))
+import manage, sync
+archive.parent.mkdir(parents=True,exist_ok=True)
+with contextlib.ExitStack() as locks:
+    if kind in ('banks','audit') or (kind == 'outputs' and not story):
+        locks.enter_context(manage.lock('chapter-batch',timeout=30))
+        locks.enter_context(manage.lock('pipeline',timeout=30))
+    if kind == 'audit':
+        paths=[(p,'runtime/'+p.relative_to(runtime).as_posix())
+               for name in ('jobs','logs','config') for p in (runtime/name).rglob('*')
+               if p.is_file() and not p.is_symlink()]
+        paths += [(p,'runtime/'+p.relative_to(runtime).as_posix())
+                  for pattern in ('*/requirements.lock','*/ready.json')
+                  for p in (runtime/'envs').glob(pattern) if p.is_file()]
+        paths += [(p,'source/'+p.relative_to(project).as_posix()) for p in sync.code_files(project)]
+        bundle=project/'__bundle__.json'
+        if bundle.is_file():
+            paths.append((bundle,'source/__bundle__.json'))
+    else:
+        source=runtime/'data'/kind
+        if story:
+            source=source/story/chapter
+        if not source.is_dir():
+            raise RuntimeError('Remote data directory does not exist')
+        paths=[(p,p.relative_to(source).as_posix()) for p in source.rglob('*')
+               if p.is_file() and not p.is_symlink()]
+    inventory={}
+    with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=1) as zipped:
+        for path,name in sorted(paths,key=lambda pair:pair[1]):
+            if name in inventory or name == '__transfer_inventory__.json':
+                raise RuntimeError('Duplicate/reserved transfer path')
+            digest=hashlib.sha256()
+            size=0
+            with path.open('rb') as incoming, zipped.open(name,'w',force_zip64=True) as outgoing:
+                for block in iter(lambda:incoming.read(1024*1024),b''):
+                    digest.update(block)
+                    size+=len(block)
+                    outgoing.write(block)
+            inventory[name]={'bytes':size,'sha256':digest.hexdigest()}
+        zipped.writestr('__transfer_inventory__.json',json.dumps({'format':1,'files':inventory},sort_keys=True))
+print(json.dumps({'kind':kind,'files':len(inventory),'bytes':sum(p['bytes'] for p in inventory.values())}))
+'''
+
+
+def fetch_data(config, kind, destination, *, story=None, chapter=None):
+    if (story is None) != (chapter is None):
+        raise ValueError("Filtered output fetch requires both story and chapter")
+    if story is not None:
+        if kind != "outputs":
+            raise ValueError("Only output downloads can be filtered by chapter")
+        for value in (story, chapter):
+            if not value or value in {".", ".."} or any(c in value for c in "/\\\r\n"):
+                raise ValueError("Unsafe chapter download target")
+        destination = destination / story / chapter
     destination = destination.resolve()
     if destination.exists():
         raise RuntimeError("Download destination already exists; choose a new backup folder")
-    if kind not in {"outputs", "banks"}:
-        raise ValueError("Only outputs or banks can be downloaded")
+    if kind not in {"outputs", "banks", "audit"}:
+        raise ValueError("Only outputs, banks or audit can be downloaded")
     destination.parent.mkdir(parents=True, exist_ok=True)
     archive = REMOTE_RUNTIME + "/outgoing/" + uuid.uuid4().hex + ".zip"
-    script = (
-        "import pathlib,sys,zipfile; source=pathlib.Path(sys.argv[1]); "
-        "archive=pathlib.Path(sys.argv[2]); archive.parent.mkdir(parents=True,exist_ok=True); "
-        "assert source.is_dir(), 'Remote data directory does not exist'; "
-        "z=zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=1); "
-        "[z.write(p,p.relative_to(source).as_posix()) for p in source.rglob('*') "
-        "if p.is_file() and not p.is_symlink()]; z.close()"
-    )
     try:
-        remote(config, ["python3", "-c", script, REMOTE_RUNTIME + "/data/" + kind, archive])
+        remote(config, ["python3", "-c", TRANSFER_ARCHIVE, REMOTE_PROJECT, REMOTE_RUNTIME,
+                        archive, kind, story or "", chapter or ""])
         STATE.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="fetch-", dir=STATE) as temporary:
             local = Path(temporary) / "data.zip"
@@ -120,8 +175,23 @@ def fetch_data(config, kind, destination):
                     name = PurePosixPath(info.filename)
                     if name.is_absolute() or ".." in name.parts or "\\" in info.filename or ":" in info.filename:
                         raise RuntimeError("Unsafe path in downloaded archive")
+                inventory = json.loads(zipped.read("__transfer_inventory__.json"))
+                expected = inventory.get("files", {})
+                names = [i.filename for i in zipped.infolist() if not i.is_dir()]
+                if (inventory.get("format") != 1 or len(names) != len(set(names))
+                        or set(names) != {*expected, "__transfer_inventory__.json"}):
+                    raise RuntimeError("Transfer archive inventory mismatch")
+                # Reading each ZipExtFile through EOF verifies CRC during extraction.
                 zipped.extractall(destination)
-        print(f"Downloaded {kind}: {destination}", flush=True)
+            for relative, receipt in expected.items():
+                path = destination / relative
+                digest = hashlib.sha256()
+                with path.open("rb") as incoming:
+                    for block in iter(lambda: incoming.read(1024 * 1024), b""):
+                        digest.update(block)
+                if path.stat().st_size != receipt["bytes"] or digest.hexdigest() != receipt["sha256"]:
+                    raise RuntimeError("Downloaded file checksum failed: " + relative)
+        print(f"Downloaded and verified {kind}: {destination}", flush=True)
     finally:
         remote(config, ["python3", "-c", "import pathlib,sys; pathlib.Path(sys.argv[1]).unlink(missing_ok=True)", archive])
 
@@ -217,7 +287,9 @@ def push_input(config, folder, chapter):
                   "assert not dst.exists(), 'Chapter already exists; use another name'; "
                   "z=zipfile.ZipFile(src); "
                   "assert all(Path(n).name==n and n not in ('.','..') for n in z.namelist()), 'Unsafe path'; "
-                  "dst.mkdir(parents=True); z.extractall(dst); z.close(); src.unlink(); print(dst)")
+                  "staging=dst.with_name('.'+dst.name+'-'+src.stem); "
+                  "staging.mkdir(parents=True); z.extractall(staging); z.close(); "
+                  "staging.replace(dst); src.unlink(); print(dst)")
         remote(config, ["python3", "-c", script])
     return destination
 
@@ -248,8 +320,10 @@ def main(argv=None):
         pipeline = commands.add_parser(name, help="Run this pipeline command on the Pod")
         pipeline.add_argument("arguments", nargs=argparse.REMAINDER)
     fetch = commands.add_parser("fetch", help="Download outputs or banks without overwriting existing folders")
-    fetch.add_argument("kind", choices=["outputs", "banks"])
+    fetch.add_argument("kind", choices=["outputs", "banks", "audit"])
     fetch.add_argument("destination", type=Path)
+    fetch.add_argument("--story", help="Output story key; requires --chapter")
+    fetch.add_argument("--chapter", help="Download only this completed output chapter into destination/story/chapter")
     passthrough = {"run", "extract", "resume", "reanalyze", "translate", "review"}
     if tokens and tokens[0] in passthrough and tokens[1:] not in [["--help"], ["-h"]]:
         args = argparse.Namespace(command=tokens[0], arguments=tokens[1:])
@@ -272,7 +346,7 @@ def main(argv=None):
         elif args.command == "input":
             push_input(config, args.folder, args.chapter)
         elif args.command == "fetch":
-            fetch_data(config, args.kind, args.destination)
+            fetch_data(config, args.kind, args.destination, story=args.story, chapter=args.chapter)
         else:
             command = ["python3", REMOTE_MANAGE, args.command]
             if args.command == "logs":

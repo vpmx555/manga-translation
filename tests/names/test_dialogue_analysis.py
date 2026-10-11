@@ -251,7 +251,9 @@ class DialogueAnalysisTests(unittest.TestCase):
             visual = old.directory / "01_extract" / "visualizations" / "page_1.png"
             visual.parent.mkdir(parents=True)
             visual.write_bytes(b"test visual")
-            fresh = reanalyze_run(old.directory, Path(root) / "new_outputs", load_config())
+            config = load_config()
+            config["layout"]["enabled"] = False
+            fresh = reanalyze_run(old.directory, Path(root) / "new_outputs", config)
             self.assertEqual(fresh.read("extract"), old.read("extract"))
             self.assertFalse(fresh.completed("normalize"))
             self.assertEqual(fresh.manifest["bank_path"], old.manifest["bank_path"])

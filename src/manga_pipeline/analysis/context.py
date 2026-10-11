@@ -15,6 +15,8 @@ def memory(previous):
     return [{"utterance_id": row["utterance_id"], "content_type": row["content_type"],
              "speaker_id": row["speaker_id"], "addressee_type": row["addressee_type"],
              "addressee_ids": row["addressee_ids"], "evidence": row.get("evidence", ""),
+             **{k: copy.deepcopy(row[k]) for k in ("speech_style", "speech_style_evidence",
+                 "speech_style_source", "speech_style_status") if k in row},
              "names": [{"name": m["name"], "id": m["name_target_id"], "role": m["mention_type"]}
                        for m in row.get("mentions", []) if m.get("name_target_id") is not None
                        and m.get("binding_status") in {"linked", "protected", "known"}]}
@@ -53,7 +55,7 @@ def identities(rows, index, mentions, previous, bank, names):
     return sorted(pool.values(), key=lambda candidate: candidate["id"])
 
 
-def request_for(rows, start, mentions, previous, bank, speaker_policy=None):
+def request_for(rows, start, mentions, previous, bank, speaker_policy=None, speech_style_policy=None):
     batch, names = rows[start:start + 3], known_names(bank)
     targets = []
     for index in range(start, start + len(batch)):
@@ -64,8 +66,12 @@ def request_for(rows, start, mentions, previous, bank, speaker_policy=None):
                            for c in mentions.get(row["id"], [])],
             "identity_candidates": identities(rows, index, mentions, previous, bank, names)})
     return {"policy": POLICY, **({"speaker_policy": speaker_policy} if speaker_policy is not None else {}),
+            **({"speech_style_policy": speech_style_policy} if speech_style_policy else {}),
             "targets": targets, "memory": memory(previous),
-            "turns": [{"id": r["id"], "text": r["text"], "source_speaker_id": r.get("speaker_id")}
+            "turns": [{"id": r["id"], "text": r["text"], "source_speaker_id": r.get("speaker_id"),
+                       **({"bubble_geometry": copy.deepcopy(r["bubble_geometry"])} if "bubble_geometry" in r else {}),
+                       **({k: copy.deepcopy(r[k]) for k in ("bubble_mapping", "source_boxes") if k in r}
+                          if speech_style_policy else {})}
                       for r in rows[max(0, start - 2):start + len(batch) + 2]]}
 
 

@@ -85,6 +85,9 @@ def normalize_document(raw: dict, *, overrides: dict | None = None, merge_groups
             if noise_rules is not None:
                 entry.update(page_id=source.get("page_id"), text_index=source.get("text_index"),
                              bbox=copy.deepcopy(source.get("bbox")), panel_index=source.get("panel_index"))
+            for field in ("bubble_id", "bubble_bbox", "bubble_mapping", "bubble_geometry"):
+                if field in source:
+                    entry[field] = copy.deepcopy(source[field])
             translation_only.append(entry)
             if progress is not None:
                 progress.advance()
@@ -117,12 +120,23 @@ def normalize_document(raw: dict, *, overrides: dict | None = None, merge_groups
                     "source_text_ids": [source["id"]],
                     "source_boxes": [{"source_text_id": source["id"], "page": source.get("page"),
                                       "page_id": source.get("page_id"), "bbox": copy.deepcopy(source.get("bbox")),
-                                      "panel_index": source.get("panel_index")}],
+                                      "panel_index": source.get("panel_index"),
+                                      **{k: copy.deepcopy(source[k]) for k in
+                                         ("bubble_id", "bubble_bbox", "bubble_mapping", "bubble_geometry")
+                                         if k in source}}],
                     "content_type": kind, "content_review_status": review,
                     "normalization_reasons": reasons})
         utterances.append(row)
         if progress is not None:
             progress.advance()
+    # Even excluded/nonessential records retain their own visual provenance.
+    sources = {row["id"]: row for row in raw["texts"]}
+    for row in [*excluded, *translation_only]:
+        source = sources[row["source_text_id"]]
+        for field in ("page", "page_id", "bbox", "panel_index", "bubble_id", "bubble_bbox",
+                      "bubble_mapping", "bubble_geometry"):
+            if field in source:
+                row.setdefault(field, copy.deepcopy(source[field]))
     positions = {row["source_text_ids"][0]: i for i, row in enumerate(utterances)}
     grouped, consumed = {}, set()
     for group in merge_groups or []:
@@ -153,9 +167,12 @@ def normalize_document(raw: dict, *, overrides: dict | None = None, merge_groups
             raise ValueError("Merging across page, panel, content type or speaker is unsupported")
         combined = copy.deepcopy(first)
         combined.update({"text": " ".join(r["text"] for r in rows),
-                         "text_original": [r["text_original"] for r in rows], "source_text_ids": ids,
-                         "source_boxes": [box for r in rows for box in r["source_boxes"]],
-                         "bbox": None, "merge_reason": group["reason"], "merge_status": "confirmed"})
+                          "text_original": [r["text_original"] for r in rows], "source_text_ids": ids,
+                          "source_boxes": [box for r in rows for box in r["source_boxes"]],
+                          "bbox": None, "merge_reason": group["reason"], "merge_status": "confirmed"})
+        if len({r.get("bubble_id") for r in rows}) > 1:
+            for field in ("bubble_id", "bubble_bbox", "bubble_mapping", "bubble_geometry"):
+                combined.pop(field, None)
         grouped[indices[0]] = combined
         consumed.update(indices)
     utterances = [grouped[i] if i in grouped else row for i, row in enumerate(utterances)

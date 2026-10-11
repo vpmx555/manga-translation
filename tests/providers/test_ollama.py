@@ -21,6 +21,23 @@ class CacheValidator:
 
 
 class OllamaTests(unittest.TestCase):
+    def test_translation_budget_does_not_change_analysis_or_config(self):
+        with tempfile.TemporaryDirectory() as root:
+            config = copy.deepcopy(DEFAULT_CONFIG["ollama"])
+            config["num_ctx"] = 16384
+            config["num_predict"] = 768
+            provider = Ollama(config, root)
+            provider.digest = "test"
+            budgets = []
+            def http(route, body=None):
+                budgets.append(body["options"]["num_predict"])
+                return {"done": True, "message": {"content": "{}"}}
+            provider.http = http
+            provider.infer_once("translate_vi_natural", "p", {}, {}, lambda _: None)
+            provider.infer_once("classify_dialogue", "p", {}, {}, lambda _: None)
+            self.assertEqual(budgets, [2048, 768])
+            self.assertEqual(config["num_predict"], 768)
+
     def test_semantically_invalid_live_response_is_returned_but_not_cached(self):
         with tempfile.TemporaryDirectory() as root:
             provider = Ollama(DEFAULT_CONFIG["ollama"], root)

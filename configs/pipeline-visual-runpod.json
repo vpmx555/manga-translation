@@ -1,0 +1,18 @@
+{
+  "ocr": {
+    "backend": "hayai",
+    "model": "JustANormalTinkerer/hayai-ocr-v2.5-nova",
+    "revision": "2803d0dc005fa4396ab1e7c5a472d2c450a247f7"
+  },
+  "character_character_matching_threshold": 0.75,
+  "character_detection_threshold": 0.35,
+  "layout": {
+    "enabled": true,
+    "python": null,
+    "model_root": "/workspace/manga-runtime/models/visual"
+  },
+  "inpaint": {
+    "enabled": false,
+    "model_root": "/workspace/manga-runtime/models/visual"
+  }
+}

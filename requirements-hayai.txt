@@ -1,0 +1,5 @@
+# Install in a separate environment; MAGI retains Transformers 4.44.2.
+transformers>=4.51,<5
+torch>=2.5
+numpy>=1.26
+Pillow>=10

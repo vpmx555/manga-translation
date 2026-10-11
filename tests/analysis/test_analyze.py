@@ -19,6 +19,8 @@ from manga_pipeline.storage.runs import ANALYZE_STEPS, RunStore
 def store_for(root, characters=None, *, legacy=False):
     old = make_store(root, characters)
     config = load_config()
+    # This fixture intentionally exercises the saved MAGI-only v3 contract.
+    config["layout"]["enabled"] = False
     config.pop("translation")
     config.pop("noise_filter")
     store = RunStore.create(Path(root) / "new", source=old.manifest["source"], config=config,

@@ -2,6 +2,7 @@
 import hashlib
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 import tempfile
@@ -24,6 +25,116 @@ sync = module("runpod_sync_tests", "sync.py")
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_filtered_output_backup_preserves_story_chapter_layout(self):
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "outputs"
+
+            def download(args):
+                with zipfile.ZipFile(args[-1], "w") as archive:
+                    archive.writestr("run/manifest.json", '{}')
+
+            with patch.object(sync, "STATE", Path(temp) / "state"), \
+                 patch.object(sync, "remote", return_value=0) as remote, \
+                 patch.object(sync, "execute", side_effect=download), \
+                 patch.object(sync, "ssh_path", side_effect=str), \
+                 patch.object(sync, "ssh_options", return_value=[]), \
+                 patch.object(sync, "ssh_executable", return_value="scp"):
+                sync.fetch_data({"host": "example"}, "outputs", destination, story="iris-zero", chapter="chapter-001")
+            command = remote.call_args_list[0].args[1]
+            self.assertTrue(command[3].endswith("/data/outputs/iris-zero/chapter-001"))
+            self.assertTrue((destination / "iris-zero/chapter-001/run/manifest.json").is_file())
+            with self.assertRaisesRegex(ValueError, "Unsafe"):
+                sync.fetch_data({}, "outputs", destination, story="../escape", chapter="chapter-001")
+
+    def test_audit_backup_downloads_source_and_runtime_metadata(self):
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "audit"
+
+            def download(args):
+                with zipfile.ZipFile(args[-1], "w") as archive:
+                    archive.writestr("runtime/jobs/batch/state.json", '{"status":"completed"}')
+                    archive.writestr("source/__bundle__.json", '{"files":{}}')
+
+            with patch.object(sync, "STATE", Path(temp) / "state"), \
+                 patch.object(sync, "remote", return_value=0) as remote, \
+                 patch.object(sync, "execute", side_effect=download), \
+                 patch.object(sync, "ssh_path", side_effect=str), \
+                 patch.object(sync, "ssh_options", return_value=[]), \
+                 patch.object(sync, "ssh_executable", return_value="scp"):
+                sync.fetch_data({"host": "example"}, "audit", destination)
+            command = remote.call_args_list[0].args[1]
+            compile(command[2], "audit-archive", "exec")
+            self.assertIn("module.code_files(project)", command[2])
+            self.assertIn("('jobs','logs','config')", command[2])
+            self.assertTrue((destination / "runtime/jobs/batch/state.json").is_file())
+
+    def test_fast_execution_root_keeps_data_and_models_on_runtime_volume(self):
+        with patch.object(manager, "RUNTIME", Path("/volume")), \
+             patch.dict(os.environ, {"MANGA_EXECUTION_ROOT": "/fast"}):
+            env = manager.environment()
+            self.assertEqual(Path(env["UV_CACHE_DIR"]), Path("/fast/cache/uv"))
+            self.assertEqual(Path(env["UV_PYTHON_INSTALL_DIR"]), Path("/fast/python"))
+            self.assertEqual(Path(env["OLLAMA_MODELS"]), Path("/volume/models/ollama"))
+            self.assertEqual(Path(env["HF_HOME"]), Path("/volume/cache/huggingface"))
+            self.assertEqual(manager.visual_python(require_ready=False).parents[3], Path("/fast/envs"))
+
+    def test_visual_signature_is_separate_and_tracks_both_requirements(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            requirements = root / "deployment/runpod/requirements-visual.in"
+            requirements.parent.mkdir(parents=True)
+            requirements.write_text("transformers>=5,<6\n", encoding="utf-8")
+            shared = root / "requirements-visual-layout.txt"
+            shared.write_text("rfdetr==1.7.0\n", encoding="utf-8")
+            with patch.object(manager, "PROJECT", root), patch.object(manager, "RUNTIME", root / "runtime"):
+                signature = manager.visual_signature()
+                python = manager.visual_python(require_ready=False)
+                self.assertIn("visual-" + signature, str(python))
+                with self.assertRaisesRegex(RuntimeError, "Koharu environment"):
+                    manager.visual_python()
+                shared.write_text("rfdetr==1.7.0\npillow==11.3.0\n", encoding="utf-8")
+                self.assertNotEqual(signature, manager.visual_signature())
+
+    def test_prepare_only_never_claims_or_requests_cuda_verification(self):
+        with patch.object(manager, "setup") as setup:
+            self.assertEqual(manager.main(["setup", "--prepare-only"]), 0)
+            setup.assert_called_once_with(verify_cuda=False)
+        with patch.object(manager, "setup") as setup:
+            self.assertEqual(manager.main(["setup"]), 0)
+            setup.assert_called_once_with(verify_cuda=True)
+        with patch.object(manager, "RUNTIME", Path("/volume")), \
+             patch.dict(os.environ, {"MANGA_EXECUTION_ROOT": "/fast"}):
+            self.assertEqual(manager.ollama_binary(), Path("/fast/tools/ollama") / manager.OLLAMA_VERSION / "bin/ollama")
+
+    def test_visual_setup_is_isolated_locked_and_idempotent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = Path(temp)
+            calls = []
+
+            def call(args, **kwargs):
+                calls.append([str(a) for a in args])
+                if args[1] == "venv":
+                    python = Path(args[-1]) / "bin/python"
+                    python.parent.mkdir(parents=True)
+                    python.touch()
+                if args[1:3] == ["pip", "compile"]:
+                    Path(args[-1]).write_text("locked hashes", encoding="utf-8")
+                return 0
+
+            with patch.object(manager, "RUNTIME", runtime), patch.object(manager, "call", side_effect=call), \
+                 patch.object(manager, "cuda_check", return_value={"gpu": "fake"}):
+                manager.setup_visual("uv")
+                worker = manager.visual_python()
+                self.assertIn("visual-", str(worker))
+                self.assertEqual(worker.parents[2].parent, runtime / "envs")
+                sync_args = next(args for args in calls if args[1:3] == ["pip", "sync"])
+                self.assertIn("--require-hashes", sync_args)
+                self.assertIn(str(worker), sync_args)
+                self.assertTrue(any("RFDETRSeg2XLarge" in " ".join(args) for args in calls))
+                count = len(calls)
+                manager.setup_visual("uv")
+                self.assertEqual(len(calls), count)
+
     def make_valid_update(self, root):
         source = root / "source"
         for name in ["run.py", "src/manga_pipeline/cli/main.py", "deployment/runpod/manage.py"]:
@@ -122,6 +233,31 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(first, manager.dependency_signature(requirements))
             requirements.write_text("torch==2.9.0\n", encoding="utf-8")
             self.assertNotEqual(first, manager.dependency_signature(requirements))
+
+    def test_sparse_visual_config_inherits_default_ollama_model(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            configs = root / "configs"
+            configs.mkdir()
+            (configs / "pipeline.json").write_text(json.dumps({
+                "ollama": {"model": "test-model", "num_ctx": 8192},
+                "character_character_matching_threshold": 0.85,
+            }), encoding="utf-8")
+            custom = configs / "visual.json"
+            custom.write_text(json.dumps({
+                "character_character_matching_threshold": 0.8,
+                "layout": {"enabled": True},
+            }), encoding="utf-8")
+            with patch.object(manager, "PROJECT", root), \
+                 patch.object(manager, "visual_python", return_value=Path("/managed/visual/bin/python")):
+                config = manager.configuration(custom)
+            self.assertEqual(config["ollama"], {
+                "model": "test-model", "num_ctx": 8192, "host": manager.HOST,
+            })
+            self.assertEqual(config["character_character_matching_threshold"], 0.8)
+            self.assertTrue(config["layout"]["enabled"])
+            self.assertEqual(config["layout"]["python"], str(Path("/managed/visual/bin/python")))
+            self.assertFalse(config["inpaint"]["enabled"])
 
     def test_bundle_excludes_credentials_caches_and_generated_artifacts(self):
         with tempfile.TemporaryDirectory() as temp:

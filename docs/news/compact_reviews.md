@@ -27,4 +27,7 @@ Các file được tạo sau mỗi bước và khi resume. Run cũ của pipelin
 
 Lệnh chỉ đọc artifact đã lưu và ghi review. Không gọi lại MAGI, NER, LLM/VLM, không thay config/checkpoint/bank. Review có thể tạo lại; sửa nó không chỉnh kết quả xử lý.
 
-[Mở review của run After School, We Do](../../outputs/after-school-we-do/chapter-001/20261004T041854Z-0eb4b189/review.md). JSON và targets vẫn được giữ cho chương trình resume/chẩn đoán, nhưng không cần mở chúng để kiểm tra thông thường.
+Mở review của run After School, We Do (artifact local: `../../outputs/after-school-we-do/chapter-001/20261004T041854Z-0eb4b189/review.md`). JSON và targets vẫn được giữ cho chương trình resume/chẩn đoán, nhưng không cần mở chúng để kiểm tra thông thường.
+
+Các đường dẫn báo cáo trong `outputs/` ở trên là artifact local, không có sẵn
+chỉ với git clone; các tham chiếu này không thuộc tuyến điều hướng tài liệu.

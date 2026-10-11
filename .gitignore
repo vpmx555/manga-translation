@@ -228,6 +228,10 @@ runs/
 outputs/
 banks/
 models/ner/
+models/visual/
+.venv-layout-local/
+.venv-hayai-local/
+models/ocr/
 
 # Local conversation journals
 codex-session-*.md

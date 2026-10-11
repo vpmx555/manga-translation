@@ -13,6 +13,10 @@ PROMPT = (
     "Analyze every target in source order, using only its context_ids, supplied stable IDs and prior memory. "
     "Return every target/name candidate exactly once. Source MAGI speaker IDs are fallible hints, not proof. "
     "No scenes, reading-order changes, images or reasoning output. "
+    "Optional bubble_geometry is deterministic visual evidence, not semantic truth: "
+    "cloud/thought_hint, spiky/shout_hint, rectangular/caption_hint and dashed/whisper_hint are fallible. "
+    "Combine them with wording and context; they do not prove content type, speaker or recipient. "
+    "Unknown geometry supplies no positive evidence. "
     "Choose the PRIMARY function: narration reports a story or presents/describes people or events; "
     "it can be a caption or an actual character's presentation. Not every informative sentence is narration. "
     "Dialogue primarily interacts: greeting, calling, asking, answering, requesting or responding. "
@@ -58,19 +62,26 @@ def speakers(speaker_policy=None):
     raise ValueError("Unsupported speaker policy")
 
 
-def prompt(speaker_policy=None):
+def prompt(speaker_policy=None, speech_style_policy=None):
     speakers(speaker_policy)
+    from . import speech
+    if speech_style_policy not in (None, speech.POLICY):
+        raise ValueError("Unsupported speech style policy")
+    suffix = speech.PROMPT if speech_style_policy else ""
     if speaker_policy is None:
-        return PROMPT
+        return PROMPT + suffix
     begin = PROMPT.index("groups means")
     end = PROMPT.index("addressee_type:", begin)
     return (PROMPT[:begin] +
             "Use narrator only when content_type is narration. Narration may also have a supplied "
             "stable ID or others as speaker. If joint speech cannot be attributed to a supported "
-            "individual, use others; do not assign it to an arbitrary character. " + PROMPT[end:])
+            "individual, use others; do not assign it to an arbitrary character. " + PROMPT[end:] + suffix)
 
 
-def schema(targets, speaker_policy=None):
+def schema(targets, speaker_policy=None, speech_style_policy=None):
+    from . import speech
+    if speech_style_policy not in (None, speech.POLICY):
+        raise ValueError("Unsupported speech style policy")
     speaker_labels = speakers(speaker_policy)
     branches = []
     for target in targets:
@@ -90,7 +101,10 @@ def schema(targets, speaker_policy=None):
             "addressee_type": {"enum": sorted(ADDRESS)},
             "addressee_ids": {"type": "array", "minItems": 1, "uniqueItems": True,
                               "items": {"enum": [*ids, *LISTENERS]}},
-            "mentions": mentions, "evidence": {"type": "string", "maxLength": 120}}))
+            "mentions": mentions, "evidence": {"type": "string", "maxLength": 120},
+            **({"speech_style": {"enum": list(speech.LABELS)},
+                "speech_style_evidence": {"type": "string", "minLength": 1, "maxLength": 120}}
+               if speech_style_policy else {})}))
     return object_schema({"utterances": {"type": "array", "minItems": len(targets),
         "maxItems": len(targets), "items": {"anyOf": branches}}})
 

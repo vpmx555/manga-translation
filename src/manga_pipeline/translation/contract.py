@@ -23,8 +23,11 @@ STYLE_PROMPTS = {
 }
 
 
-def prompt(style, instructions=""):
-    return PROMPT + STYLE_PROMPTS[style] + (" User instructions: " + instructions if instructions else "")
+def prompt(style, instructions="", speech_style_policy=None):
+    visual = (" speech_style is a provisional semantic conclusion, distinct from fallible bubble_geometry "
+              "hints. Respect unknown/needs_review; do not invent tone or amplify emotion based only on "
+              "geometry. Do not reclassify identities or speech style. " if speech_style_policy else "")
+    return PROMPT + STYLE_PROMPTS[style] + visual + (" User instructions: " + instructions if instructions else "")
 
 
 def schema(ids):

@@ -2,7 +2,7 @@
 
 Các ví dụ bên dưới là run v2 đã lưu, có classify/link riêng. Run v3 mới dùng `04_analyze` và `05_export`; xem [hướng dẫn chạy và đọc kết quả hiện tại](usage.md#đọc-kết-quả-nhanh).
 
-Để kiểm tra nhanh, mở [review tổng quan](../../outputs/after-school-we-do/chapter-001/20261004T041854Z-0eb4b189/review.md), rồi các file `review.md` từng bước. Chúng chỉ giữ thông tin cần đọc; không có hash, UUID, box arrays hoặc metadata checkpoint. Nội dung bên dưới là hướng dẫn JSON chi tiết khi cần chẩn đoán sâu.
+Để kiểm tra nhanh, mở review tổng quan (artifact local: `../../outputs/after-school-we-do/chapter-001/20261004T041854Z-0eb4b189/review.md`), rồi các file `review.md` từng bước. Chúng chỉ giữ thông tin cần đọc; không có hash, UUID, box arrays hoặc metadata checkpoint. Nội dung bên dưới là hướng dẫn JSON chi tiết khi cần chẩn đoán sâu.
 
 Ví dụ trong tài liệu lấy từ run đã hoàn thành:
 
@@ -231,3 +231,6 @@ Mở [metadata.json](../../banks/after-school-we-do/metadata.json) và [thư m�
 ```
 
 Resume chỉ xử lý phần lỗi/chưa commit. Kết quả hợp lệ nhưng sai về nội dung, skipped hay unknown đã completed không được tự chạy lại để đoán khác. Không sửa trực tiếp artifact/target/config đã commit rồi resume: hash sẽ báo artifact/input thay đổi. Chỉnh tên qua bank; thay đổi xử lý/schema/config cần lượt chạy mới phù hợp.
+
+Các đường dẫn báo cáo trong `outputs/` ở trên là artifact local, không có sẵn
+chỉ với git clone; các tham chiếu này không thuộc tuyến điều hướng tài liệu.

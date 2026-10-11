@@ -36,12 +36,19 @@ class Ollama:
                 raise RuntimeError(f"Ollama model is not installed: {self.config['model']}")
             self.digest = model["digest"]
         reserve = 2048 if images else 0
-        estimate = len(json.dumps(data).encode()) / 2 + len(prompt) / 2 + reserve + self.config["num_predict"] + 512
+        # Translation batches include several texts plus review/glossary fields.
+        # 768 tokens can truncate valid JSON, especially on noisy OCR credits.
+        num_predict = max(self.config["num_predict"], 2048) if task.startswith("translate_vi_") or task == "analyze_dialogue_v6" else self.config["num_predict"]
+        if task.startswith("translate_vi_"):
+            prompt += (" Preserve URLs and email addresses verbatim; do not translate or expand them."
+                       " For corrupted OCR, give a concise best effort and flag needs_review."
+                       " Never expand repeated source fragments. Keep review_reason under 30 words.")
+        estimate = len(json.dumps(data).encode()) / 2 + len(prompt) / 2 + reserve + num_predict + 512
         if estimate > self.config["num_ctx"]:
             raise ValueError("Request exceeds context budget; shorten source text/config or use a larger context")
         request = {"model": self.config["model"], "stream": False, "think": False,
                    "keep_alive": "5m", "format": schema,
-                   "options": {"num_ctx": self.config["num_ctx"], "num_predict": self.config["num_predict"],
+                   "options": {"num_ctx": self.config["num_ctx"], "num_predict": num_predict,
                                "temperature": 0},
                    "messages": [{"role": "system", "content": prompt},
                                 {"role": "user", "content": json.dumps(data, ensure_ascii=False),
@@ -62,10 +69,11 @@ class Ollama:
         error = None
         retry_count = self.config["retries"] if retries is None else retries
         for attempt in range(retry_count + 1):
+            response, result = None, None
             try:
                 self.used = True
                 attempt_request = request
-                if task == "classify_dialogue" and attempt and isinstance(error, (ValueError, KeyError, TypeError)):
+                if attempt and isinstance(error, (ValueError, KeyError, TypeError)):
                     attempt_request = copy.deepcopy(request)
                     attempt_request["messages"][0]["content"] += (
                         " Previous response was rejected: " + str(error)[:200] +
@@ -73,7 +81,7 @@ class Ollama:
                 response = self.http("/api/chat", attempt_request)
                 if response.get("done") is not True or response.get("done_reason") == "length":
                     raise ValueError("Incomplete model response")
-                if (response.get("prompt_eval_count") or 0) + self.config["num_predict"] + 512 > self.config["num_ctx"]:
+                if (response.get("prompt_eval_count") or 0) + num_predict + 512 > self.config["num_ctx"]:
                     raise ValueError("Actual prompt exceeded context reserve")
                 result = json.loads(response["message"]["content"])
                 validator(result)
@@ -90,6 +98,11 @@ class Ollama:
                 return result
             except (ValueError, KeyError, TypeError, OSError) as exc:
                 error = exc
+                if response is not None:
+                    atomic_json(self.cache_dir / "rejected" / (key+f"-{attempt}.json"), {
+                        "key":key,"task":task,"attempt":attempt,"error":str(exc),"result":result,
+                        "response_text":response.get("message", {}).get("content") if result is None else None,
+                        "usage":{k:response.get(k) for k in ("prompt_eval_count", "eval_count", "total_duration")}})
                 if attempt < retry_count:
                     time.sleep(0.2)
         raise RuntimeError(f"{task} failed after retry: {error}") from error

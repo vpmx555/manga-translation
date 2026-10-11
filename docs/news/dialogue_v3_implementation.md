@@ -40,12 +40,15 @@ Bốn kiểm tra mục tiêu đều đạt trong lần chạy này. Model vẫn 
 
 ## Kết quả để kiểm tra
 
-- [Review tổng](../../outputs/diagnostics/analyze-v3-20261005-01/run/review.md): mở đầu tiên, có link từng bước và ảnh.
-- [Review analyze](../../outputs/diagnostics/analyze-v3-20261005-01/run/04_analyze/review.md): loại câu, speaker, addressee, một tập ứng viên chung, tên/vai trò/ID, bằng chứng ngắn và cảnh báo.
-- [Review export](../../outputs/diagnostics/analyze-v3-20261005-01/run/05_export/review.md): kết quả cuối để đối chiếu.
+- Review tổng (artifact local: `../../outputs/diagnostics/analyze-v3-20261005-01/run/review.md`): mở đầu tiên, có link từng bước và ảnh.
+- Review analyze (artifact local: `../../outputs/diagnostics/analyze-v3-20261005-01/run/04_analyze/review.md`): loại câu, speaker, addressee, một tập ứng viên chung, tên/vai trò/ID, bằng chứng ngắn và cảnh báo.
+- Review export (artifact local: `../../outputs/diagnostics/analyze-v3-20261005-01/run/05_export/review.md`): kết quả cuối để đối chiếu.
 - [Report kỹ thuật](../../outputs/diagnostics/analyze-v3-20261005-01/report.json): request, think/images, thời gian, bốn case và kiểm tra resume.
 - [Bank thử](../../outputs/diagnostics/analyze-v3-20261005-01/bank/metadata.json): ID 1 có `display_name: Arase Mahoru`, alias Ayase-San; ID 3 có `display_name: MAD01 AYAME`, alias Madol-san và Madoi Ayame.
 
 `MAD01 AYAME` là cách OCR đọc một câu introduction xuất hiện trước Madoi Ayame. Theo chính sách giữ tên khi hai bằng chứng cùng ưu tiên, Madoi Ayame được lưu alias kèm cảnh báo, chưa tự thay tên hiển thị. Có thể sửa `display_name` của ID 3 trong bank thử thành Madoi Ayame; lần ghép sau bảo vệ thay đổi thủ công này. Bank gốc không bị thay đổi trong thử nghiệm.
 
 Scan vẫn nhận một số text nhiễu như goage04469, Mort và Clench. Chúng được giữ unresolved, không ghi vào bank. Chưa có cơ chế độc lập xác nhận mọi ứng viên NER thật sự là người; output essential của MAGI và OCR vẫn ảnh hưởng độ chính xác. Run thử này xác nhận các case nêu trên và khả năng resume, chưa thay thế việc kiểm tra toàn chapter bằng ảnh.
+
+Các đường dẫn báo cáo trong `outputs/` ở trên là artifact local, không có sẵn
+chỉ với git clone; các tham chiếu này không thuộc tuyến điều hướng tài liệu.

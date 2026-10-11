@@ -1,0 +1,59 @@
+{
+  "dialogue_analysis": "essential-v3",
+  "speaker_policy": "individual-v1",
+  "layout": {
+    "enabled": true,
+    "python": null,
+    "bubble_threshold": 0.45
+  },
+  "inpaint": {
+    "enabled": false
+  },
+  "noise_filter": {
+    "policy": "whole-box-rules-v1",
+    "rules_path": null
+  },
+  "translation": {
+    "policy": "vi-dual-v1",
+    "batch_size": 3,
+    "context_radius": 2,
+    "num_predict": 1536,
+    "glossary_path": null,
+    "overrides_path": null,
+    "instructions": ""
+  },
+  "ner": {
+    "backend": "gliner",
+    "model": "gliner-community/gliner_small-v2.5",
+    "revision": "f227d3cd637bd4e6757ae143935316d062393341",
+    "threshold": 0.85,
+    "device": "cpu"
+  },
+  "device": "cuda",
+  "text_detection_threshold": 0.45,
+  "text_character_matching_threshold": 0.25,
+  "text_classification_threshold": -0.5,
+  "character_character_matching_threshold": 0.75,
+  "character_detection_threshold": 0.35,
+  "visualizations": true,
+  "spacy_model": "en_core_web_sm",
+  "ollama": {
+    "host": "http://127.0.0.1:11434",
+    "model": "gemma4:e4b-it-q4_K_M",
+    "num_ctx": 16384,
+    "num_predict": 768,
+    "image_max_side": 768,
+    "timeout": 600,
+    "retries": 1
+  },
+  "v6": {
+    "enabled": true,
+    "font_path": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "context_image_max_side": 384
+  },
+  "ocr": {
+    "backend": "hayai",
+    "model": "JustANormalTinkerer/hayai-ocr-v2.5-nova",
+    "revision": "2803d0dc005fa4396ab1e7c5a472d2c450a247f7"
+  }
+}

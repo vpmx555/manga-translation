@@ -6,7 +6,8 @@ from ..storage.io import file_hash
 def discover_pages(folder):
     def natural(path):
         return [int(x) if x.isdigit() else x.casefold() for x in re.split(r"(\d+)", path.name)]
-    return sorted((p for p in Path(folder).iterdir() if p.suffix.lower() in {".png", ".jpg", ".jpeg"}),
+    return sorted((p for p in Path(folder).iterdir() if p.is_file() and p.suffix.lower() in
+                   {".png", ".jpg", ".jpeg", ".webp", ".avif", ".bmp", ".tif", ".tiff"}),
                   key=natural)
 
 
