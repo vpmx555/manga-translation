@@ -48,7 +48,7 @@
   },
   "v6": {
     "enabled": true,
-    "font_path": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "font_path": "assets/fonts/astro-city-teddy-bear.ttf",
     "context_image_max_side": 384
   },
   "ocr": {

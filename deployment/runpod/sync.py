@@ -20,8 +20,8 @@ REMOTE_PROJECT = "/workspace/manga-translate-v2"
 REMOTE_RUNTIME = "/workspace/manga-runtime"
 REMOTE_MANAGE = REMOTE_PROJECT + "/deployment/runpod/manage.py"
 SKIP = {"__pycache__", ".git", ".venv", "venv", "node_modules", ".runpod"}
-EXTENSIONS = {".py", ".json", ".md", ".txt", ".in", ".ps1"}
-CODE_ROOTS = ["src", "configs", "deployment/runpod", "scripts", "tests", "docs/news", "docs/v6"]
+EXTENSIONS = {".py", ".json", ".md", ".txt", ".in", ".ps1", ".ttf"}
+CODE_ROOTS = ["src", "configs", "assets/fonts", "deployment/runpod", "scripts", "tests", "docs/news", "docs/v6"]
 CODE_FILES = ["run.py", "README.md", "requirements-names.txt", "requirements-visual-layout.txt",
               "requirements-hayai.txt", "runpod.ps1", "runpod-v6.ps1", "AGENTS.md"]
 

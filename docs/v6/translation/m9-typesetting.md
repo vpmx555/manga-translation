@@ -2,7 +2,13 @@
 
 > Trạng thái: **thiết kế v6**, chưa triển khai các thay đổi được đề xuất. Chạy local; pilot After School chapter 1.
 
-**Phương pháp tạo vùng:** lấy body mask mỗi part, erosion theo margin tương đối
+Mặc định hiện tại: lõi body tối thiểu `2500 px²`, margin cố định `10 px`
+(`body_margin_ratio=0.0`) theo tọa độ ảnh gốc. Font AstroCity TeddyBear nằm tại
+`assets/fonts/astro-city-teddy-bear.ttf`, được resolve từ gốc repository và ghi
+SHA-256 vào output. Chẩn đoán dùng lại detection/OCR phải tính geometry mới nếu
+đổi ngưỡng; không sửa manifest của run đã commit.
+
+**Phương pháp tạo vùng:** lấy body mask mỗi part, erosion theo margin cấu hình
 với kích thước thân và mức tối thiểu theo pixel nguồn; trừ tail mask, bridge mask,
 vật cản đã xác định và vùng ngoài ảnh. OCR box làm anchor về trung tâm/hướng text,
 cho phép mở rộng trong body. Vùng được giữ phải phục vụ part đó và không đi xuyên

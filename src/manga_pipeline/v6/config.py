@@ -4,10 +4,10 @@ import math
 DEFAULT_CONFIG = {
     "enabled": True,
     "mask_merge_iou": 0.35, "mask_containment": 0.85,
-    "repair_radius": 2, "neck_width_ratio": 0.035, "min_body_area": 48,
+    "repair_radius": 2, "neck_width_ratio": 0.035, "min_body_area": 2500,
     "max_reconstructed_fraction": 0.20, "hint_acceptance": 0.80,
-    "body_margin_px": 4, "body_margin_ratio": 0.025,
-    "font_path": None, "font_min_px": 10, "font_max_px": 48,
+    "body_margin_px": 10, "body_margin_ratio": 0.0,
+    "font_path": "assets/fonts/astro-city-teddy-bear.ttf", "font_min_px": 10, "font_max_px": 48,
     "line_spacing": 1.18, "shorten_attempts": 2,
     "min_confirmed_call_events": 2, "analyze_batch_size": 3,
     "context_image_max_side": 384,
@@ -20,10 +20,13 @@ def validate_config(config):
     if type(config["enabled"]) is not bool:
         raise ValueError("v6.enabled must be boolean")
     for key in ("mask_merge_iou", "mask_containment", "neck_width_ratio",
-                "max_reconstructed_fraction", "hint_acceptance", "body_margin_ratio"):
+                "max_reconstructed_fraction", "hint_acceptance"):
         value = config[key]
         if type(value) not in {float, int} or not math.isfinite(value) or not 0 < value <= 1:
             raise ValueError(f"Invalid v6.{key}")
+    ratio = config["body_margin_ratio"]
+    if type(ratio) not in {float, int} or not math.isfinite(ratio) or not 0 <= ratio <= 1:
+        raise ValueError("Invalid v6.body_margin_ratio")
     for key in ("repair_radius", "min_body_area", "body_margin_px", "font_min_px",
                 "font_max_px", "shorten_attempts", "min_confirmed_call_events", "analyze_batch_size", "context_image_max_side"):
         if type(config[key]) is not int or config[key] < (0 if key in {"repair_radius", "shorten_attempts"} else 1):

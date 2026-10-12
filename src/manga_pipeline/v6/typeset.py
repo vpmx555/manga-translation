@@ -15,7 +15,14 @@ from .translation import shorten
 
 
 def resolve_font(config):
-    candidates = [config.get("font_path"), str(Path(os.environ.get("WINDIR", "C:/Windows"))/"Fonts/arial.ttf"),
+    configured = config.get("font_path")
+    if configured:
+        configured = Path(configured).expanduser()
+        if not configured.is_absolute():
+            configured = Path(__file__).resolve().parents[3] / configured
+        if not configured.is_file():
+            raise ValueError(f"Configured v6 font is missing: {configured}")
+    candidates = [configured, str(Path(os.environ.get("WINDIR", "C:/Windows"))/"Fonts/arial.ttf"),
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
@@ -118,16 +125,22 @@ def allocate(text, parts, font, config):
     return states[len(words)][1]
 
 
-def fit(text, parts, font_path, config):
+def fit(text, parts, font_path, config, *, trace=None):
+    """Fit glyphs; an optional observer receives each actual font trial."""
     for size in range(config["font_max_px"], config["font_min_px"]-1, -1):
         font = ImageFont.truetype(str(font_path), size)
         plan = allocate(text, parts, font, config)
         if plan is None:
+            if trace:
+                trace({"font_size_px": size, "status": "no_allocation", "parts": []})
             continue
         if len(text.split()) >= len(parts) and any(not p["lines"] for p in plan):
+            if trace:
+                trace({"font_size_px": size, "status": "empty_part", "parts": plan})
             continue
         glyphs = []
         good = True
+        overflow = 0
         for item, part in zip(plan, parts):
             layer = Image.new("L", (part["mask"].shape[1], part["mask"].shape[0]))
             draw = ImageDraw.Draw(layer)
@@ -135,9 +148,13 @@ def fit(text, parts, font_path, config):
                 draw.text((line["x"],line["y"]), line["text"], font=font, fill=255, anchor="lt")
             mask = np.asarray(layer) > 0
             if np.any(mask & ~part["mask"]):
+                overflow = int(np.count_nonzero(mask & ~part["mask"]))
                 good = False
                 break
             glyphs.append(layer)
+        if trace:
+            trace({"font_size_px": size, "status": "fitted" if good else "glyph_outside_safe_mask",
+                   "outside_safe_pixels": overflow, "parts": plan})
         if good:
             rendered = " ".join(line["text"] for item in plan for line in item["lines"]).split()
             if rendered != text.split():
