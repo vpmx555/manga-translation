@@ -29,6 +29,9 @@ def extract(manifest_path):
     config = manifest["config"]
     # Existing manifests without an OCR section retain their original backend.
     ocr_config = config.get("ocr", {"backend": "magi"})
+    from ..integrations.core_config import enabled
+    if manifest["pipeline_version"] == 6 and enabled(config):
+        ocr_config = {**ocr_config, "engine": "core"}
     progress_path = os.environ.get("MANGA_PIPELINE_PROGRESS_PATH")
     device = choose_device(manifest.get("extraction_device", config["device"]), torch.cuda.is_available())
     paths = [Path(p["path"]) for p in manifest["source"]["images"]]

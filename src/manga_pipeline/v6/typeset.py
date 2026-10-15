@@ -186,6 +186,9 @@ def safe_parts(store, row, groups, size, config):
         short = min(bounds[2]-bounds[0],bounds[3]-bounds[1]) if bounds else 0
         margin = max(config["body_margin_px"], round(short*config["body_margin_ratio"]))
         safe = ndi.binary_erosion(body, structure=disk(margin)) & ~bridge & ~tail
+        if config.get("layout_engine") == "core_rectangle":
+            from ..integrations.core import rectangle_mask
+            safe = rectangle_mask(safe)
         anchors = [s for s in row["source_boxes"] if part["id"] in s.get("part_ids", [])]
         anchors = anchors or row["source_boxes"]
         points = [[(s["bbox"][0]+s["bbox"][2])/2,(s["bbox"][1]+s["bbox"][3])/2] for s in anchors]
@@ -208,6 +211,9 @@ def typeset(store, provider, progress=None):
     document = store.read("translate")
     raw = store.read("bubble_geometry")
     config = store.manifest["config"]["v6"]
+    from ..integrations.core_config import enabled
+    if enabled(store.manifest["config"]):
+        config = {**config, "layout_engine": "core_rectangle"}
     font_path = resolve_font(config)
     groups = {g["id"]: g for p in raw["pages"] for g in p.get("bubble_groups",[])}
     clean = {p["page_id"]: p for p in store.read("inpaint")["pages"]} if "inpaint" in store.steps else {}

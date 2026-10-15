@@ -27,6 +27,7 @@ from .normalization.noise import POLICY as NOISE_POLICY
 from .translation.stage import DEFAULT_CONFIG as TRANSLATION_CONFIG, validate_config as validate_translation_config
 from .visual.config import LAYOUT_CONFIG, INPAINT_CONFIG, validate_config as validate_visual_config
 from .v6.config import DEFAULT_CONFIG as V6_CONFIG, validate_config as validate_v6_config
+from .integrations.core_config import DEFAULT_CONFIG as CORE_CONFIG, validate_config as validate_core_config
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT.parent
@@ -37,6 +38,7 @@ DEFAULT_CONFIG = {
     "translation": copy.deepcopy(TRANSLATION_CONFIG),
     "layout": copy.deepcopy(LAYOUT_CONFIG),
     "v6": copy.deepcopy(V6_CONFIG),
+    "core": copy.deepcopy(CORE_CONFIG),
     "inpaint": copy.deepcopy(INPAINT_CONFIG),
     "ner": {"backend": "gliner", "model": "gliner-community/gliner_small-v2.5",
             "revision": "f227d3cd637bd4e6757ae143935316d062393341", "threshold": 0.85, "device": "cpu"},
@@ -54,7 +56,7 @@ def load_config(path=None, device=None):
         supplied = read_json(path)
         if set(supplied) - set(config):
             raise ValueError("Unknown pipeline configuration fields")
-        sections = ("ollama", "ner", "noise_filter", "translation", "layout", "inpaint", "ocr", "v6")
+        sections = ("ollama", "ner", "noise_filter", "translation", "layout", "inpaint", "ocr", "v6", "core")
         config.update({k: v for k, v in supplied.items() if k not in sections})
         for section in sections:
             if not isinstance(supplied.get(section, {}), dict) or set(supplied.get(section, {})) - set(config[section]):
@@ -64,6 +66,9 @@ def load_config(path=None, device=None):
         config["device"] = device
     validate_ocr_config(config["ocr"])
     validate_v6_config(config["v6"])
+    validate_core_config(config["core"])
+    if config["core"]["enabled"] and (not config["v6"]["enabled"] or config["ocr"]["backend"] != "hayai"):
+        raise ValueError("Core integration requires v6 and Hayai OCR; MAGI character linking is retained")
     if config["device"] not in {"auto", "cpu", "cuda"}:
         raise ValueError("Invalid extraction configuration")
     validate_thresholds(config)

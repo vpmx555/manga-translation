@@ -1,0 +1,7 @@
+{
+  "visualizations": true,
+  "layout": { "device": "auto" },
+  "inpaint": { "enabled": true, "device": "auto" },
+  "ocr": { "batch_size": 1 },
+  "v6": { "enabled": true }
+}

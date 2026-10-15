@@ -85,6 +85,8 @@ def local_assets(model, revision):
 
 
 def recognize(images, results, config, device, progress_path=None):
+    if config.get("engine") == "core":
+        return recognize_core(images, results, config, device, progress_path)
     import torch
     from transformers import AutoModel, AutoProcessor, PreTrainedTokenizerFast
     # This module also runs directly in the isolated OCR environment.
@@ -120,6 +122,33 @@ def recognize(images, results, config, device, progress_path=None):
             for (page, index), text in zip(batch, texts):
                 results[page]["ocr"][index] = text.strip()
             emit(progress_path, "Hayai OCR", start + len(batch), len(locations), "text")
+
+
+def recognize_core(images, results, config, device, progress_path=None):
+    """Use core OCR inside the existing isolated worker and pinned asset contract."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from manga_pipeline.integrations.core import import_core
+    from manga_pipeline.extraction.progress import emit
+    if len(images) != len(results):
+        raise ValueError("OCR page count mismatch")
+    locations = [(p, i) for p, result in enumerate(results) for i in range(len(result["texts"]))]
+    for result in results:
+        result["ocr"] = [""] * len(result["texts"])
+    if not locations:
+        return
+    engine = import_core("ocr").MangaOcrEngine(
+        model_name=config["model"], device=device,
+        model_directory=local_assets(config["model"], config["revision"]),
+        processor_directory=local_assets(PROCESSOR, PROCESSOR_REVISION),
+        max_num_patches=config["max_num_patches"], max_new_tokens=config["max_new_tokens"])
+    for start in range(0, len(locations), config["batch_size"]):
+        batch = locations[start:start + config["batch_size"]]
+        texts = engine.predict_batch([text_crop(images[p], results[p]["texts"][i]) for p, i in batch])
+        if len(texts) != len(batch) or any(not isinstance(text, str) for text in texts):
+            raise ValueError("Core OCR returned invalid text alignment")
+        for (page, index), text in zip(batch, texts):
+            results[page]["ocr"][index] = text
+        emit(progress_path, "Core Hayai OCR", start + len(batch), len(locations), "text")
 
 
 if __name__ == "__main__":

@@ -122,6 +122,8 @@ def inpaint(store,backend=None,progress=None):
         source = store.manifest["source"]["images"][page["page"]-1]
         request = {"page":page,"texts":texts,"selected":sorted(selected & {r["id"] for r in texts}),
                    "source":source,"config":config,"policy":"inpaint-v6.1" if is_v6 else "inpaint-v1"}
+        if is_v6 and store.manifest["config"].get("core", {}).get("enabled"):
+            request["engine"] = "core-aot-v1"
         key,started = page["id"],monotonic()
         try:
             if file_hash(source["path"])!=source["sha256"]:
@@ -141,8 +143,13 @@ def inpaint(store,backend=None,progress=None):
             calls = 0
             if aot.any():
                 if backend is None:
-                    from .aot import AOT
-                    backend = AOT(config)
+                    from ..integrations.core_config import enabled
+                    if is_v6 and enabled(store.manifest["config"]):
+                        from ..integrations.core import CoreAOT
+                        backend = CoreAOT(config)
+                    else:
+                        from .aot import AOT
+                        backend = AOT(config)
                 prediction = backend.predict(result,aot_image)
                 if prediction.size!=image.size:
                     raise ValueError("AOT output dimensions differ from input")

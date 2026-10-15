@@ -19,6 +19,8 @@ def verify_files(root, result):
 
 def layout(store, backend=None, progress=None):
     config = store.manifest["config"]["layout"]
+    from ..integrations.core_config import enabled
+    use_core = store.manifest["pipeline_version"] == 6 and enabled(store.manifest["config"])
     pages, failures = [], []
     sources = store.manifest["source"]["images"]
     if progress is not None:
@@ -26,6 +28,8 @@ def layout(store, backend=None, progress=None):
     for index, source in enumerate(sources, 1):
         policy = "koharu-layout-v6.1" if store.manifest["pipeline_version"] == 6 else "koharu-layout-v1"
         request = {"source": source, "config": config, "policy": policy}
+        if use_core:
+            request["engine"] = "core-layout-v1"
         key = f"page-{index}"
         started = monotonic()
         try:
@@ -37,8 +41,12 @@ def layout(store, backend=None, progress=None):
                 pages.append(cached)
                 continue
             if backend is None:
-                from .koharu import Koharu
-                backend = Koharu(config)
+                if use_core:
+                    from ..integrations.core import CoreLayout
+                    backend = CoreLayout(config)
+                else:
+                    from .koharu import Koharu
+                    backend = Koharu(config)
             with Image.open(source["path"]) as im:
                 image = im.convert("RGB")
             detected = backend.detect(image)
@@ -49,6 +57,9 @@ def layout(store, backend=None, progress=None):
                     "model_asset_sha256": getattr(backend, "asset_hashes", {}).get("model.safetensors"),
                     "panels": copy.deepcopy(detected["panels"]), "bubbles": [], "files": {}}
             page["effects_candidates"] = copy.deepcopy(detected.get("onomatopoeia", []))
+            if use_core:
+                page["engine"] = "core-layout-v1"
+                page["core_text_regions"] = copy.deepcopy(detected.get("text_regions", []))
             candidates = detected.get("bubble_candidates", detected["bubbles"]) if store.manifest["pipeline_version"] == 6 else detected["bubbles"]
             for number, bubble in enumerate(candidates, 1):
                 mask = np.asarray(bubble["mask"], dtype=bool)

@@ -1,0 +1,9 @@
+{
+  "core": {
+    "enabled": true
+  },
+  "v6": { "enabled": true },
+  "ocr": { "backend": "hayai", "batch_size": 1 },
+  "inpaint": { "enabled": true },
+  "visualizations": true
+}
