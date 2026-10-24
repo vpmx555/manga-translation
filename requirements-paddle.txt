@@ -1,0 +1,4 @@
+# Isolated environment: do not install into MAGI/Hayai environments.
+# 3.3.x crashes in CPU oneDNN PIR conversion; see PaddlePaddle/Paddle#77340.
+paddlepaddle==3.2.2
+paddleocr==3.7.0

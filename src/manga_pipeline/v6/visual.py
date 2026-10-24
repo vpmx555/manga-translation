@@ -3,36 +3,37 @@ import copy
 import math
 import hashlib
 import numpy as np
-from scipy import ndimage as ndi
 from PIL import Image
 
 from ..storage.io import file_hash, fingerprint
 from ..visual.geometry import clipped_box, mask_contour, write_png
 from ..visual.bubbles import classify_bubble, unknown_geometry
+from .geometry_backend import GeometryBackend, array_module, image_operations, host_array
 
 
-def disk(radius):
-    y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
+def disk(radius, xp=np):
+    y, x = xp.ogrid[-radius:radius+1, -radius:radius+1]
     return x*x + y*y <= radius*radius
 
 
 def bbox(mask):
-    ys, xs = np.nonzero(mask)
+    ys, xs = array_module(mask).nonzero(mask)
     return [int(xs.min()), int(ys.min()), int(xs.max()+1), int(ys.max()+1)] if len(xs) else None
 
 
 def rings(mask):
     """Retain every component and enclosed hole as an explicitly closed ring."""
     result = []
+    xp, ndi = array_module(mask), image_operations(mask)
     labels, count = ndi.label(mask)
-    for label in range(1, count+1):
+    for label in range(1, int(count)+1):
         component = labels == label
-        outer = mask_contour(component)
+        outer = mask_contour(component, xp=xp)
         if len(outer) >= 3:
             result.append({"kind": "outer", "points": outer+[outer[0]]})
         holes, number = ndi.label(ndi.binary_fill_holes(component) & ~component)
-        for hole in range(1, number+1):
-            contour = mask_contour(holes == hole)
+        for hole in range(1, int(number)+1):
+            contour = mask_contour(holes == hole, xp=xp)
             if len(contour) >= 3:
                 result.append({"kind": "hole", "points": contour+[contour[0]]})
     return result
@@ -42,6 +43,9 @@ def fuse_candidates(candidates, masks, config):
     """Containment/IoU fusion uses masks, preserving all detection receipts."""
     if len(candidates) != len(masks):
         raise ValueError("Candidate/mask counts differ")
+    if not masks:
+        return []
+    xp = array_module(masks[0])
     parent = list(range(len(masks)))
     def find(i):
         while parent[i] != i:
@@ -51,7 +55,7 @@ def fuse_candidates(candidates, masks, config):
     areas = [int(mask.sum()) for mask in masks]
     for i, mask in enumerate(masks):
         for j in range(i):
-            intersection = int(np.count_nonzero(mask & masks[j]))
+            intersection = int(xp.count_nonzero(mask & masks[j]))
             union = areas[i]+areas[j]-intersection
             if (intersection / max(1, union) >= config["mask_merge_iou"] or
                     intersection / max(1, min(areas[i], areas[j])) >= config["mask_containment"]):
@@ -59,15 +63,23 @@ def fuse_candidates(candidates, masks, config):
     groups = {}
     for i in range(len(masks)):
         groups.setdefault(find(i), []).append(i)
-    return [(indices, np.logical_or.reduce([masks[i] for i in indices])) for indices in groups.values()]
+    return [(indices, union_masks([masks[i] for i in indices])) for indices in groups.values()]
+
+
+def union_masks(masks):
+    result = masks[0].copy()
+    for mask in masks[1:]:
+        result |= mask
+    return result
 
 
 def refine_mask(observed, pixels, config):
     """Repair short segmentation gaps only where source pixels support fill."""
     radius = config["repair_radius"]
+    xp, ndi = array_module(observed), image_operations(observed)
     if not radius:
-        return observed.copy(), np.zeros_like(observed)
-    closed = ndi.binary_closing(observed, structure=disk(radius), border_value=0)
+        return observed.copy(), xp.zeros_like(observed)
+    closed = ndi.binary_closing(observed, structure=disk(radius, xp), border_value=0)
     white = pixels[..., :3].mean(axis=2) >= 185
     inferred = closed & ~observed & white
     return observed | inferred, inferred
@@ -76,22 +88,24 @@ def refine_mask(observed, pixels, config):
 def partition(mask, tails, config):
     """Wide cores retain connected groups; thin bridges never become bodies."""
     radius = max(2, min(16, round(math.sqrt(int(mask.sum()))*config["neck_width_ratio"])))
-    opened = ndi.binary_opening(mask, structure=disk(radius))
+    xp, ndi = array_module(mask), image_operations(mask)
+    opened = ndi.binary_opening(mask, structure=disk(radius, xp))
     labels, count = ndi.label(opened)
+    sizes = host_array(xp.bincount(labels.ravel())).tolist()
     seeds = []
-    for number in range(1, count+1):
-        body = labels == number
-        if body.sum() >= config["min_body_area"]:
-            seeds.append(body)
+    for number in range(1, int(count)+1):
+        if sizes[number] >= config["min_body_area"]:
+            seeds.append(labels == number)
     if not seeds:
-        return [mask.copy()], np.zeros_like(mask), np.zeros_like(mask), []
-    residual = mask & ~np.logical_or.reduce(seeds)
+        return [mask.copy()], xp.zeros_like(mask), xp.zeros_like(mask), []
+    residual = mask & ~union_masks(seeds)
     labels, count = ndi.label(residual)
-    bridge, tail = np.zeros_like(mask), np.zeros_like(mask)
+    sizes = host_array(xp.bincount(labels.ravel())).tolist()
+    bridge, tail = xp.zeros_like(mask), xp.zeros_like(mask)
     edges = []
-    for number in range(1, count+1):
+    for number in range(1, int(count)+1):
         piece = labels == number
-        near = ndi.binary_dilation(piece, iterations=2)
+        near = ndi.binary_dilation(piece, iterations=2, brute_force=True)
         adjacent = [i for i, body in enumerate(seeds) if (near & body).any()]
         if len(adjacent) > 1:
             bridge |= piece
@@ -108,7 +122,7 @@ def partition(mask, tails, config):
                 seeds[adjacent[0]] |= piece
         else:
             # An observed disconnected lobe is retained, never silently deleted.
-            if piece.sum() >= config["min_body_area"]:
+            if sizes[number] >= config["min_body_area"]:
                 seeds.append(piece)
             else:
                 tail |= piece
@@ -117,13 +131,14 @@ def partition(mask, tails, config):
 
 def visual_hint(*, pixels, body_mask, observed_mask, inferred_mask, config):
     """Strict keyword signature: neither OCR, text boxes nor dialogue score."""
+    xp, ndi = array_module(body_mask), image_operations(body_mask)
     boundary = body_mask & ~ndi.binary_erosion(body_mask)
-    inferred_near = ndi.binary_dilation(inferred_mask, iterations=3)
+    inferred_near = ndi.binary_dilation(inferred_mask, iterations=3, brute_force=True)
     count = int(boundary.sum())
     observed_boundary = observed_mask & ~ndi.binary_erosion(observed_mask)
-    supported = ndi.binary_dilation(observed_boundary, iterations=2)
+    supported = ndi.binary_dilation(observed_boundary, iterations=2, brute_force=True)
     fraction = float((boundary & supported & ~inferred_near).sum()/max(1, count))
-    evidence = classify_bubble(mask_contour(body_mask), pixels)
+    evidence = classify_bubble(mask_contour(body_mask, xp=xp), pixels)
     reasons = []
     if 1-fraction > config["max_reconstructed_fraction"]:
         reasons.append("too_much_inferred_boundary")
@@ -145,19 +160,27 @@ def visual_hint(*, pixels, body_mask, observed_mask, inferred_mask, config):
 
 def save_mask(root, directory, name, mask):
     path = directory / (name+".png")
-    write_png(path, Image.fromarray(mask.astype(np.uint8)*255))
+    write_png(path, Image.fromarray(host_array(mask).astype(np.uint8)*255))
     return {"mask_path": path.relative_to(root).as_posix(), "mask_sha256": file_hash(path)}
 
 
-def build_groups(root, directory, page, candidates, masks, pixels, config):
+def build_groups(root, directory, page, candidates, masks, pixels, config, *, backend=None):
+    return (backend or GeometryBackend()).build_groups(root, directory, page, candidates, masks, pixels, config)
+
+
+def _build_groups(root, directory, page, candidates, masks, pixels, config):
     groups, files = [], {}
     image_hash = hashlib.sha256(pixels.tobytes()).hexdigest()
+    xp = array_module(masks[0]) if masks else np
+    ndi = image_operations(masks[0]) if masks else image_operations(pixels)
+    working_pixels = xp.asarray(pixels)
     fused = []
     for indices, observed in fuse_candidates(candidates, masks, config):
-        refined, inferred = refine_mask(observed, pixels, config)
+        refined, inferred = refine_mask(observed, working_pixels, config)
         labels, count = ndi.label(refined)
-        large = [labels == i for i in range(1, count+1) if np.count_nonzero(labels == i) >= config["min_body_area"]]
-        small = [labels == i for i in range(1, count+1) if np.count_nonzero(labels == i) < config["min_body_area"]]
+        sizes = host_array(xp.bincount(labels.ravel())).tolist()
+        large = [labels == i for i in range(1, int(count)+1) if sizes[i] >= config["min_body_area"]]
+        small = [labels == i for i in range(1, int(count)+1) if sizes[i] < config["min_body_area"]]
         # Disconnected large lobes cannot establish a common utterance.
         if len(large) > 1:
             for piece in small:
@@ -177,7 +200,7 @@ def build_groups(root, directory, page, candidates, masks, pixels, config):
         gid = f"{page['id']}:g{number}"
         bodies, bridge, tail, edges = partition(refined, page.get("tails", []), config)
         for edge in edges:
-            if np.any(bridge & inferred):
+            if xp.any(bridge & inferred):
                 edge["kind"] = "partly_inferred_bridge"
         group = {"id": gid, "bbox": bbox(refined), "candidate_ids": [candidates[i]["id"] for i in indices],
                  "panel_indices": [], "outer_rings": rings(refined), "parts": [], "connections": edges,

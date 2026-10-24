@@ -1,0 +1,6 @@
+# The isolated deployment lock explicitly pins Torch and torchvision; it does
+# not inherit packages from the boot image.
+# Resolve this file for Linux CPython 3.12 before renting a GPU.
+transformers==5.20.2
+Pillow==13.0.0
+numpy==2.2.6

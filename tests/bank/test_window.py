@@ -22,11 +22,11 @@ class PendingWindowTests(unittest.TestCase):
         labels = assigner.assign_names_to_characters(model, images, boxes, {"images": [], "names": []}, clusters)
         return labels, assigner
 
-    def test_page_one_can_promote_on_page_three(self):
+    def test_page_one_cannot_promote_on_page_three_with_gap_one(self):
         with tempfile.TemporaryDirectory() as root, CharacterBank(Path(root), "Story", model_fingerprint="test") as bank:
             labels, assigner = self.assign(bank, {0, 2}, 3)
-            self.assertEqual(labels, ["1", "1"])
-            self.assertEqual(assigner.last_character_ids, [1, 1])
+            self.assertEqual(labels, ["Other", "Other"])
+            self.assertEqual(assigner.last_character_ids, [None, None])
 
     def test_page_one_cannot_match_page_four_while_pending(self):
         with tempfile.TemporaryDirectory() as root, CharacterBank(Path(root), "Story", model_fingerprint="test") as bank:

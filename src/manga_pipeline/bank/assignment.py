@@ -6,6 +6,7 @@ import hashlib
 import math
 import uuid
 from dataclasses import dataclass
+from itertools import groupby
 from pathlib import Path
 from types import MethodType
 from typing import Iterable, Sequence
@@ -15,6 +16,7 @@ import torch
 from PIL import Image
 
 from .identity import CharacterBank
+from .prototypes import closest_indices, consensus_mean
 from ..extraction.config import DETECTION_DEFAULTS
 from .postprocessing import (
     AmbiguousMatch,
@@ -35,6 +37,7 @@ class _Observation:
     representative: np.ndarray
     crops: tuple[np.ndarray, ...]
     panel_ids: set[int | None]
+    source_keys: tuple[str, ...] = ()
 
 
 def _normalize_rows(values: np.ndarray) -> np.ndarray:
@@ -67,29 +70,12 @@ def _panel_for_bbox(bbox: Sequence[float], panels: Sequence[Sequence[float]]) ->
 
 
 def _aggregate_distance(query: np.ndarray, prototypes: np.ndarray) -> float:
-    prototypes = _normalize_rows(prototypes)
-    distances = np.linalg.norm(prototypes - query[None, :], axis=1)
-    nearest = np.sort(distances)[: min(3, len(distances))]
-    return float(0.6 * nearest[0] + 0.4 * nearest.mean())
+    return float(np.linalg.norm(query - consensus_mean(prototypes)))
 
 
 def _diverse_indices(embeddings: np.ndarray, maximum: int) -> list[int]:
-    if len(embeddings) <= maximum:
-        return list(range(len(embeddings)))
-    embeddings = _normalize_rows(embeddings)
-    selected = [0]
-    remaining = set(range(1, len(embeddings)))
-    while remaining and len(selected) < maximum:
-        next_index = max(
-            remaining,
-            key=lambda index: min(
-                float(np.linalg.norm(embeddings[index] - embeddings[chosen]))
-                for chosen in selected
-            ),
-        )
-        selected.append(next_index)
-        remaining.remove(next_index)
-    return selected
+    # Kept as a compatibility alias for diagnostic callers.
+    return closest_indices(embeddings, maximum)
 
 
 class DynamicCharacterAssigner:
@@ -110,6 +96,7 @@ class DynamicCharacterAssigner:
         self._current_pending_occurrences: dict[str, list[int]] = {}
         # Stable bank identity is separate from the editable display label.
         self.last_character_ids: list[int | None] = []
+        self.last_assignment_trace: list[dict] = []
 
     def bind(self, model) -> None:
         """Bind the override to one final model instance, never the global class."""
@@ -148,13 +135,14 @@ class DynamicCharacterAssigner:
         for page_index, (image, bboxes, labels, embeddings) in enumerate(
             zip(images, bboxes_by_page, clusters_by_page, embeddings_by_page)
         ):
+            image_digest = hashlib.sha256(np.asarray(image).tobytes()).digest()
             grouped: dict[int, list[int]] = {}
             for detection_index, label in enumerate(labels):
                 grouped.setdefault(int(label), []).append(detection_index)
             panels = panels_by_page[page_index] if page_index < len(panels_by_page) else []
             for label, indices in grouped.items():
                 group_embeddings = _normalize_rows(embeddings[indices])
-                representative = _normalize_rows(group_embeddings.mean(axis=0, keepdims=True))[0]
+                representative = consensus_mean(group_embeddings)
                 crops = tuple(_crop(image, bboxes[index]) for index in indices)
                 observations.append(
                     _Observation(
@@ -167,6 +155,8 @@ class DynamicCharacterAssigner:
                         representative=representative,
                         crops=crops,
                         panel_ids={self._panel_for_character(bboxes[index], panels) for index in indices},
+                        source_keys=tuple(hashlib.sha256(self.page_keys[page_index].encode('utf-8') + image_digest
+                            + np.asarray(bboxes[index], dtype=np.float32).tobytes()).hexdigest() for index in indices),
                     )
                 )
             global_offset += len(bboxes)
@@ -200,7 +190,9 @@ class DynamicCharacterAssigner:
         observation: _Observation,
         blocked_ids: set[int],
     ) -> int | None:
-        scores = self._candidate_scores(observation, blocked_ids)
+        return self._resolve_scores(observation, self._candidate_scores(observation, blocked_ids))
+
+    def _resolve_scores(self, observation, scores):
         if not scores:
             return None
         best_id, best_score = scores[0]
@@ -244,8 +236,82 @@ class DynamicCharacterAssigner:
             return decision.character_id
         return None
 
+    def _plan_page(self, observations):
+        """Freeze page scores, then reserve IDs from strongest to weakest match.
+
+        A cluster can span several panels: reserve all its panels together.
+        Prototype updates and new IDs become evidence for the next page only.
+        """
+        scores = [self._candidate_scores(observation, set()) for observation in observations]
+        appearances = {int(identity): int(record.get('appearance_count', 0))
+                       for identity, record in self.bank.characters.items()}
+        remaining = set(range(len(observations)))
+        used = {}
+        plan = []
+
+        def available(index):
+            blocked = set()
+            for panel in observations[index].panel_ids:
+                blocked.update(used.get(panel, set()))
+            return [(identity, score) for identity, score in scores[index] if identity not in blocked]
+
+        def reserve(index, identity):
+            observation = observations[index]
+            self.last_assignment_trace.append({
+                'page': observation.page_index + 1,
+                'detections': [i + 1 for i in observation.detection_indices],
+                'global_indices': list(observation.global_indices),
+                'panels': sorted(observation.panel_ids, key=str),
+                'all_candidates': scores[index],
+                'available_candidates': available(index),
+                'selected_existing_id': identity,
+                'page_assignment_rank': len(plan) + 1,
+                'selected_id_prior_appearances': appearances.get(identity, 0),
+            })
+            remaining.remove(index)
+            plan.append((observations[index], identity))
+            if identity is not None:
+                for panel in observations[index].panel_ids:
+                    used.setdefault(panel, set()).add(identity)
+
+        while remaining:
+            proposals = []
+            for index in sorted(remaining):
+                candidates = available(index)
+                if not candidates:
+                    continue
+                identity, score = candidates[0]
+                margin = candidates[1][1] - score if len(candidates) > 1 else math.inf
+                if score <= float(self.bank.config['max_distance']) and margin >= float(self.bank.config['min_margin']):
+                    proposals.append((-appearances.get(identity, 0), score, index, identity))
+            if not proposals:
+                break
+            _, _, index, identity = min(proposals)
+            reserve(index, identity)
+
+        # Optional ambiguity processors only handle observations without an
+        # automatic match, after the strong automatic reservations are fixed.
+        while remaining:
+            index = min(remaining, key=lambda i: (available(i)[0][1] if available(i) else math.inf, i))
+            reserve(index, self._resolve_scores(observations[index], available(index)))
+        return plan
+
+    def _planned_observations(self, observations):
+        for _, page in groupby(observations, key=lambda observation: observation.page_index):
+            yield from self._plan_page(list(page))
+
+    def _record_appearance(self, character_id, observation):
+        record = self.bank.characters[str(character_id)]
+        previous = set(record.get('appearance_keys', []))
+        added = set(observation.source_keys) - previous
+        if added:
+            record['appearance_count'] = int(record.get('appearance_count', len(previous))) + len(added)
+            record['appearance_keys'] = sorted(previous | added)
+            self.bank.dirty = True
+
     def _match_pending(self, observation: _Observation) -> str | None:
         scored: list[tuple[str, float]] = []
+        maximum_gap = int(self.bank.config.get("pending_max_page_gap", 1))
         for pending_id, record in self.bank.pending.items():
             origin = record.get("origin_page_key") or next(iter(record.get("page_keys", [])), None)
             if origin not in self.page_keys:
@@ -253,8 +319,8 @@ class DynamicCharacterAssigner:
                 self.bank.dirty = True
                 continue
             distance = observation.page_index - self.page_keys.index(origin)
-            if record.get("state") == "closed" or not 1 <= distance <= 2:
-                if distance > 2:
+            if record.get("state") == "closed" or not 1 <= distance <= maximum_gap:
+                if distance > maximum_gap:
                     record["state"] = "closed"
                     self.bank.dirty = True
                 continue
@@ -280,45 +346,53 @@ class DynamicCharacterAssigner:
     def _save_crops(self, crops: Iterable[np.ndarray], prefix: str) -> list[str]:
         paths: list[str] = []
         maximum = int(self.bank.config["max_crops_per_character"])
-        for index, crop in enumerate(crops):
-            if index >= maximum:
+        for crop in crops:
+            if len(paths) >= maximum:
                 break
             digest = hashlib.sha1(np.asarray(crop).tobytes()).hexdigest()[:12]
             relative = Path("crops") / f"{prefix}-{digest}.png"
             destination = self.bank.directory / relative
+            if relative.as_posix() in paths:
+                continue
             if not destination.exists():
                 Image.fromarray(np.asarray(crop).astype(np.uint8)).save(destination)
             paths.append(relative.as_posix())
         return paths
 
     def _add_prototypes(self, character_id: int, observation: _Observation) -> None:
-        current = self.bank.get_character_embeddings(character_id)
-        additions: list[np.ndarray] = []
-        for embedding in observation.embeddings:
-            reference = current if not additions else np.vstack([current, additions])
-            if not reference.size or np.linalg.norm(reference - embedding, axis=1).min() >= float(
-                self.bank.config["prototype_min_separation"]
-            ):
-                additions.append(embedding)
-        if not additions:
-            return
-        combined = np.vstack([current, additions]) if current.size else np.vstack(additions)
-        chosen = _diverse_indices(
-            combined, int(self.bank.config["max_embeddings_per_character"])
-        )
-        self.bank.arrays[self.bank.embedding_key_for_character(character_id)] = combined[chosen]
         record = self.bank.characters[str(character_id)]
-        # Rewriting the compacted matrix invalidates old row indexes.
+        key = self.bank.embedding_key_for_character(character_id)
+        raw = self.bank.arrays[key]
+        paths = record.get('prototype_crop_paths', [None]*len(raw))
+        source_keys = record.get('prototype_source_keys', [None]*len(raw))
+        if len(paths) != len(raw) or len(source_keys) != len(raw):
+            raise ValueError('Prototype/crop mapping length mismatch')
+        disabled = set(record.get('disabled_prototype_indices', []))
+        pairs = [(vector, path, source) for i, (vector, path, source) in enumerate(zip(raw, paths, source_keys)) if i not in disabled]
+        known = {source for _, _, source in pairs if source is not None}
+        for i, (vector, crop) in enumerate(zip(observation.embeddings, observation.crops)):
+            source = observation.source_keys[i] if observation.source_keys else None
+            if source is not None and source in known:
+                continue
+            saved = self._save_crops([crop], f'character-{character_id}')
+            path = saved[0] if saved else None
+            if source is not None:
+                known.add(source)
+            pairs.append((vector, path, source))
+        # Never invent a crop for old, unmapped vectors. Once there are two
+        # genuine paired samples, rebuild that legacy support from those pairs.
+        paired = [(vector, path, source) for vector, path, source in pairs if path is not None]
+        if len(paired) >= 2:
+            pairs = paired
+        if not pairs:
+            return
+        combined = _normalize_rows(np.vstack([vector for vector, _, _ in pairs]))
+        chosen = closest_indices(combined, int(self.bank.config['max_embeddings_per_character']))
+        self.bank.arrays[key] = combined[chosen]
+        record['prototype_crop_paths'] = [pairs[i][1] for i in chosen]
+        record['prototype_source_keys'] = [pairs[i][2] for i in chosen]
+        record['crop_paths'] = [pairs[i][1] for i in chosen if pairs[i][1] is not None]
         record["disabled_prototype_indices"] = []
-        crop_paths = list(record.get("crop_paths", []))
-        if len(crop_paths) < int(self.bank.config["max_crops_per_character"]):
-            crop_paths.extend(
-                self._save_crops(
-                    observation.crops,
-                    f"character-{character_id}-{uuid.uuid4().hex[:8]}",
-                )[: int(self.bank.config["max_crops_per_character"]) - len(crop_paths)]
-            )
-            record["crop_paths"] = crop_paths
         self.bank.dirty = True
 
     def assign_names_to_characters(
@@ -333,6 +407,7 @@ class DynamicCharacterAssigner:
         del character_bank, eta  # Persistent bank/config replace the upstream arguments.
         total = sum(len(bboxes) for bboxes in character_bboxes)
         self.last_character_ids = [None] * total
+        self.last_assignment_trace = []
         if total == 0:
             return []
         if len(self.page_keys) != len(images):
@@ -351,13 +426,7 @@ class DynamicCharacterAssigner:
             panels_by_page,
         )
         labels = ["Other"] * total
-        used_by_page_panel: dict[tuple[int, int | None], set[int]] = {}
-
-        for observation in observations:
-            blocked: set[int] = set()
-            for panel_id in observation.panel_ids:
-                blocked.update(used_by_page_panel.get((observation.page_index, panel_id), set()))
-            character_id = self._resolve_existing(observation, blocked)
+        for observation, character_id in self._planned_observations(observations):
             if character_id is None:
                 pending_id = self._match_pending(observation)
                 if pending_id is not None:
@@ -368,14 +437,15 @@ class DynamicCharacterAssigner:
                     self._add_prototypes(character_id, observation)
                 elif len(observation.detection_indices) >= 2:
                     prefix = f"new-{uuid.uuid4().hex[:8]}"
-                    paths = self._save_crops(observation.crops, prefix)
                     chosen = _diverse_indices(
                         observation.embeddings,
                         int(self.bank.config["max_embeddings_per_character"]),
                     )
+                    paths = [self._save_crops([observation.crops[i]], prefix)[0] for i in chosen]
                     character_id = self.bank.create_character(
                         observation.embeddings[chosen], paths
                     )
+                    self.bank.characters[str(character_id)]['prototype_source_keys'] = [observation.source_keys[i] for i in chosen]
                 else:
                     pending_id = uuid.uuid4().hex
                     paths = self._save_crops(observation.crops, f"pending-{pending_id[:8]}")
@@ -387,6 +457,8 @@ class DynamicCharacterAssigner:
                     )
                     self.bank.pending[pending_id].update({
                         "origin_page_key": observation.page_key, "state": "active",
+                        "appearance_keys": list(observation.source_keys),
+                        "prototype_source_keys": list(observation.source_keys),
                     })
                     self._current_pending_occurrences[pending_id] = list(
                         observation.global_indices
@@ -396,20 +468,18 @@ class DynamicCharacterAssigner:
 
             if character_id is None:
                 continue
+            self._record_appearance(character_id, observation)
             label = self.bank.display_label(character_id)
             for global_index in observation.global_indices:
                 labels[global_index] = label
                 self.last_character_ids[global_index] = character_id
-            for panel_id in observation.panel_ids:
-                used_by_page_panel.setdefault(
-                    (observation.page_index, panel_id), set()
-                ).add(character_id)
-
         for record in self.bank.pending.values():
             origin = record.get("origin_page_key") or next(iter(record.get("page_keys", [])), None)
-            if origin not in self.page_keys or len(self.page_keys) - 1 - self.page_keys.index(origin) > 2:
+            if origin not in self.page_keys or len(self.page_keys) - 1 - self.page_keys.index(origin) > int(self.bank.config.get("pending_max_page_gap", 1)):
                 record["state"] = "closed"
         self.bank.dirty = True
+        for record in self.last_assignment_trace:
+            record['final_id'] = self.last_character_ids[record['global_indices'][0]]
         return labels
 
 

@@ -9,14 +9,13 @@ from time import monotonic
 from ..policies import DEFAULT_SPEAKER_POLICY
 from .io import atomic_json, file_hash, fingerprint, read_json
 
-# Preserve these exports for callers and receipts from six-step v2 runs.
-STEPS = ("extract", "normalize", "scan", "classify", "link", "export")
-ANALYZE_STEPS = ("extract", "normalize", "scan", "analyze", "export")
-TRANSLATE_STEPS = (*ANALYZE_STEPS, "translate")
-VISUAL_STEPS = ("layout", "extract", "bubble_geometry", "normalize", "inpaint", "scan", "analyze", "export", "translate")
-V6_STEPS = ("layout", "extract", "bubble_geometry", "normalize", "scan", "analyze", "identity", "export", "inpaint", "translate", "typeset")
-ALL_STEPS = tuple(dict.fromkeys((*STEPS, *TRANSLATE_STEPS, *VISUAL_STEPS, *V6_STEPS)))
-DIRECTORIES = {name: f"{i:02d}_{name}" for i, name in enumerate(STEPS, 1)}
+LEGACY_V6_STEPS = ("layout", "extract", "bubble_geometry", "normalize", "scan", "analyze", "identity", "export", "inpaint", "translate", "typeset")
+V6_STEPS = ("layout", "extract", "bubble_geometry", "normalize", "scan", "analyze", "build_identity", "relationship", "export", "inpaint", "translate", "typeset")
+ALL_STEPS = (*V6_STEPS, 'identity')  # Historical runs retain their original flow.
+
+
+def flow_steps(config):
+    return V6_STEPS if config.get('v6', {}).get('identity_relationship_policy') == 'identity-relationship-v2' else LEGACY_V6_STEPS
 
 
 def now():
@@ -28,17 +27,14 @@ class RunStore:
         self.directory = Path(directory).resolve()
         self.path = self.directory / "manifest.json"
         self.manifest = read_json(self.path)
-        version = self.manifest.get("pipeline_version", 2)
-        if version not in {2, 3, 4, 5, 6}:
-            raise ValueError("Only pipeline v2/v3/v4/v5/v6 runs can resume")
-        self.steps = TRANSLATE_STEPS if version == 4 else (ANALYZE_STEPS if version == 3 else STEPS)
-        if version in {5, 6}:
-            if not self.manifest["config"].get("layout", {}).get("enabled"):
-                raise ValueError("Pipeline v5 requires Koharu layout")
-            visual_steps = V6_STEPS if version == 6 else VISUAL_STEPS
-            self.steps = tuple(s for s in visual_steps if
-                               (s not in {"translate", "typeset"} or self.manifest["config"].get("translation")) and
-                               (s != "inpaint" or self.manifest["config"].get("inpaint", {}).get("enabled")))
+        version = self.manifest.get("pipeline_version")
+        from ..v6.policy import POLICY, require_config
+        if version != 6 or self.manifest.get("analysis_contract") != POLICY:
+            raise ValueError("Legacy run cannot resume; create a new v6 run")
+        require_config(self.manifest["config"])
+        self.steps = tuple(s for s in flow_steps(self.manifest['config']) if
+            (s not in {"translate", "typeset"} or self.manifest["config"].get("translation")) and
+            (s != "inpaint" or self.manifest["config"].get("inpaint", {}).get("enabled")))
         self.directories = {name: f"{i:02d}_{name}" for i, name in enumerate(self.steps, 1)}
         self.manifest.setdefault("pipeline_version", version)
         self._step_timers = {}
@@ -47,23 +43,25 @@ class RunStore:
         snapshot = read_json(self.directory / "snapshots" / "config.json")
         if fingerprint(snapshot) != fingerprint(self.manifest["config"]):
             raise ValueError("Run configuration changed; restore it or create a new run")
-        if version in {5, 6} and fingerprint(read_json(self.directory / "snapshots/source.json")) != fingerprint(self.manifest["source"]):
+        if version == 6 and fingerprint(read_json(self.directory / "snapshots/source.json")) != fingerprint(self.manifest["source"]):
             raise ValueError("Run source manifest changed; create a new run")
         self.recover()
 
     @classmethod
     def create(cls, directory, *, source, config, bank_path):
         config = copy.deepcopy(config)
+        from ..v6.policy import POLICY, require_config
+        require_config(config)
         if config.get("dialogue_analysis") == "essential-v3":
             config.setdefault("speaker_policy", DEFAULT_SPEAKER_POLICY)
             if config["speaker_policy"] != DEFAULT_SPEAKER_POLICY:
-                raise ValueError("speaker_policy must be individual-v1 for new v3 runs")
+                raise ValueError("speaker_policy must be individual-v1 for new v6 runs")
         directory = Path(directory).resolve()
         directory.mkdir(parents=True, exist_ok=False)
         extra = {}
         if config.get("noise_filter"):
-            from ..normalization.noise import POLICY, rules_for
-            if config["noise_filter"]["policy"] != POLICY:
+            from ..normalization.noise import POLICY as NOISE_POLICY, rules_for
+            if config["noise_filter"]["policy"] != NOISE_POLICY:
                 raise ValueError("Unsupported normalization noise policy")
             rules_path = config["noise_filter"].get("rules_path")
             if rules_path is None:
@@ -72,24 +70,20 @@ class RunStore:
             rules = rules_for(rules_path)
             extra["noise_rules_hash"] = fingerprint(rules)
             atomic_json(directory / "snapshots/noise_rules.json", rules)
-        version = (4 if config.get("translation") else 3) if config.get("dialogue_analysis") == "essential-v3" else 2
-        if config.get("layout", {}).get("enabled") and version in {3, 4}:
-            version = 6 if config.get("v6", {}).get("enabled") else 5
-            from ..analysis.speech import POLICY as SPEECH_POLICY
-            extra["speech_style_policy"] = SPEECH_POLICY
+        version = 6
         atomic_json(directory / "manifest.json", {
-            "pipeline_version": version,
+            "pipeline_version": version, "analysis_contract": POLICY,
             "created_at": now(), "status": "pending",
             "source": source, "config": config, "bank_path": str(Path(bank_path).resolve()),
             "steps": {}, **extra,
         })
         atomic_json(directory / "snapshots" / "config.json", config)
-        if version in {5, 6}:
+        if version == 6:
             atomic_json(directory / "snapshots/source.json", source)
         return cls(directory)
 
     def save(self):
-        if self.manifest["pipeline_version"] in {5, 6}:
+        if self.manifest["pipeline_version"] == 6:
             from .locking import exclusive_lock
             # Analysis and reconstruction use different branch locks; serialize only
             # manifest commits and merge the other branch's live step state.
@@ -110,21 +104,23 @@ class RunStore:
     def dependencies(self, step):
         if step not in self.steps:
             raise ValueError(f"Step {step} is not in this run")
-        if self.manifest["pipeline_version"] not in {5, 6}:
-            return self.steps[:self.steps.index(step)]
         if self.manifest["pipeline_version"] == 6:
             parents = {"layout": (), "extract": ("layout",), "bubble_geometry": ("layout", "extract"),
                 "scan": ("normalize",), "analyze": ("scan", "normalize", "extract"),
                 "normalize": ("bubble_geometry",), "inpaint": ("export", "bubble_geometry"),
                 "identity": ("analyze", "normalize", "extract"), "export": ("identity", "analyze", "normalize"),
+                "build_identity": ("analyze", "normalize", "extract"),
+                "relationship": ("build_identity", "analyze", "normalize"),
                 "translate": ("export",), "typeset": ("translate", "normalize", "bubble_geometry")}
+            if 'build_identity' in self.steps:
+                parents['export'] = ('build_identity', 'relationship', 'analyze', 'normalize')
+                parents['translate'] = ('export', 'relationship', 'build_identity')
+            if self.manifest['config'].get('v6', {}).get('identity_name_binding_policy'):
+                parents['build_identity'] = ('analyze', 'normalize', 'extract', 'scan')
             if step == "typeset" and "inpaint" in self.steps:
                 return (*parents[step], "inpaint")
             return parents[step]
-        return {"layout": (), "extract": ("layout",), "bubble_geometry": ("layout", "extract"),
-                "normalize": ("bubble_geometry",), "inpaint": ("normalize", "bubble_geometry"),
-                "scan": ("normalize",), "analyze": ("scan", "normalize", "bubble_geometry"),
-                "export": ("analyze", "normalize"), "translate": ("export",)}[step]
+        raise ValueError("Only v6 dependencies are supported")
 
     def ancestors(self, step):
         needed = {step}
@@ -139,7 +135,8 @@ class RunStore:
     def overall_status(self):
         statuses = [self.manifest["steps"].get(s, {}).get("status", "pending") for s in self.steps]
         if all(s == "completed" for s in statuses):
-            return "completed"
+            return ('completed_with_review' if any(self.manifest['steps'].get(s, {}).get('review_status')
+                    == 'completed_with_review' for s in self.steps) else 'completed')
         if "running" in statuses:
             return "running"
         if any(s in {"failed", "partial"} for s in statuses):
@@ -201,9 +198,14 @@ class RunStore:
             if not path.is_file() or file_hash(path) != item.get("artifact_hash"):
                 raise ValueError(f"Committed {step} artifact missing/changed; start a new run or restore it")
             artifact = read_json(path)
-            if self.manifest["pipeline_version"] in {5, 6}:
+            if self.manifest["pipeline_version"] == 6:
                 if item.get("input_hash") != self.input_hash(step):
                     raise ValueError(f"Committed {step} dependencies changed; create a new run")
+                if step in {'build_identity', 'relationship'}:
+                    for crop in artifact.get('reference_crops', []):
+                        image = (self.directory / crop['file']).resolve()
+                        if not image.is_relative_to(self.directory) or file_hash(image) != crop['retained_sha256']:
+                            raise ValueError('Committed identity/relationship crop changed')
                 if step in {"layout", "inpaint"} or self.manifest["pipeline_version"] == 6 and step in {"bubble_geometry", "typeset"}:
                     from ..visual.stages import verify_files
                     for page in artifact.get("pages", []):
@@ -253,7 +255,9 @@ class RunStore:
         item = {"step": step, "status": "partial" if failures else "completed",
                 "finished_at": now(), "artifact_hash": file_hash(path), "failures": failures,
                 **self._timing(step)}
-        if self.manifest["pipeline_version"] in {5, 6}:
+        if output.get('review_status') in {'completed', 'completed_with_review'}:
+            item['review_status'] = output['review_status']
+        if self.manifest["pipeline_version"] == 6:
             item["input_hash"] = self.input_hash(step)
         if not failures:
             atomic_json(path.with_name("commit.json"), item)

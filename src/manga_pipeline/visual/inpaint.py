@@ -95,11 +95,9 @@ def plan_masks(image,page,texts,selected,root,config):
 
 def inpaint(store,backend=None,progress=None):
     raw = store.read("bubble_geometry")
-    is_v6 = store.manifest["pipeline_version"] == 6
-    document = store.read("export" if is_v6 else "normalize")
-    if is_v6:
-        document = {**document, "utterances": [r for r in document["utterances"]
-            if r.get("content_type") in {"dialogue", "narration"}]}
+    document = store.read("export")
+    document = {**document, "utterances": [r for r in document["utterances"]
+        if r.get("content_type") in {"dialogue", "narration"} or r.get("semantic_resolution") == "unresolved"]}
     config = store.manifest["config"]["inpaint"]
     selected = retained_ids(document)
     known = {r["id"] for r in raw["texts"]}
@@ -111,17 +109,15 @@ def inpaint(store,backend=None,progress=None):
     for original_page in raw["pages"]:
         import copy
         page = copy.deepcopy(original_page)
-        if is_v6:
-            page["bubbles"] = [{**part["body_mask"], "id": part["id"]}
-                for group in page.get("bubble_groups", []) for part in group["parts"]]
+        page["bubbles"] = [{**part["body_mask"], "id": part["id"]}
+            for group in page.get("bubble_groups", []) for part in group["parts"]]
         texts = [r for r in raw["texts"] if r["page_id"]==page["id"]]
-        if is_v6:
-            texts = copy.deepcopy(texts)
-            for text in texts:
-                text["bubble_id"] = text.get("part_ids", [None])[0] if text.get("part_ids") else None
+        texts = copy.deepcopy(texts)
+        for text in texts:
+            text["bubble_id"] = text.get("part_ids", [None])[0] if text.get("part_ids") else None
         source = store.manifest["source"]["images"][page["page"]-1]
         request = {"page":page,"texts":texts,"selected":sorted(selected & {r["id"] for r in texts}),
-                   "source":source,"config":config,"policy":"inpaint-v6.1" if is_v6 else "inpaint-v1"}
+                   "source":source,"config":config,"policy":"inpaint-v6.1"}
         key,started = page["id"],monotonic()
         try:
             if file_hash(source["path"])!=source["sha256"]:
@@ -168,7 +164,7 @@ def inpaint(store,backend=None,progress=None):
         finally:
             if progress is not None:
                 progress.advance()
-    return {"policy":"inpaint-v6.1" if is_v6 else "inpaint-v1","model":config["model"],"revision":config["revision"],
+    return {"policy":"inpaint-v6.1","model":config["model"],"revision":config["revision"],
             "config":config,"coordinate_space":"original_page_pixels",
             "pages":pages,"failures":failures,"expected_pages":len(raw["pages"]),
             "completed_pages":len(pages),"selected_texts":len(selected)}

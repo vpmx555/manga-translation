@@ -7,16 +7,17 @@ FROM runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404
 LABEL org.opencontainers.image.title="manga-translate-v2"
 LABEL org.opencontainers.image.description="Reusable Runpod pod image for the manga translation pipeline"
 
-ENV MANGA_RUNTIME=/workspace/manga-runtime \
+ENV MANGA_RUNTIME=/opt/manga-work/runtime \
+    MANGA_EXECUTION_ROOT=/opt/manga-work/execution \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-WORKDIR /workspace/manga-translate-v2
+WORKDIR /opt/manga-work/project
 
 # Dependencies and models remain managed by deployment/runpod/manage.py on the
 # persistent /workspace volume. Baking only the application code keeps rebuilds
 # quick and preserves the project's validated, hash-keyed runtime environments.
-COPY --chown=root:root . /workspace/manga-translate-v2
+COPY --chown=root:root . /opt/manga-work/project
 
 # Fail the image build on Python syntax errors without retaining bytecode.
 RUN python3 -m compileall -q \

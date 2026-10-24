@@ -1,0 +1,32 @@
+{
+  "source_run": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-identity-relationship-l40s-20261023-r1\\live\\outputs\\iris-zero\\chapter-001\\20261023T102705Z-bfbb5d8e",
+  "page": 11,
+  "kind": "historical-upstream-example",
+  "note": "Ảnh và JSON thật; không phải kết quả kiểm chứng bootstrap identity mới.",
+  "assets": [
+    {
+      "file": "input.webp",
+      "source": "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\11.webp",
+      "sha256": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d",
+      "description": "Ảnh đầu vào nguyên bản."
+    },
+    {
+      "file": "layout.png",
+      "source": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-identity-relationship-l40s-20261023-r1\\live\\outputs\\iris-zero\\chapter-001\\20261023T102705Z-bfbb5d8e\\01_layout\\overlays\\page-11.png",
+      "sha256": "8b81caa095ca51d085d50ed6a164c4e3c3eb28cf65fc76f0115512c631dd7b81",
+      "description": "Overlay Koharu: panel và bubble."
+    },
+    {
+      "file": "extract.png",
+      "source": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-identity-relationship-l40s-20261023-r1\\live\\outputs\\iris-zero\\chapter-001\\20261023T102705Z-bfbb5d8e\\02_extract\\visualizations\\page_11.png",
+      "sha256": "e55a2e8aa02743abee27314f06a3bac2e688896b2e90394bf36683ea0d211d7d",
+      "description": "MAGI: character/text boxes và số nhân vật trong bank."
+    },
+    {
+      "file": "geometry.png",
+      "source": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-identity-relationship-l40s-20261023-r1\\live\\outputs\\iris-zero\\chapter-001\\20261023T102705Z-bfbb5d8e\\03_bubble_geometry\\overlays\\b68ed9e490d577e6-p11.png",
+      "sha256": "134acd83eaec6ccb17eb7aa8e2ff944fb64203b4da533158280cc08572c11945",
+      "description": "Bubble geometry: nhóm bubble, hình học và vùng text."
+    }
+  ]
+}

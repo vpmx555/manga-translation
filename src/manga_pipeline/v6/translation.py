@@ -1,13 +1,11 @@
-"""Whole-utterance dual translation; effects are exported without image edits."""
-import copy
+"""Natural translation entry point and measured typesetting shortening."""
 import re
 from pathlib import Path
-from ..progress import NullProgress
-from ..storage.io import atomic_json, fingerprint, read_json
+from ..storage.io import atomic_json, read_json
 from ..translation import contract
 from ..translation.stage import glossary_for, overrides_for
 from .semantic import object_schema
-
+from ..runtime.resources import BudgetExceeded, ResourceExhausted
 
 def wire_schema(ids):
     row = contract.schema([ids[0]])["properties"]["translations"]["items"]["anyOf"][0]
@@ -41,77 +39,17 @@ def resources(store, rows):
     return result
 
 
+def known_address_history(prior, batch):
+    """Historical reader helper; parallel translation never consumes this history."""
+    people = {r["speaker_person_id"] for r in batch if r.get("speaker_person_id") is not None}
+    people.update(p for r in batch for p in r.get("addressee_ids", []) if p is not None)
+    return [r for r in prior if r.get("speaker_person_id") is not None and r["speaker_person_id"] in people
+            and r.get("semantic_resolution") != "unresolved"][-12:]
+
+
 def translate(store, provider, progress=None):
-    document = copy.deepcopy(store.read("export"))
-    rows = sorted([*document["utterances"], *document["effects"]], key=lambda r: r["reading_order"])
-    cfg = store.manifest["config"]["translation"]
-    frozen = resources(store, rows)
-    progress = progress or NullProgress()
-    progress.reset(total=len(rows)*len(contract.STYLES), unit="translation")
-    failures = []
-    for row in rows:
-        row["translations"] = {}
-    for style in contract.STYLES:
-        for start in range(0, len(rows), cfg["batch_size"]):
-            batch = rows[start:start+cfg["batch_size"]]
-            ids = [r["id"] for r in batch]
-            context = rows[max(0,start-cfg["context_radius"]):start+len(batch)+cfg["context_radius"]]
-            fields = ("id", "text", "content_type", "speech_style", "speaker_person_id", "speaker_name", "addressee_ids", "mentions")
-            request = {"policy": "group-translation-v6.2", "style": style,
-                "targets": [{k: r.get(k) for k in fields} for r in batch],
-                "context": [{k: r.get(k) for k in fields} for r in context],
-                "glossary": frozen["glossary"], "instructions": cfg["instructions"],
-                "manual": {r["id"]: frozen["overrides"][style][r["id"]] for r in batch if r["id"] in frozen["overrides"][style]}}
-            key = f"{style}:batch:{start}:wire-v2"
-            try:
-                def check(value):
-                    ordered_response(value,ids)
-                    contract.readable(value)
-                    if [r.get("id") for r in value["translations"]] != ids:
-                        raise ValueError("Translation coverage/order changed")
-                    for item, source in zip(value["translations"], batch):
-                        errors = contract.issues(item, source, frozen["glossary"])
-                        if errors:
-                            raise ValueError(", ".join(errors))
-                cached = store.target("translate", key, request)
-                if cached is None:
-                    manual = request["manual"]
-                    pending = [r for r in batch if r["id"] not in manual]
-                    generated = {}
-                    if pending:
-                        wire = {**request, "targets": [r for r in request["targets"] if r["id"] not in manual]}
-                        pending_ids = [r["id"] for r in pending]
-                        def pending_check(value):
-                            ordered_response(value,pending_ids)
-                            contract.readable(value)
-                            if [r.get("id") for r in value["translations"]] != pending_ids:
-                                raise ValueError("Translation coverage/order changed")
-                            for item, source in zip(value["translations"], pending):
-                                errors = contract.issues(item, source, frozen["glossary"])
-                                if errors:
-                                    raise ValueError(", ".join(errors))
-                        response = provider.infer("translate_vi_group_v6_"+style,
-                            contract.prompt(style, cfg["instructions"], "semantic-v6")+
-                            " Each group target is one complete sentence across contours. Effects are context-only for image rendering.",
-                            wire, wire_schema(pending_ids), pending_check)
-                        generated = {r["id"]: r for r in response["translations"]}
-                    cached = {"translations": [generated[r["id"]] if r["id"] not in manual else
-                        {"id": r["id"], "translation": manual[r["id"]], "needs_review": False,
-                         "review_reason": "", "glossary_proposals": []} for r in batch]}
-                    check(cached)
-                    store.commit_target("translate", key, request, result=cached)
-                check(cached)
-                for row, item in zip(batch, cached["translations"]):
-                    row["translations"][style] = copy.deepcopy(item)
-                    progress.advance()
-            except Exception as exc:
-                store.commit_target("translate", key, request, error=str(exc))
-                failures.append({"style": style, "target_ids": ids, "error": str(exc)})
-                for _ in batch:
-                    progress.advance(failed=True)
-    document.update(policy="group-translation-v6.2", failures=failures, translation_resources=frozen)
-    atomic_json(store.artifact_path("translate").parent / "effects-translated.json", {"effects": document["effects"]})
-    return document
+    from .translation_parallel import translate as parallel_translate
+    return parallel_translate(store, provider, progress)
 
 
 def protected_terms(row, translation, glossary):
@@ -133,7 +71,7 @@ def protected_terms(row, translation, glossary):
 def shorten(store, provider, row, style, previous, budget, attempt):
     glossary = store.read("translate")["translation_resources"]["glossary"]
     terms = protected_terms(row, previous, glossary)
-    request = {"policy": "overflow-v6.1", "id": row["id"], "style": style,
+    request = {"policy": "overflow-v6.2-address-consistency", "id": row["id"], "style": style,
         "source": row["text"], "previous_translation": previous, "layout_budget": budget,
         "protected_terms": terms, "analysis": {k: row.get(k) for k in
             ("content_type", "speech_style", "speaker_person_id", "addressee_ids")}, "attempt": attempt}
@@ -157,9 +95,12 @@ def shorten(store, provider, row, style, previous, budget, attempt):
         try:
             cached = provider.infer_once("translate_vi_shorten_v6", "Shorten the complete Vietnamese utterance to fit the supplied measured budget. "
                 "Preserve all source meaning, names, honorifics, negation, numbers, speaker/addressee and emotion. "
+                "Keep the Vietnamese self-reference and address terms from previous_translation unchanged. "
                 "Never cut a contour's fragment independently. If this is impossible, meaning_preserved=false. "
                 "Flag uncertainty in review_reason. JSON only.", request, schema, check)
             check(cached)
+        except (BudgetExceeded, ResourceExhausted):
+            raise
         except Exception as exc:
             store.commit_target("typeset", key, request, result={"attempt_status": "rejected", "error": str(exc)})
             raise

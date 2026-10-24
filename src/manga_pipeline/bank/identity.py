@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Iterator
 
 import numpy as np
+from .prototypes import STRATEGY, closest_indices
+from .config import DEFAULT_CONFIG, validate_config
 
 
 SCHEMA_VERSION = 1
@@ -116,13 +118,7 @@ class CharacterBank:
             "model_fingerprint": self.model_fingerprint,
             "characters": {},
             "pending": {},
-            "config": {
-                "max_distance": 0.65,
-                "min_margin": 0.02,
-                "prototype_min_separation": 0.08,
-                "max_embeddings_per_character": 8,
-                "max_crops_per_character": 4,
-            },
+            "config": dict(DEFAULT_CONFIG),
             "postprocessors": [],
         }
 
@@ -152,9 +148,26 @@ class CharacterBank:
         else:
             self.arrays = {}
 
+        # Older banks collected only four previews. Upgrade the collection budget;
+        # missing previews are filled by future observations, never duplicated.
+        for key, expected in (("min_crops_per_character", 2), ("max_crops_per_character", 16),
+                              ("min_embeddings_per_character", 2), ("max_embeddings_per_character", 16),
+                              ("prototype_strategy", STRATEGY)):
+            if self.config.get(key) != expected:
+                self.config[key] = expected
+                self.dirty = True
+
     @property
     def config(self) -> dict[str, float | int]:
         return self.metadata["config"]  # type: ignore[return-value]
+
+    def apply_config(self, config):
+        """Apply the run's frozen policy, including when reusing an older bank."""
+        validate_config(config)
+        for key, value in config.items():
+            if self.config.get(key) != value:
+                self.config[key] = value
+                self.dirty = True
 
     @property
     def characters(self) -> dict[str, dict[str, object]]:
@@ -197,10 +210,14 @@ class CharacterBank:
             "id": character_id,
             "display_name": None,
             "crop_paths": crop_paths,
+            "prototype_crop_paths": list(crop_paths) if len(crop_paths) == len(embeddings) else [None]*len(embeddings),
+            "prototype_source_keys": [None]*len(embeddings),
             "created_at": time.time(),
             "disabled": False,
             "disabled_prototype_indices": [],
             "disabled_crop_paths": [],
+            "appearance_keys": [],
+            "appearance_count": 0,
         }
         self.arrays[self.embedding_key_for_character(character_id)] = embeddings.astype(np.float32)
         self.dirty = True
@@ -225,7 +242,11 @@ class CharacterBank:
     def promote_pending(self, pending_id: str) -> int:
         record = self.pending.pop(pending_id)
         embeddings = self.arrays.pop(self.embedding_key_for_pending(pending_id))
-        return self.create_character(embeddings, list(record.get("crop_paths", [])))
+        identity = self.create_character(embeddings, list(record.get("crop_paths", [])))
+        keys = sorted(set(record.get('appearance_keys', [])))
+        self.characters[str(identity)].update(appearance_keys=keys, appearance_count=len(keys))
+        self.characters[str(identity)]['prototype_source_keys'] = list(record.get('prototype_source_keys', [None]*len(embeddings)))
+        return identity
 
     def display_label(self, character_id: int) -> str:
         record = self.characters[str(character_id)]
@@ -261,6 +282,11 @@ class CharacterBank:
         disabled = set(record.get("disabled_crop_paths", []))
         disabled.add(crop_paths[crop_index])
         record["disabled_crop_paths"] = sorted(disabled)
+        indices = set(record.get('disabled_prototype_indices', []))
+        for i, path in enumerate(record.get('prototype_crop_paths', [])):
+            if path == crop_paths[crop_index]:
+                indices.add(i)
+        record['disabled_prototype_indices'] = sorted(indices)
         self.dirty = True
 
     def merge_characters(self, source_id: int, target_id: int) -> None:
@@ -272,6 +298,17 @@ class CharacterBank:
             raise KeyError("Both source and target character IDs must exist")
         source_embeddings = self.get_character_embeddings(source_id)
         target_embeddings = self.get_character_embeddings(target_id)
+        def enabled_paths(identity, record, field):
+            raw = self.arrays.get(self.embedding_key_for_character(identity), [])
+            paths = record.get(field, [None]*len(raw))
+            if len(paths) != len(raw):
+                raise ValueError('Prototype/crop mapping length mismatch')
+            disabled = set(record.get('disabled_prototype_indices', []))
+            return [path for i, path in enumerate(paths) if i not in disabled]
+        target_paths = enabled_paths(target_id, target, 'prototype_crop_paths')
+        source_paths = enabled_paths(source_id, source, 'prototype_crop_paths')
+        target_sources = enabled_paths(target_id, target, 'prototype_source_keys')
+        source_sources = enabled_paths(source_id, source, 'prototype_source_keys')
         if source_embeddings.size:
             combined = (
                 np.vstack([target_embeddings, source_embeddings])
@@ -279,15 +316,24 @@ class CharacterBank:
                 else source_embeddings
             )
             maximum = int(self.config["max_embeddings_per_character"])
-            self.arrays[self.embedding_key_for_character(target_id)] = combined[:maximum]
+            chosen = closest_indices(combined, maximum)
+            self.arrays[self.embedding_key_for_character(target_id)] = combined[chosen]
+            paths = target_paths + source_paths if target_embeddings.size else source_paths
+            target['prototype_crop_paths'] = [paths[i] for i in chosen]
+            sources = target_sources + source_sources if target_embeddings.size else source_sources
+            target['prototype_source_keys'] = [sources[i] for i in chosen]
             target["disabled_prototype_indices"] = []
         crop_paths = list(target.get("crop_paths", []))
         for crop_path in source.get("crop_paths", []):
             if crop_path not in crop_paths:
                 crop_paths.append(crop_path)
-        target["crop_paths"] = crop_paths[: int(self.config["max_crops_per_character"])]
+        mapped = target.get('prototype_crop_paths', [])
+        target["crop_paths"] = list(mapped) if mapped and all(p is not None for p in mapped) else crop_paths[: int(self.config["max_crops_per_character"])]
         source["disabled"] = True
         source["merged_into"] = target_id
+        keys = sorted(set(target.get('appearance_keys', [])) | set(source.get('appearance_keys', [])))
+        target['appearance_keys'] = keys
+        target['appearance_count'] = len(keys)
         self.dirty = True
 
     def save(self) -> None:

@@ -1,15 +1,8 @@
-"""Config-aware NER factory; old runs retain their spaCy backend."""
+"""GLiNER is the sole runtime detector; tests inject mocks into Pipeline."""
 
 
 def create_detector(config):
-    ner = config.get("ner")
-    if ner is None:
-        from .spacy_ner import SpacyNames
-        return SpacyNames(config["spacy_model"])
-    if ner["backend"] == "spacy":
-        from .spacy_ner import SpacyNames
-        return SpacyNames(config["spacy_model"])
-    if ner["backend"] == "gliner":
-        from .gliner_ner import GlinerNames
-        return GlinerNames(ner)
-    raise ValueError("Unknown NER backend")
+    if config.get("ner", {}).get("backend") != "gliner":
+        raise ValueError("Only GLiNER is supported")
+    from .gliner_ner import GlinerNames
+    return GlinerNames(config["ner"])

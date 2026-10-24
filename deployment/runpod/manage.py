@@ -20,13 +20,10 @@ import uuid
 import zipfile
 
 PROJECT = Path(__file__).resolve().parents[2]
-RUNTIME = Path(os.environ.get("MANGA_RUNTIME", "/workspace/manga-runtime"))
+RUNTIME = Path(os.environ.get("MANGA_RUNTIME", "/opt/manga-work/runtime"))
 PYTHON_VERSION = "3.12.11"
 UV_VERSION = "0.12.23"
 UV_SHA256 = "9167d72b3319674b6303c4cbe071854bba13ebdf3d76b1a7cbdc175471fb66d6"
-OLLAMA_VERSION = "0.35.1"
-OLLAMA_SHA256 = "9fcd79ac4575b2bd31b992eee18b1000c8ad126b451627c8f8cd091714cfbb10"
-HOST = "http://127.0.0.1:11534"
 MAGI_REVISION = "fbc890fec52977142e8ee00bfe26e9458b65517c"
 
 
@@ -49,9 +46,9 @@ def read_json(path, default=None):
 
 
 @contextlib.contextmanager
-def lock(name, timeout=1):
+def lock(name, timeout=1, *, shared=False):
     if sys.platform != "linux":
-        raise RuntimeError("manage.py runs on the Linux Pod; use sync.py on your PC")
+        raise RuntimeError("manage.py runs on the Linux Pod; use local_v6.py on your PC")
     import fcntl
     path = RUNTIME / "locks" / (name + ".lock")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +56,7 @@ def lock(name, timeout=1):
         deadline = time.monotonic() + timeout
         while True:
             try:
-                fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(handle, (fcntl.LOCK_SH if shared else fcntl.LOCK_EX) | fcntl.LOCK_NB)
                 break
             except BlockingIOError:
                 if time.monotonic() >= deadline:
@@ -76,21 +73,19 @@ def environment():
     env.update({
         "HF_HOME": str(RUNTIME / "cache" / "huggingface"),
         "UV_CACHE_DIR": str(execution_root() / "cache" / "uv"),
+        "CUPY_CACHE_DIR": str(execution_root() / "cache" / "cupy"),
         "UV_PYTHON_INSTALL_DIR": str(execution_root() / "python"),
         "UV_PYTHON_PREFERENCE": "only-managed",
         "UV_HTTP_TIMEOUT": "600",
         "UV_HTTP_RETRIES": "3",
-        "OLLAMA_HOST": HOST.removeprefix("http://"),
-        "OLLAMA_MODELS": str(RUNTIME / "models" / "ollama"),
-        "OLLAMA_NUM_PARALLEL": "1",
-        "OLLAMA_MAX_LOADED_MODELS": "1",
+        "MANGA_LLM_PAUSE_FILE": str(RUNTIME / "config/llm-inference-pause.json"),
         "MPLBACKEND": "Agg",
         "PYTHONUNBUFFERED": "1",
         "PYTHONDONTWRITEBYTECODE": "1",
         "TOKENIZERS_PARALLELISM": "false",
-        "OMP_NUM_THREADS": "8",
-        "MKL_NUM_THREADS": "8",
-        "OPENBLAS_NUM_THREADS": "8",
+        "OMP_NUM_THREADS": env.get("OMP_NUM_THREADS", "8"),
+        "MKL_NUM_THREADS": env.get("MKL_NUM_THREADS", "8"),
+        "OPENBLAS_NUM_THREADS": env.get("OPENBLAS_NUM_THREADS", "8"),
     })
     env.pop("PYTHONPATH", None)
     env.pop("PYTHONHOME", None)
@@ -116,7 +111,7 @@ def dependency_signature(requirements=None):
 
 def execution_root():
     """Optionally keep Python/package I/O off a slow mounted data volume."""
-    return Path(os.environ.get("MANGA_EXECUTION_ROOT", str(RUNTIME)))
+    return Path(os.environ.get("MANGA_EXECUTION_ROOT", "/opt/manga-work/execution"))
 
 
 def current_python():
@@ -151,6 +146,39 @@ def hayai_python():
     return execution_root() / "envs" / ("hayai-" + signature) / "venv/bin/python"
 
 
+def glm_python():
+    content = ((PROJECT / "requirements-glm-ocr.txt").read_bytes()
+               + (PROJECT / "deployment/runpod/requirements-glm-ocr.in").read_bytes())
+    return execution_root() / "envs" / ("glm-" + hashlib.sha256(content).hexdigest()[:20]) / "venv/bin/python"
+
+
+def ocr_python(config):
+    return glm_python() if config['ocr']['backend'] == 'glm-ocr' else hayai_python()
+
+
+def setup_glm(uv, *, verify_cuda=True):
+    python = glm_python()
+    root = python.parents[2]
+    signature = root.name
+    ready = root / "ready.json"
+    if read_json(ready, {}).get("signature") == signature and python.exists():
+        if verify_cuda:
+            cuda_check(python)
+        return
+    locked = root / "requirements.lock"
+    if not locked.exists():
+        raise RuntimeError("GLM-OCR Linux lock must be prepared before renting a GPU")
+    if not python.exists():
+        call([uv, "venv", "--allow-existing", "--python", PYTHON_VERSION, root / "venv"])
+    call([uv, "pip", "sync", "--python", python, "--require-hashes", "--extra-index-url",
+          "https://download.pytorch.org/whl/cu128", "--index-strategy", "unsafe-best-match", locked])
+    call([uv, "pip", "check", "--python", python])
+    call([python, "-c", "import torchvision; from transformers import AutoProcessor,GlmOcrForConditionalGeneration"])
+    if verify_cuda:
+        cuda_check(python)
+    atomic_json(ready, {"signature": signature, "created_at": time.time()})
+
+
 def setup_hayai(uv, *, verify_cuda=True):
     python = hayai_python()
     root = python.parents[2]
@@ -166,9 +194,12 @@ def setup_hayai(uv, *, verify_cuda=True):
     if not locked.exists():
         pending = root / "requirements.lock.pending"
         call([uv, "pip", "compile", PROJECT / "deployment/runpod/requirements-hayai.in", "--python", python,
+              "--index-strategy", "unsafe-best-match",
               "--generate-hashes", "--output-file", pending])
         pending.replace(locked)
-    call([uv, "pip", "sync", "--python", python, "--require-hashes", locked])
+    call([uv, "pip", "sync", "--python", python, "--require-hashes",
+          "--extra-index-url", "https://download.pytorch.org/whl/cu128",
+          "--index-strategy", "unsafe-best-match", locked])
     call([uv, "pip", "check", "--python", python])
     call([python, "-c", "from transformers import AutoProcessor, Siglip2VisionModel, PreTrainedTokenizerFast"])
     if verify_cuda:
@@ -257,10 +288,6 @@ def ensure_uv():
     return binary
 
 
-def ollama_binary():
-    return execution_root() / "tools" / "ollama" / OLLAMA_VERSION / "bin" / "ollama"
-
-
 def attach_data(project=PROJECT):
     for relative, target in [
         ("banks", RUNTIME / "data" / "banks"),
@@ -290,7 +317,7 @@ def write_shell():
                        shlex.quote(str(PROJECT / "deployment/runpod/manage.py")) + ' "$@"\n', encoding="utf-8")
     command.chmod(0o755)
     lines = [f"export PATH={shlex.quote(str(RUNTIME / 'bin'))}:\"$PATH\""]
-    for key in ["HF_HOME", "OLLAMA_HOST", "OLLAMA_MODELS", "MPLBACKEND"]:
+    for key in ["HF_HOME", "MPLBACKEND"]:
         lines.append(f"export {key}={shlex.quote(environment()[key])}")
     shell = RUNTIME / "env.sh"
     shell.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -311,11 +338,11 @@ def cuda_check(python):
     return json.loads(call([python, "-c", script], capture=True, timeout=120))
 
 
-def setup(*, verify_cuda=True):
+def setup(*, verify_cuda=True, config=None):
     if sys.platform != "linux" or platform.machine() != "x86_64":
         raise RuntimeError("Setup requires a Linux x86_64 GPU Pod")
     with lock("launch"), lock("pipeline"), lock("setup"):
-        for name in ["logs", "models/ollama", "data/input", "cache/downloads", "config"]:
+        for name in ["logs", "data/input", "cache/downloads", "config"]:
             (RUNTIME / name).mkdir(parents=True, exist_ok=True)
         attach_data()
         uv = ensure_uv()
@@ -351,37 +378,18 @@ def setup(*, verify_cuda=True):
             if verify_cuda:
                 say(json.dumps(cuda_check(python)))
         setup_visual(uv, verify_cuda=verify_cuda)
-        setup_hayai(uv, verify_cuda=verify_cuda)
-        binary = ollama_binary()
-        ollama_ready = binary.parent.parent / "ready.json"
-        if not binary.exists() or not ollama_ready.exists():
-            archive = RUNTIME / "cache/downloads" / f"ollama-{OLLAMA_VERSION}.tar.zst"
-            download(f"https://github.com/ollama/ollama/releases/download/v{OLLAMA_VERSION}/ollama-linux-amd64.tar.zst",
-                     archive, OLLAMA_SHA256)
-            destination = binary.parent.parent
-            destination.mkdir(parents=True, exist_ok=True)
-            script = ("import pathlib,tarfile,zstandard,sys; "
-                      "src=pathlib.Path(sys.argv[1]); dst=pathlib.Path(sys.argv[2]); "
-                      "f=src.open('rb'); stream=zstandard.ZstdDecompressor().stream_reader(f); "
-                      "archive=tarfile.open(fileobj=stream,mode='r|'); "
-                      "archive.extractall(dst,filter='data'); archive.close(); stream.close(); f.close()")
-            call([python, "-c", script, archive, destination])
-            binary.chmod(0o755)
-            atomic_json(ollama_ready, {"version": OLLAMA_VERSION, "archive_sha256": OLLAMA_SHA256})
+        config = config or configuration()
+        if config['ocr']['backend'] == 'glm-ocr':
+            setup_glm(uv, verify_cuda=verify_cuda)
+        else:
+            setup_hayai(uv, verify_cuda=verify_cuda)
         write_shell()
         atomic_json(RUNTIME / "config/runtime.json", {
-            "python": PYTHON_VERSION, "ollama": OLLAMA_VERSION, "uv": UV_VERSION,
-            "host": HOST, "signature": signature,
+            "python": PYTHON_VERSION, "uv": UV_VERSION,
+            "signature": signature,
             "visual_signature": visual_signature(), "visual_python": str(visual_python()),
         })
         say("Setup ready. Code edits do not change the dependency signature.")
-
-
-def http(route, payload=None, timeout=5):
-    body = json.dumps(payload).encode() if payload is not None else None
-    request = Request(HOST + route, data=body, headers={"Content-Type": "application/json"})
-    with urlopen(request, timeout=timeout) as response:
-        return json.load(response)
 
 
 def service_identity(pid):
@@ -394,136 +402,110 @@ def service_identity(pid):
         return None
 
 
-def owns_service(record):
-    if not isinstance(record, dict) or not isinstance(record.get("pid"), int):
-        return False
-    identity = service_identity(record["pid"])
-    return bool(identity and identity == record and identity["executable"] == str(ollama_binary().resolve()))
-
-
-def start():
-    current_python()
-    binary = ollama_binary()
-    if not binary.exists():
-        raise RuntimeError("Ollama binary is missing; run: manga setup")
-    with lock("service", timeout=35):
-        pidfile = RUNTIME / "config/ollama-process.json"
-        record = read_json(pidfile)
-        try:
-            version = http("/api/version")
-        except (OSError, ValueError):
-            version = None
-        if version:
-            if not owns_service(record):
-                raise RuntimeError("Port 11534 is occupied by an unmanaged service; it was not changed")
-            if version.get("version") != OLLAMA_VERSION:
-                raise RuntimeError("Ollama version differs from the pinned runtime")
-            say("Ollama is already running; reusing it")
-            return version
-        if owns_service(record):
-            raise RuntimeError("Managed Ollama is alive but unhealthy; inspect logs or run manga stop")
-        log = RUNTIME / "logs/ollama.log"
-        log.parent.mkdir(parents=True, exist_ok=True)
-        if log.exists() and log.stat().st_size > 20 * 1024 * 1024:
-            log.replace(log.with_suffix(".previous.log"))
-        env = environment()
-        env["LD_LIBRARY_PATH"] = str(binary.parent.parent / "lib/ollama") + ":" + env.get("LD_LIBRARY_PATH", "")
-        with log.open("ab") as output:
-            process = subprocess.Popen([str(binary), "serve"], stdin=subprocess.DEVNULL,
-                                       stdout=output, stderr=subprocess.STDOUT, env=env,
-                                       cwd=RUNTIME, start_new_session=True)
-        identity = service_identity(process.pid)
-        if not identity:
-            raise RuntimeError("Ollama exited during startup; inspect logs/ollama.log")
-        atomic_json(pidfile, identity)
-        for _ in range(60):
-            if process.poll() is not None:
-                raise RuntimeError("Ollama exited; inspect logs/ollama.log")
-            try:
-                version = http("/api/version", timeout=2)
-                if version.get("version") != OLLAMA_VERSION:
-                    raise RuntimeError("Unexpected Ollama version")
-                say("Ollama ready on " + HOST)
-                return version
-            except (OSError, ValueError):
-                time.sleep(1)
-        raise RuntimeError("Ollama startup timed out; inspect logs/ollama.log")
+def start(*, require_profile=False):
+    config = configuration()
+    activate_vllm(config)
+    import vllm_runtime
+    return vllm_runtime.start(config)
 
 
 def stop():
-    with lock("pipeline"), lock("service"):
-        record = read_json(RUNTIME / "config/ollama-process.json")
-        if owns_service(record):
-            os.kill(record["pid"], signal.SIGTERM)
-            for _ in range(100):
-                if not owns_service(record):
-                    break
-                time.sleep(0.1)
-            say("Stopped the managed Ollama server; the Pod itself is still billable")
-        else:
-            say("No managed Ollama server is running")
+    import vllm_runtime
+    return vllm_runtime.stop()
+
+
+@contextlib.contextmanager
+def parallel_service_guard(config):
+    """Change server slot profile only at an idle, exclusively locked boundary."""
+    activate_vllm(config)
+    from manga_pipeline.runtime.inference_state import require_ready
+    with lock("pipeline"):
+        require_ready(RUNTIME / "config/llm-inference-pause.json")
+    with lock("pipeline", shared=True):
+        yield
 
 
 def configuration(path=None):
-    default_path = PROJECT / "configs/pipeline.json"
-    result = read_json(default_path)
-    if not isinstance(result, dict):
-        raise RuntimeError("Missing or invalid pipeline config: " + str(default_path))
-    if path:
-        path = Path(path)
-        supplied = read_json(path)
-        if not isinstance(supplied, dict):
-            raise RuntimeError("Missing or invalid pipeline config: " + str(path))
-        for key, value in supplied.items():
-            if isinstance(value, dict) and isinstance(result.get(key), dict):
-                result[key].update(value)
-            else:
-                result[key] = value
-    result.setdefault("ollama", {})["host"] = HOST
-    result.setdefault("ocr", {"backend": "hayai", "model": "JustANormalTinkerer/hayai-ocr-v2.5-nova",
-                              "revision": "2803d0dc005fa4396ab1e7c5a472d2c450a247f7"})
+    sys.path.insert(0, str(PROJECT / "src"))
+    from manga_pipeline.pipeline import load_config
+    result = load_config(Path(path) if path else PROJECT / "configs/pipeline-v6-runpod.json")
     # Interpreter/assets belong to the persistent managed runtime, not the image.
     result.setdefault("layout", {}).update(enabled=True, python=str(visual_python(require_ready=False)),
                                           model_root=str(RUNTIME / "models/visual"))
     result.setdefault("inpaint", {}).setdefault("enabled", False)
+    result["inpaint"]["model_root"] = str(RUNTIME / "models/visual")
+    sys.path.insert(0, str(PROJECT / "src"))
+    from manga_pipeline.runtime.llm_budget import validate_runpod_profile
+    validate_runpod_profile(result)
     return result
 
 
+def activate_vllm(config):
+    """Configure the selected local controller; never starts or downloads here."""
+    sys.path.insert(0, str(PROJECT / "src"))
+    os.environ.update(MANGA_LLM_BACKEND="vllm", MANGA_VLLM_CONFIG=json.dumps(config),
+        MANGA_LLM_MANAGER=str(PROJECT / "deployment/runpod/vllm_runtime.py"),
+        MANGA_LLM_SERVICE_RECORD=str(RUNTIME / "config/vllm-service.json"),
+        MANGA_LLM_SERVER_IDENTITY_FILE=str(RUNTIME / "config/vllm-process.json"),
+        MANGA_LLM_PAUSE_FILE=str(RUNTIME / "config/llm-inference-pause.json"))
+
+
+def config_fingerprint(config):
+    return hashlib.sha256(json.dumps(config, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+
+def validate_gpu_profile(config):
+    expected = config.get("runtime", {}).get("required_gpu")
+    if expected:
+        names = call(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], capture=True).strip().splitlines()
+        if len(names) != 1 or expected.lower() not in names[0].lower():
+            raise RuntimeError(f"Frozen profile requires exactly one {expected}; no alternative GPU is authorized")
+
+
 def ensure_model(config):
-    model = config["ollama"]["model"]
-    tags = http("/api/tags").get("models", [])
-    if not any(item.get("name") == model or item.get("model") == model for item in tags):
-        say("Pulling " + model)
-        call([ollama_binary(), "pull", model])
-    return model
+    activate_vllm(config)
+    import vllm_runtime
+    vllm_runtime.require_prepared(config)
+    return config["llm"]["model"]
 
 
-def prefetch():
+def prefetch(config=None):
     with lock("pipeline"):
-        call([hayai_python(), "-c",
+        config = configuration() if config is None else config
+        if config['ocr']['backend'] == 'glm-ocr':
+            call([glm_python(), "-c", "from huggingface_hub import snapshot_download; import json,sys; "
+                  "from transformers import AutoProcessor; c=json.loads(sys.argv[1]); "
+                  "p=snapshot_download(c['model'], revision=c['revision'], "
+                  "allow_patterns=['*.json','*.safetensors','*.model','*.txt','*.jinja']); "
+                  "AutoProcessor.from_pretrained(p,local_files_only=True); print('GLM-OCR cached; processor verified')",
+                  json.dumps(config['ocr'])])
+        else:
+            call([hayai_python(), "-c",
               "from huggingface_hub import snapshot_download; "
               "snapshot_download('JustANormalTinkerer/hayai-ocr-v2.5-nova',revision='2803d0dc005fa4396ab1e7c5a472d2c450a247f7'); "
-              "snapshot_download('google/siglip2-base-patch16-naflex',revision='b53b807d3a2d5e2b3911292f2d69e5341cdc064c',allow_patterns=['*.json','preprocessor_config.json'])"])
+                  "snapshot_download('google/siglip2-base-patch16-naflex',revision='b53b807d3a2d5e2b3911292f2d69e5341cdc064c',allow_patterns=['*.json','preprocessor_config.json'])"])
         worker = visual_python()
         call([worker, "-B", PROJECT / "scripts/setup_visual_models.py", "--only", "layout",
               "--model-root", RUNTIME / "models/visual"])
-        start()
-        config = configuration()
+        activate_vllm(config)
+        import vllm_runtime
+        vllm_runtime.prefetch(config)
         ensure_model(config)
         script = ("from huggingface_hub import snapshot_download; "
                   f"snapshot_download('ragavsachdeva/magiv2',revision='{MAGI_REVISION}'); "
                   "from manga_pipeline.providers.gliner_ner import GlinerNames; "
                   "import json,sys; config=json.loads(sys.argv[1]); "
-                  "ner=GlinerNames(config['ner']); ner.load(); ner.close(); print('Model caches ready')")
+                  "ner=GlinerNames(config['ner']) if config['ner']['backend']=='gliner' else None; "
+                  "ner.load() if ner else None; ner.close() if ner else None; print('Model caches ready')")
         env = environment()
         env["PYTHONPATH"] = str(PROJECT / "src")
         subprocess.run([str(current_python()), "-c", script, json.dumps(config)],
                        cwd=PROJECT, env=env, check=True)
 
 
-def doctor(*, inference=False):
+def doctor(*, inference=False, config=None):
     with lock("pipeline"):
-        return _doctor(inference=inference)
+        return _doctor(inference=inference, config=config)
 
 
 def visual_preflight(config):
@@ -536,35 +518,53 @@ def visual_preflight(config):
                    cwd=PROJECT, env=env, check=True)
 
 
-def _doctor(*, inference=False):
+def _doctor(*, inference=False, config=None):
+    sys.path.insert(0, str(PROJECT / "src"))
+    config = configuration() if config is None else config
+    use_vllm = config.get("llm", {}).get("backend") == "vllm"
+    if use_vllm:
+        activate_vllm(config)
+        from manga_pipeline.runtime.inference_state import require_ready
+        require_ready(RUNTIME / "config/llm-inference-pause.json")
+    validate_gpu_profile(config)
     python = current_python()
-    visual_preflight(configuration())
+    visual_preflight(config)
     visual_gpu = cuda_check(visual_python())
-    hayai_gpu = cuda_check(hayai_python())
+    hayai_gpu = cuda_check(ocr_python(config))
     gpu = cuda_check(python)
+    geometry_code = ("import sys,json; sys.path.insert(0,sys.argv[1]); "
+                     "from manga_pipeline.v6.geometry_backend import preflight; "
+                     "print(json.dumps(preflight('cuda')))")
+    geometry_gpu = json.loads(call([python, "-c", geometry_code, PROJECT / "src"], capture=True))
     call([ensure_uv(), "pip", "check", "--python", python])
-    version = start()
-    config = configuration()
-    report = {"gpu": gpu, "ollama": version, "signature": dependency_signature(),
+    version = {"version": config["vllm"]["version"], "backend": "vllm"}
+    report = {"gpu": gpu, "geometry_gpu": geometry_gpu, "llm": version, "signature": dependency_signature(),
+              "config_fingerprint": config_fingerprint(config),
+              "source_bundle": read_json(PROJECT / "__bundle__.json", {}).get("version"),
+              "server_identity": read_json(RUNTIME / "config/vllm-process.json"),
               "visual_gpu": visual_gpu, "visual_signature": visual_signature(),
-              "hayai_gpu": hayai_gpu, "hayai_python": str(hayai_python()),
+              "ocr_gpu": hayai_gpu, "ocr_python": str(ocr_python(config)), "ocr_backend": config['ocr']['backend'],
               "execution_root": str(execution_root()),
               "runtime": str(RUNTIME), "disk_free_gb": round(shutil.disk_usage(RUNTIME).free / 2**30, 2)}
-    if inference:
-        model = ensure_model(config)
-        reply = http("/api/chat", {
-            "model": model, "stream": False, "think": False,
-            "messages": [{"role": "user", "content": "Reply with the word OK."}],
-            "options": {"num_ctx": config["ollama"]["num_ctx"], "num_predict": 32},
-        }, timeout=600)
-        if not reply.get("message", {}).get("content", "").strip():
-            raise RuntimeError("Model returned empty output")
-        loaded = http("/api/ps").get("models", [])
-        if not any(item.get("size_vram", 0) > 0 for item in loaded):
-            raise RuntimeError("Ollama inference did not use GPU VRAM")
-        report["inference"] = reply["message"]["content"]
-        report["loaded_models"] = loaded
-        http("/api/generate", {"model": model, "keep_alive": 0}, timeout=120)
+    if inference and use_vllm:
+        import vllm_runtime
+        from manga_pipeline.runtime.resources import configure_batch
+        from manga_pipeline.runtime.llm_budget import preflight_case
+        from manga_pipeline.providers.vllm import VLLM
+        os.environ.update(configure_batch(config, RUNTIME / "config/vllm-preflight"))
+        provider = VLLM(config, RUNTIME / "cache/vllm-preflight" / uuid.uuid4().hex)
+        probe = preflight_case(config)
+        def check(value):
+            if set(value.get("utterances", {})) != {r["id"] for r in probe["data"]["targets"]}:
+                raise ValueError("Preflight target coverage changed")
+        result = provider.infer_once("analyze_dialogue_v6", probe["prompt"], probe["data"], probe["schema"], check)
+        record = read_json(RUNTIME / "config/vllm-service.json", {})
+        report.update(inference=True, model_digest=config["llm"]["model"] + "@" + config["vllm"]["revision"],
+            server_identity=record.get("identity"), model_revision=config["vllm"]["revision"],
+            vllm_signature=vllm_runtime.signature(config), full_gpu_verified=record.get("cpu_offload_gb") == 0,
+            probe_budget=provider.request_budget("analyze_dialogue_v6", probe["prompt"], probe["data"], probe["schema"]))
+        # Follow the same stage ownership as execution; release VRAM for visual work.
+        vllm_runtime.stop()
     say(json.dumps(report, ensure_ascii=False, indent=2))
     atomic_json(RUNTIME / "config/last-doctor.json", report)
     return report
@@ -573,7 +573,13 @@ def _doctor(*, inference=False):
 def run_pipeline(arguments):
     if not arguments:
         raise RuntimeError("Usage: manga run IMAGE_FOLDER --story STORY --chapter CHAPTER")
-    with lock("pipeline"):
+    parallel = os.environ.get("MANGA_PARALLEL_BATCH") == "1"
+    story = os.environ.get("MANGA_STORY_KEY", "")
+    if parallel and (not story or any(c not in "abcdefghijklmnopqrstuvwxyz0123456789-_" for c in story)
+                     or not os.environ.get("MANGA_GPU_COORDINATOR")):
+        raise RuntimeError("Parallel workers require a validated story key and GPU coordinator")
+    from contextlib import nullcontext
+    with lock("pipeline", shared=parallel), (lock("story-" + story) if parallel else nullcontext()):
         python = current_python()
         job_id = os.environ.get("MANGA_JOB_ID")
         if job_id:
@@ -592,19 +598,17 @@ def run_pipeline(arguments):
             config_path = args[pos + 1]
             del args[pos:pos + 2]
         config = configuration(config_path)
-        if config.get("ocr", {}).get("backend") == "hayai":
-            if not hayai_python().exists():
-                raise RuntimeError("Hayai environment is missing; run manga setup before inference")
-            config["ocr"]["python"] = str(hayai_python())
+        if config.get("ocr", {}).get("backend") in {"hayai", "glm-ocr"}:
+            if not ocr_python(config).exists():
+                raise RuntimeError("OCR environment is missing; run manga setup before inference")
+            config["ocr"]["python"] = str(ocr_python(config))
         if args[0] in {"run", "extract"}:
             visual_preflight(config)
-        start()
+        use_vllm = config.get("llm", {}).get("backend") == "vllm"
+        activate_vllm(config)
         model = ensure_model(config)
-        # MAGI owns the GPU first; release an earlier Ollama model before extraction.
-        for loaded in http("/api/ps").get("models", []):
-            http("/api/generate", {"model": loaded["name"], "keep_alive": 0}, timeout=120)
         if args[0] in {"run", "extract", "reanalyze", "translate"}:
-            runtime_config = RUNTIME / "config/pipeline.json"
+            runtime_config = RUNTIME / "config" / (f"pipeline-{story}.json" if parallel else "pipeline.json")
             atomic_json(runtime_config, config)
             args.extend(["--config", str(runtime_config)])
         if args[0] in {"run", "extract"}:
@@ -620,24 +624,21 @@ def run_pipeline(arguments):
             manifest = read_json(directory / "manifest.json", {})
             if ":\\" in manifest.get("bank_path", ""):
                 raise RuntimeError("This run has Windows paths; create a new run on the Pod")
-            host = manifest.get("config", {}).get("ollama", {}).get("host")
-            if args[0] != "translate" and host and host != HOST:
+            host = manifest.get("config", {}).get("llm", {}).get("host")
+            expected_host = "http://127.0.0.1:8000"
+            if args[0] != "translate" and host and host != expected_host:
                 raise RuntimeError("Run uses a different Ollama host; it was not silently rewritten")
         started = time.monotonic()
         metadata = {"pid": os.getpid(), "command": args, "started_at": time.time()}
-        atomic_json(RUNTIME / "config/pipeline-process.json", metadata)
+        atomic_json(RUNTIME / "config" / (f"pipeline-process-{story}.json" if parallel else "pipeline-process.json"), metadata)
         try:
             result = subprocess.run([str(python), str(PROJECT / "run.py"), *args],
                                     cwd=PROJECT, env=environment())
             return result.returncode
         finally:
-            atomic_json(RUNTIME / "config/last-run.json", {
+            atomic_json(RUNTIME / "config" / (f"last-run-{story}.json" if parallel else "last-run.json"), {
                 **metadata, "elapsed_seconds": round(time.monotonic() - started, 2),
             })
-            try:
-                http("/api/generate", {"model": model, "keep_alive": 0}, timeout=120)
-            except OSError:
-                pass
 
 
 def launch(arguments):
@@ -697,7 +698,7 @@ def logs(arguments):
 
 def code_status():
     import importlib.util
-    spec = importlib.util.spec_from_file_location("manga_sync_status", PROJECT / "deployment/runpod/sync.py")
+    spec = importlib.util.spec_from_file_location("manga_sync_status", PROJECT / "deployment/runpod/native_transport.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     hashes = {p.relative_to(PROJECT).as_posix(): file_hash(p) for p in module.code_files(PROJECT)}
@@ -760,6 +761,17 @@ def main(argv=None):
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv)
     try:
+        selected_config = None
+        if args.command in {"doctor", "prefetch"}:
+            flags = list(args.arguments)
+            if "--config" in flags:
+                index = flags.index("--config")
+                if index + 1 >= len(flags) or flags[index + 1].startswith("--"):
+                    raise ValueError("--config requires a path")
+                selected_config = configuration(flags[index + 1])
+                del flags[index:index + 2]
+            if any(flag != "--inference" or args.command != "doctor" for flag in flags):
+                raise ValueError("doctor/prefetch accepts --config PATH; only doctor accepts --inference")
         if args.command == "setup":
             if args.arguments not in ([], ["--prepare-only"]):
                 raise ValueError("setup accepts only --prepare-only (CPU image preparation; not CUDA verification)")
@@ -769,9 +781,9 @@ def main(argv=None):
         elif args.command == "stop":
             stop()
         elif args.command == "doctor":
-            doctor(inference="--inference" in args.arguments)
+            doctor(inference="--inference" in args.arguments, config=selected_config)
         elif args.command == "prefetch":
-            prefetch()
+            prefetch(config=selected_config)
         elif args.command == "launch":
             launch(args.arguments)
         elif args.command == "jobs":
@@ -783,7 +795,7 @@ def main(argv=None):
         elif args.command == "status":
             say(json.dumps({"runtime": read_json(RUNTIME / "config/runtime.json"),
                             "last_run": read_json(RUNTIME / "config/last-run.json"),
-                            "ollama_process_owned": owns_service(read_json(RUNTIME / "config/ollama-process.json"))}, indent=2))
+                            "vllm_service": read_json(RUNTIME / "config/vllm-service.json")}, indent=2))
         elif args.command == "install-update":
             if len(args.arguments) != 1:
                 raise RuntimeError("install-update requires one bundle path")

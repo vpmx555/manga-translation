@@ -1,0 +1,2 @@
+# Isolated from MAGI, Koharu and Hayai. Compile/install on Linux before renting a GPU.
+vllm==0.31.0

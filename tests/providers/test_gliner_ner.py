@@ -6,7 +6,6 @@ from tests.helpers import make_store
 from manga_pipeline.pipeline import load_config
 from manga_pipeline.providers.gliner_ner import GlinerNames
 from manga_pipeline.providers.names import create_detector
-from manga_pipeline.providers.spacy_ner import SpacyNames
 from manga_pipeline.storage.io import atomic_json
 
 
@@ -17,13 +16,15 @@ class GlinerTests(unittest.TestCase):
         detector.close()
         self.assertIsNone(detector.model)
 
-    def test_new_default_and_legacy_backend_are_lazy(self):
+    def test_new_default_is_lazy_and_legacy_detector_is_rejected(self):
         detector = create_detector(load_config())
         self.assertIsInstance(detector, GlinerNames)
         self.assertIsNone(detector.model)
         with tempfile.TemporaryDirectory() as root:
             legacy = make_store(root)
-            self.assertIsInstance(create_detector(legacy.manifest["config"]), SpacyNames)
+            legacy.manifest["config"]["ner"]["backend"] = "spacy"
+            with self.assertRaises(ValueError):
+                create_detector(legacy.manifest["config"])
 
     def test_source_offsets_and_ocr_spelling_are_preserved(self):
         detector = GlinerNames(load_config()["ner"])
@@ -67,7 +68,7 @@ class GlinerTests(unittest.TestCase):
     def test_nested_threshold_override_keeps_pinned_model_and_validates(self):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "config.json"
-            atomic_json(path, {"ner": {"threshold": 0.25}})
+            atomic_json(path, {"analysis_contract": "independent-batches-v6.1", "ner": {"threshold": 0.25}})
             config = load_config(path)
             self.assertEqual(config["ner"]["threshold"], 0.25)
             self.assertEqual(config["ner"]["model"], "gliner-community/gliner_small-v2.5")

@@ -105,6 +105,7 @@ class CharacterAssignmentTests(unittest.TestCase):
             self.assertEqual(labels, ["1", "1"])
             self.assertEqual(bank.pending, {})
             self.assertEqual(assigner.last_character_ids, [1, 1])
+            self.assertEqual(bank.characters['1']['appearance_count'], 2)
 
     def test_singleton_does_not_confirm_on_same_page_key(self):
         with self._bank() as bank:

@@ -46,22 +46,22 @@ def suppress_duplicates(records, threshold=0.85):
     return kept
 
 
-def mask_contour(mask):
+def mask_contour(mask, *, xp=np):
     """Trace pixel-cell boundaries; retain the largest outer contour (holes omitted).
 
     Grid edges are traced before polygon simplification, preserving concavities.
     No OpenCV dependency is needed in the MAGI environment.
     """
     from shapely.geometry import Polygon
-    mask = np.asarray(mask, dtype=bool)
+    mask = xp.asarray(mask, dtype=bool)
     if mask.ndim != 2 or not mask.any():
         return []
-    padded = np.pad(mask, 1)
+    padded = xp.pad(mask, 1)
     boundaries = [mask & ~padded[:-2,1:-1], mask & ~padded[1:-1,2:],
                   mask & ~padded[2:,1:-1], mask & ~padded[1:-1,:-2]]
     edges = {}
     for side, pixels in enumerate(boundaries):
-        ys, xs = np.nonzero(pixels)
+        ys, xs = xp.nonzero(pixels)
         for x,y in zip(xs.tolist(),ys.tolist()):
             corners = [(x,y),(x+1,y),(x+1,y+1),(x,y+1)]
             start, end = corners[side], corners[(side+1)%4]

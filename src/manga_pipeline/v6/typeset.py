@@ -2,16 +2,65 @@
 import copy
 import math
 import os
+import threading
+from collections import OrderedDict, deque
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy import ndimage as ndi
 from ..progress import NullProgress
+from ..runtime.resources import BudgetExceeded, ResourceExhausted
 from ..storage.io import atomic_json, file_hash, fingerprint
 from ..visual.geometry import clipped_box, read_mask, write_png
 from ..visual.stages import verify_files
 from .visual import bbox, disk, save_mask
 from .translation import shorten
+
+
+_font_state = threading.local()
+
+
+def _cached_font(path, size):
+    """Keep FreeType objects private to their worker, with bounded retention."""
+    cache = getattr(_font_state, "fonts", None)
+    if cache is None:
+        cache = _font_state.fonts = OrderedDict()
+    stat = Path(path).stat()
+    key = (str(path), size, stat.st_mtime_ns, stat.st_size)
+    if key not in cache:
+        cache[key] = ImageFont.truetype(str(path), size)
+        if len(cache) > 128:
+            cache.popitem(last=False)
+    cache.move_to_end(key)
+    return cache[key]
+
+
+class _TypesetStore:
+    """Serialize target mutations without holding a lock while rendering/inference."""
+    def __init__(self, store):
+        self._store = store
+        self._lock = threading.RLock()
+        self._documents = {}
+
+    def __getattr__(self, name):
+        return getattr(self._store, name)
+
+    def read(self, step):
+        # Upstream stage documents are immutable throughout typesetting. Read and
+        # verify once, avoiding concurrent mutation of RunStore verification state.
+        with self._lock:
+            if step not in self._documents:
+                self._documents[step] = self._store.read(step)
+            return self._documents[step]
+
+    def target(self, *args, **kwargs):
+        with self._lock:
+            return self._store.target(*args, **kwargs)
+
+    def commit_target(self, *args, **kwargs):
+        with self._lock:
+            return self._store.commit_target(*args, **kwargs)
 
 
 def resolve_font(config):
@@ -26,7 +75,7 @@ def resolve_font(config):
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
-            font = ImageFont.truetype(str(candidate), config["font_min_px"])
+            font = _cached_font(candidate, config["font_min_px"])
             if not font.getmask("Tiếng Việt Ắ ỵ").getbbox():
                 raise ValueError("Font cannot render Vietnamese")
             return Path(candidate)
@@ -65,8 +114,28 @@ def slots(mask, font, spacing, anchor):
 
 
 def line_width(text, font):
+    cache = getattr(_font_state, "widths", None)
+    if cache is None:
+        cache = _font_state.widths = OrderedDict()
+    key = (font, text)
+    if key in cache:
+        cache.move_to_end(key)
+        return cache[key]
     box = font.getbbox(text, anchor="lt")
-    return max(font.getlength(text), box[2]-min(0,box[0]))
+    width = max(font.getlength(text), box[2]-min(0,box[0]))
+    cache[key] = width
+    if len(cache) > 4096:
+        cache.popitem(last=False)
+    return width
+
+
+def draw_body_centered_line(draw, line, font, fill=255):
+    """Center the cap body on the planned line, independently of accents."""
+    reference = font.getbbox("H", anchor="ls")
+    baseline = line["y"] + line["height"] / 2 - (reference[1] + reference[3]) / 2
+    draw.text((line["x"], baseline), line["text"], font=font, fill=fill, anchor="ls")
+    line.update(draw_anchor="ls", baseline_y=baseline, body_reference="H",
+                body_reference_bbox_ls=list(reference))
 
 
 def segment_layout(words, available, font, anchor):
@@ -128,7 +197,7 @@ def allocate(text, parts, font, config):
 def fit(text, parts, font_path, config, *, trace=None):
     """Fit glyphs; an optional observer receives each actual font trial."""
     for size in range(config["font_max_px"], config["font_min_px"]-1, -1):
-        font = ImageFont.truetype(str(font_path), size)
+        font = _cached_font(font_path, size)
         plan = allocate(text, parts, font, config)
         if plan is None:
             if trace:
@@ -145,7 +214,7 @@ def fit(text, parts, font_path, config, *, trace=None):
             layer = Image.new("L", (part["mask"].shape[1], part["mask"].shape[0]))
             draw = ImageDraw.Draw(layer)
             for line in item["lines"]:
-                draw.text((line["x"],line["y"]), line["text"], font=font, fill=255, anchor="lt")
+                draw_body_centered_line(draw, line, font)
             mask = np.asarray(layer) > 0
             if np.any(mask & ~part["mask"]):
                 overflow = int(np.count_nonzero(mask & ~part["mask"]))
@@ -198,28 +267,42 @@ def safe_parts(store, row, groups, size, config):
 
 
 def measured_budget(parts, font_path, config):
-    font = ImageFont.truetype(str(font_path),config["font_min_px"])
+    font = _cached_font(font_path,config["font_min_px"])
     available = [slots(p["mask"],font,config["line_spacing"],p["anchor"]) for p in parts]
     return {"font_size_px": config["font_min_px"], "usable_lines": sum(len(x) for x in available),
             "total_line_width_px": sum(s["x2"]-s["x1"] for items in available for s in items)}
 
 
-def typeset(store, provider, progress=None):
+def typeset(store, provider, progress=None, *, _page=None):
     document = store.read("translate")
     raw = store.read("bubble_geometry")
     config = store.manifest["config"]["v6"]
+    if config.get("typeset_mode") != "ocr-box":
+        raise ValueError("Only OCR-box typesetting is supported")
+    mode = "ocr-box"
+    policy = "ocr-box-typeset-v6.1"
+    from .experimental_ocr_typeset import OCRRegionError, ocr_regions, fit_ocr_area
+    region_builder, fitter = ocr_regions, fit_ocr_area
     font_path = resolve_font(config)
     groups = {g["id"]: g for p in raw["pages"] for g in p.get("bubble_groups",[])}
     clean = {p["page_id"]: p for p in store.read("inpaint")["pages"]} if "inpaint" in store.steps else {}
+    if _page is not None:
+        raw = {**raw, "pages": [_page]}
+    else:
+        workers = int(os.environ.get("MANGA_TYPESET_WORKERS", "1"))
+        if not 1 <= workers <= 32:
+            raise ValueError("MANGA_TYPESET_WORKERS must be between 1 and 32")
+        if workers > 1 and len(raw["pages"]) > 1:
+            return _parallel_typeset(store, provider, raw["pages"], workers, progress, bool(clean))
     progress = progress or NullProgress()
-    progress.reset(total=len(raw["pages"])*2,unit="render")
+    progress.reset(total=len(raw["pages"]),unit="render")
     pages, failures, review = [], [], []
     for page in raw["pages"]:
         rows = [r for r in document["utterances"] if r["page_id"] == page["id"]]
         source = store.manifest["source"]["images"][page["page"]-1]
-        for style in ("natural","localized"):
+        for style in ("natural",):
             key = f"page:{page['id']}:{style}"
-            request = {"policy":"mask-typeset-v6.1","rows":rows,"source":source,
+            request = {"policy":policy,"rows":rows,"source":source,
                        "geometry":fingerprint(page),"clean":clean.get(page["id"]),
                        "font_sha256":file_hash(font_path),"config":config,"style":style}
             try:
@@ -244,15 +327,28 @@ def typeset(store, provider, progress=None):
                 directory = store.artifact_path("typeset").parent / "pages" / f"page-{page['page']}" / style
                 files, plans, needs_review = {}, [], []
                 for row in rows:
-                    if row.get("content_type") == "unknown":
+                    if row.get("content_type") == "unknown" and row.get("semantic_resolution") not in {"unresolved", "source_only"}:
                         issue = {"utterance_id":row["id"],"style":style,"reason":"unresolved_content_role"}
                         needs_review.append(issue)
                         plans.append({**issue,"status":"needs_review","image_edit_performed":False})
                         continue
+                    if row.get("semantic_resolution") in {"unresolved", "source_only"}:
+                        needs_review.append({"utterance_id": row["id"], "style": style,
+                                             "reason": "unresolved_semantic_rendered_from_source_geometry"})
                     text = row["translations"][style]["translation"]
-                    parts = safe_parts(store,row,groups,output.size,config)
+                    try:
+                        parts = region_builder(store,row,groups,output.size,config)
+                    except ValueError as exc:
+                        if mode != "ocr-box" or not isinstance(exc, OCRRegionError):
+                            raise
+                        issue = {"utterance_id": row["id"], "style": style,
+                                 "reason": "invalid_ocr_region", "detail": str(exc)}
+                        needs_review.append(issue)
+                        plans.append({**issue, "status": "needs_review", "typeset_mode": mode,
+                                      "image_edit_performed": False, "translation": text, "parts": []})
+                        continue
                     budget = measured_budget(parts,font_path,config)
-                    plan, glyphs = fit(text,parts,font_path,config)
+                    plan, glyphs = fitter(text,parts,font_path,config)
                     attempts = []
                     if plan is None and budget["total_line_width_px"] > 0:
                         for attempt in range(1,config["shorten_attempts"]+1):
@@ -260,9 +356,11 @@ def typeset(store, provider, progress=None):
                                 shorter = shorten(store,provider,row,style,text,budget,attempt)
                                 attempts.append({"attempt":attempt,**shorter})
                                 text = shorter["translation"]
-                                plan,glyphs = fit(text,parts,font_path,config)
+                                plan,glyphs = fitter(text,parts,font_path,config)
                                 if plan is not None:
                                     break
+                            except (ResourceExhausted, BudgetExceeded):
+                                raise
                             except Exception as exc:
                                 attempts.append({"attempt":attempt,"error":str(exc)})
                     saved = {"utterance_id":row["id"],"group_id":row.get("group_id"),"translation":text,
@@ -270,6 +368,11 @@ def typeset(store, provider, progress=None):
                              "font":{"path":str(font_path),"sha256":request["font_sha256"],
                                      "size_px":plan["font_size_px"] if plan else config["font_min_px"]},
                              "layout_budget":budget,"parts":plan["parts"] if plan else []}
+                    saved.update(semantic_resolution=row.get("semantic_resolution", "resolved"),
+                                 source_name_candidates=row.get("source_name_candidates", []),
+                                 image_edit_performed=bool(plan))
+                    if mode == "ocr-box":
+                        saved.update(typeset_mode=mode, allocation=plan.get("allocation") if plan else None)
                     if row["translations"][style].get("needs_review") or attempts:
                         saved["semantic_review_required"] = True
                     if plan is None:
@@ -282,6 +385,9 @@ def typeset(store, provider, progress=None):
                         if plan:
                             record = plan["parts"][index]
                             record.update(safe_mask=safe,anchor=part["anchor"],margin_px=part["margin_px"])
+                            if mode == "ocr-box":
+                                record.update({field: part[field] for field in
+                                    ("bbox", "original_ocr_bbox", "source_text_id", "usable_area_px", "area_share")})
                             path = directory / (stem+"-glyph.png")
                             write_png(path,glyphs[index])
                             relative = path.relative_to(store.directory).as_posix()
@@ -293,7 +399,8 @@ def typeset(store, provider, progress=None):
                 write_png(path,output)
                 files[path.relative_to(store.directory).as_posix()] = file_hash(path)
                 plan_path = directory / "typeset-plan.json"
-                atomic_json(plan_path,{"policy":"mask-typeset-v6.1","render_kind":render_kind,"plans":plans})
+                atomic_json(plan_path,{"policy":policy if mode == "ocr-box" else "mask-typeset-v6.2-h-center",
+                                      "render_kind":render_kind,"plans":plans})
                 files[plan_path.relative_to(store.directory).as_posix()] = file_hash(plan_path)
                 cached = {"page_id":page["id"],"page":page["page"],"style":style,"render_kind":render_kind,
                           "files":files,"plans":plans,"needs_review":needs_review,
@@ -301,9 +408,39 @@ def typeset(store, provider, progress=None):
                 store.commit_target("typeset",key,request,result=cached)
                 pages.append(cached)
                 review.extend(needs_review)
+            except (ResourceExhausted, BudgetExceeded):
+                raise
             except Exception as exc:
                 store.commit_target("typeset",key,request,error=str(exc))
                 failures.append({"page_id":page["id"],"style":style,"error":str(exc)})
             progress.advance()
-    return {"policy":"mask-typeset-v6.1","pages":pages,"needs_review":review,"failures":failures,
+    return {"policy":policy,"pages":pages,"needs_review":review,"failures":failures,
             "effects_image_edits":False,"clean_pages_available":bool(clean)}
+
+
+def _parallel_typeset(store, provider, source_pages, workers, progress, clean_available):
+    """Bound both active work and pending pages; merge in original page/style order."""
+    progress = progress or NullProgress()
+    progress.reset(total=len(source_pages), unit="render")
+    shared_store = _TypesetStore(store)
+    policy = "ocr-box-typeset-v6.1"
+    result = {"policy": policy, "pages": [],
+              "needs_review": [], "failures": [], "effects_image_edits": False,
+              "clean_pages_available": clean_available}
+    iterator = iter(source_pages)
+    pending = deque()
+    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="v6-typeset") as pool:
+        def submit_page(page):
+            return pool.submit(typeset, shared_store, provider, None, _page=page)
+        for _ in range(min(workers, len(source_pages))):
+            pending.append(submit_page(next(iterator)))
+        while pending:
+            completed = pending.popleft().result()
+            for key in ("pages", "needs_review", "failures"):
+                result[key].extend(completed[key])
+            progress.advance()
+            progress.advance()
+            page = next(iterator, None)
+            if page is not None:
+                pending.append(submit_page(page))
+    return result

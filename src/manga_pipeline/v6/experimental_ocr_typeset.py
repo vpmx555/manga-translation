@@ -1,12 +1,16 @@
-"""Opt-in OCR-constrained, area-proportional typesetting; not a pipeline default."""
+"""OCR-constrained area layout, plus opt-in region expansion for diagnostics."""
 import math
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from .typeset import safe_parts, segment_layout, slots
+from .typeset import _cached_font, draw_body_centered_line, safe_parts, segment_layout, slots
 
-POLICY = "experimental-ocr-area-v1"
+POLICY = "experimental-ocr-area-v2-h-center"
+
+
+class OCRRegionError(ValueError):
+    """Unusable physical OCR geometry; preserve the page and request review."""
 
 
 def ocr_regions(store, row, groups, size, config):
@@ -26,11 +30,11 @@ def ocr_regions(store, row, groups, size, config):
         rectangle[bounds[1]:bounds[3],bounds[0]:bounds[2]] = True
         permitted = rectangle & allowed
         if np.any(permitted & claimed):
-            raise ValueError("Overlapping usable OCR regions need review")
+            raise OCRRegionError("Overlapping usable OCR regions need review")
         claimed |= permitted
         area = int(permitted.sum())
         if not area:
-            raise ValueError(f"Empty usable OCR region: {source['source_text_id']}")
+            raise OCRRegionError(f"Empty usable OCR region: {source['source_text_id']}")
         regions.append({"id": source["source_text_id"]+":ocr-zone", "mask": permitted,
             "body_mask_array": rectangle, "bbox": bounds, "original_ocr_bbox": list(source["bbox"]),
             "source_text_id": source["source_text_id"], "geometry_part_ids": source.get("part_ids", []),
@@ -89,7 +93,7 @@ def fit_ocr_area(text, regions, font_path, config, *, trace=None, allocation=Non
         return None, []
     # Allocation is fixed independently of font size; no fill-to-bubble objective.
     for size in range(config["font_max_px"],config["font_min_px"]-1,-1):
-        font = ImageFont.truetype(str(font_path),size)
+        font = _cached_font(font_path,size)
         plan, glyphs, failure = [], [], None
         for region, assigned in zip(regions,allocation["parts"]):
             available = slots(region["mask"],font,config["line_spacing"],region["anchor"])
@@ -105,7 +109,7 @@ def fit_ocr_area(text, regions, font_path, config, *, trace=None, allocation=Non
             layer = Image.new("L",(region["mask"].shape[1],region["mask"].shape[0]))
             draw = ImageDraw.Draw(layer)
             for line in lines:
-                draw.text((line["x"],line["y"]),line["text"],font=font,fill=255,anchor="lt")
+                draw_body_centered_line(draw,line,font)
             if np.any((np.asarray(layer)>0) & ~region["mask"]):
                 item["status"] = "glyph_outside_ocr_region"
                 failure = failure or "glyph_outside_ocr_region"

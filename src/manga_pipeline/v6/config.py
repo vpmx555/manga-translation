@@ -8,15 +8,57 @@ DEFAULT_CONFIG = {
     "max_reconstructed_fraction": 0.20, "hint_acceptance": 0.80,
     "body_margin_px": 10, "body_margin_ratio": 0.0,
     "font_path": "assets/fonts/astro-city-teddy-bear.ttf", "font_min_px": 10, "font_max_px": 48,
-    "line_spacing": 1.18, "shorten_attempts": 2,
-    "min_confirmed_call_events": 2, "analyze_batch_size": 3,
+    "line_spacing": 1.6, "shorten_attempts": 2,
+    "min_confirmed_call_events": 2, "analyze_batch_size": 8,
     "context_image_max_side": 384,
+    "typeset_mode": "ocr-box",
+    "analyze_engine": "independent-batches-v6.1", "caption_max_distance": 7,
+    "speaker_merge_policy": "inference-first-v1",
+    "translation_concurrency": 64, "relationship_concurrency": 8,
+    "relationship_min_appearances": 8, "relationship_crops_per_magi": 3,
+    "identity_relationship_policy": "identity-relationship-v2",
+    "identity_visual_min_crop": 0.38, "profile_crops": 10,
+    "profile_concurrency": 8, "profile_output_tokens": 4096,
+    "relationship_output_tokens": 4096,
+    "identity_name_binding_policy": "chapter-name-binding-simple-v2",
+    "identity_binding_concurrency": 8, "identity_binding_output_tokens": 4096,
+    "scan_policy": "canonical-scan-v3", "scan_output_tokens": 8192,
+    "identity_min_chapter_crops": 8,
 }
 
 
 def validate_config(config):
-    if not isinstance(config, dict) or set(config) != set(DEFAULT_CONFIG):
+    if (not isinstance(config, dict) or set(config) - set(DEFAULT_CONFIG)
+            or set(DEFAULT_CONFIG) - set(config)):
         raise ValueError("Invalid v6 configuration fields")
+    if config.get("typeset_mode") != "ocr-box":
+        raise ValueError("v6.typeset_mode must be ocr-box")
+    if config.get("analyze_engine") != "independent-batches-v6.1":
+        raise ValueError("Invalid v6.analyze_engine")
+    if config.get('speaker_merge_policy') != 'inference-first-v1':
+        raise ValueError('Invalid v6.speaker_merge_policy')
+    if config['identity_relationship_policy'] != 'identity-relationship-v2':
+        raise ValueError('Invalid identity/relationship policy')
+    if config['identity_name_binding_policy'] not in {None, 'chapter-multimodal-name-binding-v1', 'chapter-name-binding-simple-v2'}:
+        raise ValueError('Invalid identity name-binding policy')
+    if config['scan_policy'] not in {None, 'canonical-scan-v3'}:
+        raise ValueError('Invalid scan policy')
+    if (type(config['identity_visual_min_crop']) not in {float, int}
+            or not math.isfinite(config['identity_visual_min_crop'])
+            or not 0 < config['identity_visual_min_crop'] < 2):
+        raise ValueError('Invalid identity visual min-crop threshold')
+    for key, maximum in (("translation_concurrency", 64), ("relationship_concurrency", 8),
+                         ("relationship_min_appearances", 100000), ("relationship_crops_per_magi", 3),
+                         ("profile_concurrency", 8), ("profile_crops", 10),
+                         ("profile_output_tokens", 8192), ("relationship_output_tokens", 8192),
+                         ("identity_binding_concurrency", 8), ("identity_binding_output_tokens", 8192),
+                         ("scan_output_tokens", 16384), ("identity_min_chapter_crops", 100000)):
+        if type(config[key]) is not int or not 1 <= config[key] <= maximum:
+            raise ValueError(f"Invalid v6.{key}")
+    for key, default, maximum in (("caption_max_distance", 7, 64),):
+        value = config.get(key, default)
+        if type(value) is not int or not 1 <= value <= maximum:
+            raise ValueError(f"Invalid v6.{key}")
     if type(config["enabled"]) is not bool:
         raise ValueError("v6.enabled must be boolean")
     for key in ("mask_merge_iou", "mask_containment", "neck_width_ratio",

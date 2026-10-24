@@ -21,60 +21,17 @@ def module(name, filename):
 
 
 manager = module("runpod_manager_tests", "manage.py")
-sync = module("runpod_sync_tests", "sync.py")
+sync = module("runpod_sync_tests", "native_transport.py")
 
 
 class RuntimeTests(unittest.TestCase):
-    def test_filtered_output_backup_preserves_story_chapter_layout(self):
-        with tempfile.TemporaryDirectory() as temp:
-            destination = Path(temp) / "outputs"
-
-            def download(args):
-                with zipfile.ZipFile(args[-1], "w") as archive:
-                    archive.writestr("run/manifest.json", '{}')
-
-            with patch.object(sync, "STATE", Path(temp) / "state"), \
-                 patch.object(sync, "remote", return_value=0) as remote, \
-                 patch.object(sync, "execute", side_effect=download), \
-                 patch.object(sync, "ssh_path", side_effect=str), \
-                 patch.object(sync, "ssh_options", return_value=[]), \
-                 patch.object(sync, "ssh_executable", return_value="scp"):
-                sync.fetch_data({"host": "example"}, "outputs", destination, story="iris-zero", chapter="chapter-001")
-            command = remote.call_args_list[0].args[1]
-            self.assertTrue(command[3].endswith("/data/outputs/iris-zero/chapter-001"))
-            self.assertTrue((destination / "iris-zero/chapter-001/run/manifest.json").is_file())
-            with self.assertRaisesRegex(ValueError, "Unsafe"):
-                sync.fetch_data({}, "outputs", destination, story="../escape", chapter="chapter-001")
-
-    def test_audit_backup_downloads_source_and_runtime_metadata(self):
-        with tempfile.TemporaryDirectory() as temp:
-            destination = Path(temp) / "audit"
-
-            def download(args):
-                with zipfile.ZipFile(args[-1], "w") as archive:
-                    archive.writestr("runtime/jobs/batch/state.json", '{"status":"completed"}')
-                    archive.writestr("source/__bundle__.json", '{"files":{}}')
-
-            with patch.object(sync, "STATE", Path(temp) / "state"), \
-                 patch.object(sync, "remote", return_value=0) as remote, \
-                 patch.object(sync, "execute", side_effect=download), \
-                 patch.object(sync, "ssh_path", side_effect=str), \
-                 patch.object(sync, "ssh_options", return_value=[]), \
-                 patch.object(sync, "ssh_executable", return_value="scp"):
-                sync.fetch_data({"host": "example"}, "audit", destination)
-            command = remote.call_args_list[0].args[1]
-            compile(command[2], "audit-archive", "exec")
-            self.assertIn("module.code_files(project)", command[2])
-            self.assertIn("('jobs','logs','config')", command[2])
-            self.assertTrue((destination / "runtime/jobs/batch/state.json").is_file())
-
     def test_fast_execution_root_keeps_data_and_models_on_runtime_volume(self):
         with patch.object(manager, "RUNTIME", Path("/volume")), \
              patch.dict(os.environ, {"MANGA_EXECUTION_ROOT": "/fast"}):
             env = manager.environment()
             self.assertEqual(Path(env["UV_CACHE_DIR"]), Path("/fast/cache/uv"))
             self.assertEqual(Path(env["UV_PYTHON_INSTALL_DIR"]), Path("/fast/python"))
-            self.assertEqual(Path(env["OLLAMA_MODELS"]), Path("/volume/models/ollama"))
+            self.assertNotIn("OLLAMA_MODELS", env)
             self.assertEqual(Path(env["HF_HOME"]), Path("/volume/cache/huggingface"))
             self.assertEqual(manager.visual_python(require_ready=False).parents[3], Path("/fast/envs"))
 
@@ -102,9 +59,6 @@ class RuntimeTests(unittest.TestCase):
         with patch.object(manager, "setup") as setup:
             self.assertEqual(manager.main(["setup"]), 0)
             setup.assert_called_once_with(verify_cuda=True)
-        with patch.object(manager, "RUNTIME", Path("/volume")), \
-             patch.dict(os.environ, {"MANGA_EXECUTION_ROOT": "/fast"}):
-            self.assertEqual(manager.ollama_binary(), Path("/fast/tools/ollama") / manager.OLLAMA_VERSION / "bin/ollama")
 
     def test_visual_setup_is_isolated_locked_and_idempotent(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -121,7 +75,7 @@ class RuntimeTests(unittest.TestCase):
                     Path(args[-1]).write_text("locked hashes", encoding="utf-8")
                 return 0
 
-            with patch.object(manager, "RUNTIME", runtime), patch.object(manager, "call", side_effect=call), \
+            with patch.object(manager, "RUNTIME", runtime), patch.object(manager, "execution_root", return_value=runtime), patch.object(manager, "call", side_effect=call), \
                  patch.object(manager, "cuda_check", return_value={"gpu": "fake"}):
                 manager.setup_visual("uv")
                 worker = manager.visual_python()
@@ -180,48 +134,6 @@ class RuntimeTests(unittest.TestCase):
                         manager.install_update(archive)
             self.assertTrue(marker.exists())
 
-    def test_identical_code_sync_skips_upload_and_preserves_backups(self):
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            (root / "src").mkdir()
-            (root / "src/app.py").write_text("value = 1\n", encoding="utf-8")
-            expected = sync.bundle(root / "expected.zip", root)["version"]
-            with patch.object(sync, "PROJECT", root), \
-                 patch.object(sync, "remote", side_effect=["1", expected]), \
-                 patch.object(sync, "upload") as upload:
-                sync.sync({"host": "unused"})
-            upload.assert_not_called()
-
-    def test_duplicate_input_does_not_upload_or_replace_images(self):
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            image = root / "page.png"
-            image.write_bytes(b"image fixture")
-            hashes = {"page.png": hashlib.sha256(image.read_bytes()).hexdigest()}
-            with patch.object(sync, "remote", return_value=json.dumps({"exists": True, "hashes": hashes})), \
-                 patch.object(sync, "upload") as upload:
-                destination = sync.push_input({}, root, "chapter-001")
-            self.assertTrue(destination.endswith("/chapter-001"))
-            upload.assert_not_called()
-
-    def test_changed_input_cannot_overwrite_an_existing_checkpoint_source(self):
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            (root / "page.png").write_bytes(b"new content")
-            with patch.object(sync, "remote", return_value=json.dumps({"exists": True, "hashes": {"page.png": "old"}})), \
-                 patch.object(sync, "upload") as upload:
-                with self.assertRaisesRegex(RuntimeError, "different images"):
-                    sync.push_input({}, root, "chapter-001")
-            upload.assert_not_called()
-
-    def test_resume_options_are_forwarded_in_their_original_order(self):
-        with patch.object(sync, "load_connection", return_value={"host": "example"}), \
-             patch.object(sync, "sync"), \
-             patch.object(sync, "remote", return_value=0) as remote:
-            result = sync.main(["resume", "--run-dir", "/saved run", "--until", "analyze"])
-        self.assertEqual(result, 0)
-        self.assertEqual(remote.call_args.args[1], ["python3", sync.REMOTE_MANAGE, "launch", "resume", "--run-dir", "/saved run", "--until", "analyze"])
-
     def test_dependency_signature_ignores_code_and_normalizes_line_endings(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -233,31 +145,6 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(first, manager.dependency_signature(requirements))
             requirements.write_text("torch==2.9.0\n", encoding="utf-8")
             self.assertNotEqual(first, manager.dependency_signature(requirements))
-
-    def test_sparse_visual_config_inherits_default_ollama_model(self):
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            configs = root / "configs"
-            configs.mkdir()
-            (configs / "pipeline.json").write_text(json.dumps({
-                "ollama": {"model": "test-model", "num_ctx": 8192},
-                "character_character_matching_threshold": 0.85,
-            }), encoding="utf-8")
-            custom = configs / "visual.json"
-            custom.write_text(json.dumps({
-                "character_character_matching_threshold": 0.8,
-                "layout": {"enabled": True},
-            }), encoding="utf-8")
-            with patch.object(manager, "PROJECT", root), \
-                 patch.object(manager, "visual_python", return_value=Path("/managed/visual/bin/python")):
-                config = manager.configuration(custom)
-            self.assertEqual(config["ollama"], {
-                "model": "test-model", "num_ctx": 8192, "host": manager.HOST,
-            })
-            self.assertEqual(config["character_character_matching_threshold"], 0.8)
-            self.assertTrue(config["layout"]["enabled"])
-            self.assertEqual(config["layout"]["python"], str(Path("/managed/visual/bin/python")))
-            self.assertFalse(config["inpaint"]["enabled"])
 
     def test_bundle_excludes_credentials_caches_and_generated_artifacts(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -287,14 +174,6 @@ class RuntimeTests(unittest.TestCase):
             with patch.object(manager, "RUNTIME", Path(temp)):
                 with self.assertRaisesRegex(RuntimeError, "not ready"):
                     manager.current_python()
-
-    def test_pid_reuse_or_unmanaged_binary_cannot_be_stopped(self):
-        record = {"pid": 100, "start_ticks": "1", "executable": str(manager.ollama_binary())}
-        with patch.object(manager, "service_identity", return_value={**record, "start_ticks": "2"}):
-            self.assertFalse(manager.owns_service(record))
-        with patch.object(manager, "service_identity", return_value={**record, "executable": "/usr/bin/other"}):
-            self.assertFalse(manager.owns_service(record))
-        self.assertFalse(manager.owns_service(None))
 
     def test_bad_update_does_not_touch_previous_code_or_escape_staging(self):
         with tempfile.TemporaryDirectory() as temp:

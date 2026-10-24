@@ -1,0 +1,22 @@
+{
+  "name": "iris-zero-ch1-vllm-5090-secure-20261016",
+  "image": "vpmx555/manga-translate-v2@sha256:985bd51126c3252448fced381f3eb4ea2588c14d8470981fd1ec58d74f10f6e3",
+  "cloud": "SECURE",
+  "gpu": {
+    "id": "NVIDIA GeForce RTX 5090",
+    "count": 1,
+    "minCudaVersion": "13.0",
+    "minRamPerGpu": 32,
+    "minVcpuCountPerGpu": 8
+  },
+  "disk": 150,
+  "mounts": {"persistent": {"size": 100, "path": "/workspace/manga-runtime"}},
+  "ports": ["22/tcp", "22000/tcp"],
+  "startSsh": true,
+  "env": {
+    "MANGA_RUNTIME": "/opt/manga-work/runtime",
+    "MANGA_EXECUTION_ROOT": "/opt/manga-work/execution"
+  },
+  "entrypoint": ["/bin/bash", "-lc"],
+  "cmd": ["exec /start.sh"]
+}

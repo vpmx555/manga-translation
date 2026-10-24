@@ -1,0 +1,110 @@
+"""Model-free fixtures for bounded, isolated scene scheduling."""
+import copy
+import threading
+import unittest
+from unittest.mock import patch
+
+from manga_pipeline.v6.dual_branch import run_parallel_scenes
+from manga_pipeline.pipeline import load_config
+from manga_pipeline.v6.config import validate_config
+
+
+def config(workers=2):
+    return {"v6": {"analyze_scene_workers": workers, "analyze_branch_workers": 1}}
+
+
+def jobs(count=3):
+    return [("dialogue", [{"id": f"u{i}"}], {"scene_id": f"scene:{i}", "participants": {}})
+            for i in range(count)]
+
+
+class ParallelSceneTests(unittest.TestCase):
+    def test_parallel_context_must_be_explicit_and_supports_a_serial_reference(self):
+        cfg = load_config()['v6']
+        cfg.update(analyze_scene_workers=2, analyze_scene_context='sequential-aliases-v1')
+        with self.assertRaises(ValueError):
+            validate_config(cfg)
+        cfg['analyze_scene_context'] = 'isolated-scenes-v1'
+        validate_config(cfg)
+        cfg['analyze_scene_workers'] = 1
+        validate_config(cfg)
+
+    def run_scheduler(self, worker, workers=2, count=3, initial=None):
+        with patch("manga_pipeline.v6.dual_branch.run_branch", side_effect=worker):
+            return run_parallel_scenes(jobs(count), initial or {}, {}, None, None,
+                                       config(workers), lambda: None)
+
+    def test_scenes_overlap_but_merge_in_source_order(self):
+        barrier = threading.Barrier(2)
+        second_finished = threading.Event()
+        lock = threading.Lock()
+        active, peak = 0, 0
+
+        def worker(branch, rows, scene, initial, *args):
+            nonlocal active, peak
+            with lock:
+                active += 1
+                peak = max(peak, active)
+            if scene["scene_id"] in {"scene:0", "scene:1"}:
+                barrier.wait(timeout=5)
+                if scene["scene_id"] == "scene:0":
+                    self.assertTrue(second_finished.wait(timeout=5))
+                else:
+                    second_finished.set()
+            with lock:
+                active -= 1
+            return {rows[0]["id"]: scene["scene_id"]}, [scene["scene_id"]]
+
+        output, receipts, errors = self.run_scheduler(worker)
+        self.assertEqual(peak, 2)
+        self.assertEqual(list(output), ["u0", "u1", "u2"])
+        self.assertEqual(receipts, ["scene:0", "scene:1", "scene:2"])
+        self.assertEqual(errors, [])
+
+    def test_snapshot_and_results_do_not_depend_on_worker_count(self):
+        initial = {"aliases": ["original"]}
+
+        def worker(branch, rows, scene, state, *args):
+            seen = copy.deepcopy(state["aliases"])
+            state["aliases"].append(scene["scene_id"])
+            rows[0]["private"] = True
+            return {rows[0]["id"]: seen}, []
+
+        sequential = self.run_scheduler(worker, workers=1, initial=initial)
+        parallel = self.run_scheduler(worker, workers=2, initial=initial)
+        self.assertEqual(sequential, parallel)
+        self.assertEqual(initial, {"aliases": ["original"]})
+        self.assertEqual(list(parallel[0].values()), [["original"]] * 3)
+
+    def test_failed_scene_keeps_completed_partial_results(self):
+        barrier = threading.Barrier(2)
+        started = []
+
+        def worker(branch, rows, scene, *args):
+            started.append(scene["scene_id"])
+            barrier.wait(timeout=5)
+            if scene["scene_id"] == "scene:0":
+                raise ValueError("fixture failure")
+            return {rows[0]["id"]: "kept"}, []
+
+        with patch("manga_pipeline.v6.dual_branch.systemic_failure", return_value=True):
+            output, _, errors = self.run_scheduler(worker, count=2)
+        self.assertEqual(set(started), {"scene:0", "scene:1"})
+        self.assertEqual(output, {"u1": "kept"})
+        self.assertEqual(errors[0]["scene_id"], "scene:0")
+        self.assertTrue(errors[0]["systemic"])
+
+    def test_failed_scene_stops_unscheduled_scenes(self):
+        started = []
+
+        def worker(branch, rows, scene, *args):
+            started.append(scene["scene_id"])
+            raise ValueError("fixture failure")
+
+        _, _, errors = self.run_scheduler(worker, workers=1, count=3)
+        self.assertEqual(started, ["scene:0"])
+        self.assertEqual(len(errors), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

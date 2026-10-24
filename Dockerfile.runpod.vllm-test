@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+# Reuse the locally inspected, pinned v6 environment image for this validation.
+# Optional CPU dependency preparation. New Runpod jobs use local_v6.py/native
+# Syncthing with a compatible pinned boot image; this large image is not a
+# default build/push/deploy prerequisite. Export locks before renting a GPU.
+FROM vpmx555/manga-translate-v2:v6.0.1-fast-hcenter-address
+
+ENV MANGA_RUNTIME=/opt/manga-work/runtime \
+    MANGA_EXECUTION_ROOT=/opt/manga-work/execution \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+WORKDIR /opt/manga-work/project
+COPY --chown=root:root . /opt/manga-work/project
+RUN --mount=type=cache,id=manga-vllm-test-uv,target=/opt/manga-work/execution/cache/uv,sharing=locked \
+    python3 deployment/runpod/manage.py setup --prepare-only \
+    && python3 deployment/runpod/vllm_runtime.py setup --config configs/pipeline-v6-runpod.json
+RUN python3 -m compileall -q run.py src deployment/runpod \
+    && python3 -c "import sys,tempfile,pathlib,json; sys.path.insert(0,'deployment/runpod'); import native_transport as sync; p=pathlib.Path(tempfile.gettempdir())/'manga-vllm-bundle.zip'; m=sync.bundle(p); pathlib.Path('__bundle__.json').write_text(json.dumps(m),encoding='utf-8'); p.unlink()"

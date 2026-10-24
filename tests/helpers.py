@@ -26,13 +26,7 @@ def make_store(root, characters=None):
     bank_path = Path(root) / "banks" / "story" / "metadata.json"
     atomic_json(bank_path, {"schema_version": 1, "characters": characters if characters is not None else {
         "1": {"id": 1, "display_name": None}, "2": {"id": 2, "display_name": None}}, "pending": {}})
-    # Existing regression fixtures exercise authoritative legacy v2 runs.
     config = copy.deepcopy(DEFAULT_CONFIG)
-    config.pop("dialogue_analysis", None)
-    config.pop("speaker_policy", None)
-    config.pop("noise_filter", None)
-    config.pop("translation", None)
-    config.pop("ner", None)
     return RunStore.create(Path(root) / "run", source={"images": [], "story": "story", "chapter": "chapter"},
                            config=config, bank_path=bank_path)
 
@@ -45,27 +39,4 @@ class FakeDetector:
         self.calls += 1
         start = text.find(self.name)
         return [] if start < 0 else [{"name": self.name, "start": start,
-                                     "end": start + len(self.name), "source": "spacy"}]
-
-
-class FakeProvider:
-    def __init__(self):
-        self.calls = []
-        self.fail_classification = False
-
-    def infer(self, task, prompt, data, schema, validator, images=None):
-        self.calls.append((task, data, images or []))
-        if task == "classify_mentions":
-            if self.fail_classification:
-                raise RuntimeError("timeout")
-            result = {"content_type": "narration", "mentions": [
-                {"candidate_id": c["id"], "mention_type": "narration_introduction"} for c in data["candidates"]]}
-        else:
-            result = {"is_narration": True, "links": [
-                {"candidate_id": c["candidate_id"], "detection_index": 0,
-                 "status": "linked", "reason": "visible introduction"} for c in data["names"]]}
-        validator(result)
-        return result
-
-    def close(self):
-        pass
+                                     "end": start + len(self.name), "source": "mock"}]

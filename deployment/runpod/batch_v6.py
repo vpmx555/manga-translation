@@ -1,4 +1,4 @@
-"""Frozen sequential v6 batches; preserve failures and attempt remaining chapters."""
+"""Bounded v6 story batches; preserve failures and chapter order within each story."""
 import argparse
 import hashlib
 import json
@@ -8,6 +8,10 @@ import shutil
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from copy import deepcopy
+from threading import Lock, RLock
+from contextlib import nullcontext
 
 import manage
 from v6_contract import verify_v6
@@ -33,9 +37,12 @@ def latest_run(entry):
 
 
 def validate_plan(plan, config_path):
-    if plan.get("pipeline_version") != 6 or not safe_key(plan.get("batch")):
+    if (plan.get("pipeline_version") != 6 or not safe_key(plan.get("batch"))
+            or plan.get("analysis_contract") != "independent-batches-v6.1"):
         raise ValueError("Invalid v6 batch plan")
     entries = plan.get("chapters", [])
+    if plan.get("until") not in {None, 'scan', "analyze", 'build_identity', 'relationship'} or any(e.get("until") != plan.get("until") for e in entries):
+        raise ValueError("Invalid or inconsistent frozen stage limit")
     if not entries or len({(e["story_key"], e["chapter"]) for e in entries}) != len(entries):
         raise ValueError("Empty or duplicate chapter plan")
     if hashlib.sha256(config_path.read_bytes()).hexdigest() != plan["config_sha256"]:
@@ -102,6 +109,12 @@ def write_error_review(path, state):
 
 
 def main(argv=None):
+    # Own the batch before touching its coordinator, receipts or service profile.
+    with manage.lock("chapter-batch"):
+        return _main(argv)
+
+
+def _main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("plan", type=Path)
     parser.add_argument("--state", required=True, type=Path)
@@ -116,22 +129,59 @@ def main(argv=None):
         raise ValueError("Cannot change a saved v6 batch plan")
     sys.path.insert(0, str(manage.PROJECT / "src"))
     from manga_pipeline.storage.runs import RunStore
+    from manga_pipeline.storage.checkpoints import publish, archive_files, files_under
+    from manga_pipeline.runtime.resources import configure_batch, GPUMonitor, event
+    from manga_pipeline.bank.identity import normalize_story_key
+    if any(normalize_story_key(entry["story"]) != entry["story_key"] for entry in plan["chapters"]):
+        raise ValueError("Plan story keys must match normalized bank ownership")
     config = manage.configuration(config_path)
+    if config['runtime']['llm_slots'] > 1:
+        from validate_vllm_concurrency import validate_receipt
+        validate_receipt(config, manage.read_json(args.state.parent / 'concurrency-probe.json', {}))
     if not config.get("v6", {}).get("enabled") or config.get("device") != "cuda":
         raise ValueError("V6 batch requires the CUDA v6 preset")
+    manage.validate_gpu_profile(config)
     manage.current_python()
     manage.visual_python()
-    if not manage.hayai_python().is_file():
-        raise RuntimeError("Prepared Hayai CUDA environment is missing")
+    ocr_python = manage.ocr_python(config)
+    if not ocr_python.is_file():
+        raise RuntimeError(f"Prepared {config['ocr']['backend']} CUDA environment is missing")
     doctor = manage.read_json(manage.RUNTIME / "config/last-doctor.json", {})
     if (doctor.get("signature") != manage.dependency_signature()
             or doctor.get("visual_signature") != manage.visual_signature()
-            or doctor.get("hayai_python") != str(manage.hayai_python())
+            or doctor.get("ocr_python") != str(ocr_python)
+            or doctor.get("ocr_backend") != config['ocr']['backend']
             or doctor.get("execution_root") != str(manage.execution_root()) or not doctor.get("inference")):
         raise RuntimeError("A current, authorized CUDA/inference preflight is required")
+    if config.get("llm", {}).get("require_full_gpu"):
+        use_vllm = config["llm"].get("backend") == "vllm"
+        if use_vllm:
+            manage.activate_vllm(config)
+            import vllm_runtime
+            installed = {"digest": config["llm"]["model"] + "@" + config["vllm"]["revision"]}
+            process_path = manage.RUNTIME / "config/vllm-process.json"
+            if doctor.get("vllm_signature") != vllm_runtime.signature(config):
+                raise RuntimeError("vLLM engine/model revision differs from the authorized preflight")
+        if (not doctor.get("full_gpu_verified") or doctor.get("config_fingerprint") != manage.config_fingerprint(config)
+                or doctor.get("model_digest") != installed.get("digest")
+                or doctor.get("source_bundle") != manage.read_json(manage.PROJECT / "__bundle__.json", {}).get("version")
+):
+            raise RuntimeError("Full-GPU preflight does not match this model, context, server and frozen config")
+    os.environ.update({k: v for k, v in manage.environment().items() if k.startswith("MANGA_LLM_")})
+    resource_env = configure_batch(config, args.state.parent)
+    os.environ.update(resource_env)
     env = manage.environment()
+    env.update(resource_env)
     env["MANGA_DEFER_REVIEWS"] = "1"
-    with manage.lock("chapter-batch"):
+    runtime_enabled = bool(config.get("runtime", {}).get("enabled"))
+    story_workers = max(1, int(env.get("MANGA_STORY_WORKERS", "1"))) if runtime_enabled else 1
+    if runtime_enabled:
+        env["MANGA_PARALLEL_BATCH"] = "1"
+        os.environ["MANGA_PARALLEL_BATCH"] = "1"
+    state_lock = RLock()
+    ingress_locks = {entry["input"]: Lock() for entry in plan["chapters"]}
+    pipeline_guard = manage.parallel_service_guard(config) if runtime_enabled else nullcontext()
+    with pipeline_guard, GPUMonitor(config) as monitor:
         state.update(status="running", pid=manage.service_identity(os.getpid()),
                      execution_root=str(manage.execution_root()))
         for source in (manage.execution_root() / "envs").glob("*/*"):
@@ -141,34 +191,90 @@ def main(argv=None):
                 shutil.copyfile(source, target)
         manage.atomic_json(args.state, state)
         try:
+            if len(state["chapters"]) > len(plan["chapters"]):
+                raise ValueError("Saved batch has more chapter records than its plan")
             for index, entry in enumerate(plan["chapters"]):
                 if len(state["chapters"]) <= index:
                     state["chapters"].append({"story": entry["story"], "chapter": entry["chapter"]})
-                record = state["chapters"][index]
-                state["current"] = index
+                if (state["chapters"][index].get("story") != entry["story"]
+                        or state["chapters"][index].get("chapter") != entry["chapter"]):
+                    raise ValueError("Saved chapter record differs from its plan position")
+            state.update(story_workers=story_workers, active_chapters=[])
+            manage.atomic_json(args.state, state)
+
+            def run_entry(index, entry):
+                # Private record snapshots keep serialization independent of worker mutations.
+                record = deepcopy(state["chapters"][index])
+
+                def save_record(finished=False):
+                    with state_lock:
+                        state["chapters"][index] = deepcopy(record)
+                        active = set(state["active_chapters"])
+                        if finished:
+                            active.discard(index)
+                        else:
+                            active.add(index)
+                        state["active_chapters"] = sorted(active)
+                        state["current"] = index
+                        manage.atomic_json(args.state, state)
+
                 log = args.state.parent / f"chapter-{index + 1:02d}.log"
+                for key in ("error", "errors", "integrity_error", "publication_error", "review_exit_code",
+                            "summary", "publication", "exit_code", "finished_at"):
+                    record.pop(key, None)
                 record.update(status="running", phase="ingress", writer_stopped=False,
                               started_at=time.time(), log=str(log))
-                manage.atomic_json(args.state, state)
+                save_record()
                 directory = None
                 try:
+                    if plan.get('native_sync'):
+                        from local_v6 import ingest_chapter
+                        ingress_jobs = args.state.parent / "ingress" / entry["story_key"]
+                        ingress_jobs.mkdir(parents=True, exist_ok=True)
+                        with ingress_locks[entry["input"]]:
+                            ingest_chapter(plan, entry, ingress_jobs)
                     folder = input_folder(entry)
                     directory = latest_run(entry)
+                    if plan.get('preanalyze_import'):
+                        selected = plan['preanalyze_import']['runs'][entry['story_key'] + '/' + entry['chapter']]
+                        imported = manage.RUNTIME / 'data/imports' / plan['batch'] / selected
+                        origin = manage.read_json(directory / 'manifest.json').get('preanalyze_import', {}) if directory else {}
+                        if origin.get('source') != str(imported):
+                            with log.open('ab') as output:
+                                subprocess.run([str(manage.current_python()), '-B',
+                                    str(manage.PROJECT / 'deployment/runpod/preanalyze_import.py'),
+                                    '--source', str(imported), '--config', str(config_path),
+                                    '--through', plan['preanalyze_import']['reuse'][-1]],
+                                    cwd=manage.PROJECT, env=env, check=True,
+                                    stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT)
+                            directory = latest_run(entry)
                     if directory:
                         saved = manage.read_json(directory / "manifest.json")["config"]
-                        for key in ("ollama", "layout", "v6", "ocr", "inpaint", "translation"):
-                            if any(saved.get(key, {}).get(k) != v for k, v in config.get(key, {}).items()):
+                        changed = any(any(saved.get(key, {}).get(k) != v for k, v in config.get(key, {}).items())
+                                      for key in ("llm", "vllm", "layout", "v6", "ocr", "inpaint", "translation", "runtime"))
+                        if changed:
+                            if not plan.get("reanalyze_existing"):
                                 raise RuntimeError("Resume config differs; prepare an explicitly authorized revision")
-                        command = ["resume", "--run-dir", str(directory)]
+                            command = ["reanalyze", "--run-dir", str(directory), "--config", str(config_path)]
+                        else:
+                            command = ["resume", "--run-dir", str(directory), "--config", str(config_path)]
                     else:
                         command = ["run", str(folder), "--story", entry["story"], "--chapter", entry["chapter"],
                                    "--config", str(config_path)]
+                    if entry.get("until"):
+                        command.extend(["--until", entry["until"]])
                     record["phase"] = "inference"
-                    manage.atomic_json(args.state, state)
+                    save_record()
+                    chapter_env = dict(env)
+                    if runtime_enabled:
+                        chapter_env["MANGA_STORY_KEY"] = entry["story_key"]
+                    started = time.monotonic()
                     with log.open("ab") as output:
                         result = subprocess.run([str(manage.current_python()), str(manage.PROJECT / "deployment/runpod/manage.py"),
-                                                 *command, "--no-progress"], cwd=manage.PROJECT, env=env,
+                                                 *command, "--no-progress"], cwd=manage.PROJECT, env=chapter_env,
                                                 stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT)
+                    event("chapter_inference", story=entry["story_key"], chapter=entry["chapter"],
+                          wall_seconds=time.monotonic()-started, exit_code=result.returncode)
                     record["exit_code"] = result.returncode
                     directory = latest_run(entry)
                     record.update(writer_stopped=True, run_dir=str(directory) if directory else None, phase="review")
@@ -182,26 +288,79 @@ def main(argv=None):
                     if result.returncode or not directory or record.get("review_exit_code"):
                         raise RuntimeError("Chapter execution/review failed; preserve its checkpoints")
                     record["phase"] = "verify"
-                    record.update(summary=verify_v6(RunStore(directory), entry), status="completed")
+                    summary = verify_v6(RunStore(directory), entry)
+                    record.update(summary=summary, status="completed_with_review" if summary.get("semantic_unresolved")
+                                  or summary.get("typeset_needs_review") or summary.get('identity_needs_review') else "completed")
                 except Exception as exc:
                     record.update(status="failed", error=str(exc), writer_stopped=True,
                                   run_dir=str(directory) if directory else None, errors=errors_for(directory))
+                    if manage.read_json(manage.RUNTIME / "config/llm-inference-pause.json", {}).get("status") == "paused":
+                        record["status"] = "paused"
                     if directory:
                         try:
                             record["summary"] = verify_v6(RunStore(directory), entry, allow_partial=True)
                         except Exception as integrity:
                             record["integrity_error"] = str(integrity)
                 record.update(phase="finished", finished_at=time.time())
-                manage.atomic_json(args.state, state)
-                write_error_review(args.state.parent / "errors.md", state)
-                manage.say(json.dumps(record, ensure_ascii=False))
-            failed = any(r["status"] != "completed" for r in state["chapters"])
-            state.update(status="completed_with_errors" if failed else "completed", finished_at=time.time())
+                if os.environ.get("MANGA_DURABLE_ROOT") and directory:
+                    try:
+                        record["publication"] = publish(manage.RUNTIME,
+                            Path(os.environ["MANGA_DURABLE_ROOT"]) / plan["batch"],
+                            "outputs", story=entry["story_key"], chapter=entry["chapter"])
+                    except Exception as exc:
+                        record.update(status="failed", publication_error=str(exc))
+                save_record(finished=True)
+                with state_lock:
+                    write_error_review(args.state.parent / "errors.md", state)
+                    manage.say(json.dumps(record, ensure_ascii=False))
+                if record["status"] == "paused":
+                    raise RuntimeError("Inference paused with uncertain server work; later chapters were not started")
+
+            stories = {}
+            for index, entry in enumerate(plan["chapters"]):
+                stories.setdefault(entry["story_key"], []).append((index, entry))
+
+            def run_story(entries):
+                for index, entry in entries:
+                    run_entry(index, entry)
+
+            if story_workers == 1:
+                # Complete a chapter before moving to another story; preserve each
+                # story's chapter/bank order while avoiding story-level starvation.
+                state["schedule"] = "chapter-round-robin-v1"
+                for turn in range(max(map(len, stories.values()), default=0)):
+                    for entries in stories.values():
+                        if turn < len(entries):
+                            run_entry(*entries[turn])
+            else:
+                # Legacy parallel profiles retain one writer per story.
+                with ThreadPoolExecutor(max_workers=min(story_workers, len(stories)),
+                                        thread_name_prefix="v6-story") as executor:
+                    futures = [executor.submit(run_story, entries) for entries in stories.values()]
+                    for future in as_completed(futures):
+                        future.result()
+            failed = any(r["status"] not in {"completed", "completed_with_review"} for r in state["chapters"])
+            reviews = any(r["status"] == "completed_with_review" for r in state["chapters"])
+            state.update(status="completed_with_errors" if failed else "completed_with_review" if reviews else "completed", finished_at=time.time())
             manage.atomic_json(args.state, state)
             write_error_review(args.state.parent / "errors.md", state)
+            if config.get("llm", {}).get("backend") == "vllm":
+                vllm_runtime.stop()
+            monitor.__exit__(None, None, None)
+            if runtime_enabled:
+                manage.atomic_json(args.state.parent / "runtime/final-gpu-state.json",
+                                   manage.read_json(Path(env["MANGA_GPU_COORDINATOR"]) / "gpu-state.json"))
+            if os.environ.get("MANGA_DURABLE_ROOT"):
+                durable = Path(os.environ["MANGA_DURABLE_ROOT"]) / plan["batch"]
+                state["bank_publication"] = publish(manage.RUNTIME, durable, "banks")
+                audit = durable / "published/audit"
+                state["audit_publication"] = archive_files(files_under(args.state.parent),
+                    manage.RUNTIME, audit, audit / "ready.json")
+                manage.atomic_json(args.state, state)
             return 2 if failed else 0
         except BaseException as exc:
-            state.update(status="interrupted", error=str(exc), updated_at=time.time())
+            paused = manage.read_json(manage.RUNTIME / "config/llm-inference-pause.json", {}).get("status") == "paused"
+            state.update(status="paused" if paused else "interrupted", error=str(exc), updated_at=time.time())
             manage.atomic_json(args.state, state)
             write_error_review(args.state.parent / "errors.md", state)
             raise

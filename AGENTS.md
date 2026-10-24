@@ -117,6 +117,49 @@ tests for the current v6 Runpod preparation task unless the user requests them.
 
 ## Runpod — mandatory fast-batch policy
 
+## Current Runpod workflow (user instruction, 2026-10-15)
+
+For all new v6 Runpod tasks, use **local working-set + native Syncthing**.
+Read [the current operational runbook](docs/plans/runpod-v6-agent-operational-plan.md)
+and the fast policy below before planning or operating. `runpod-v6.ps1` routes to
+`deployment/runpod/local_v6.py`; this is the canonical prepare/launch/watch lane.
+Use `native_sync.py` for offline pairing/status and `native_verify.py` for backup proof.
+
+- Source, environments, model cache, input, bank, output and logs must run under
+  `/opt/manga-work/{project,execution,runtime}` on a verified local filesystem.
+  Setting only `MANGA_EXECUTION_ROOT` while keeping runtime on `/workspace` is insufficient.
+- `/workspace/manga-runtime/local-v6` holds durable checkpoint/publication archives;
+  native Syncthing replicates both live and durable data to `outputs/runpod-<batch>`.
+- Prepare source/config/input archives and dependency locks **before** renting.
+  Use a pinned compatible boot image. A new large Docker build/push is not a default
+  prerequisite; do it only when the workload needs a changed boot image.
+- New Qwen runs use the effective `configs/pipeline-v6-runpod.json`: **vLLM**, not
+  Ollama. Read model/revision/context/GPU from that config and the current task;
+  old Gemma/Ollama examples and GPU fallback orders are historical, not defaults.
+- Direct `v6.py` / `sync.py run` and `runpod-v6.ps1 legacy` are compatibility paths,
+  not the default for a new run. Do not silently substitute them for `local_v6.py`.
+- Keep new native daemon identity/GUI port separate from existing batches. Verify
+  the paired device and canary; do not stop unrelated daemons or trust an occupied port.
+- Freeze a **new batch** after any bundled source/config change. Do not launch an
+  older plan or claim a CPU image build is a running Runpod inference job.
+
+This section chooses the workflow; it does not grant Runpod authorization or
+permission to change other tasks' resources. The authorization rules above still apply.
+
+## Runpod GPU policy (user instruction, 2026-10-22)
+
+Use **NVIDIA L40S, Secure Cloud, for every Runpod task** unless the user explicitly
+requests another GPU for that task. This supersedes all earlier RTX 5090/4090
+selections and saved resume plans, including the historical Iris Zero 5090 plan.
+Do not provision, resume or fall back to a 5090/4090 or Community Cloud when L40S
+Secure has no capacity. Report the capacity constraint instead.
+
+Read live L40S stock/pricing and the task's actual CUDA floor before provisioning.
+New frozen configs must use `runtime.preset=l40s`, `runtime.required_gpu=L40S`;
+changing the GPU requires a new batch, never editing an already frozen batch.
+This GPU preference is not authorization to use Runpod: an explicit request for
+Runpod in the current task is still required. An offline plan grants no access.
+
 ## Default input data source (user instruction, 2026-10-10)
 
 When the user says "lấy dữ liệu" (get data), use the existing local source
@@ -127,10 +170,12 @@ when the user explicitly specifies it.
 Runpod stages must still automatically produce their Markdown review files.
 Agents must not read or assess those Markdown files as stage approval gates.
 
-New runs use `JustANormalTinkerer/hayai-ocr-v2.5-nova` for OCR. MAGI still
-detects text and characters; Koharu provides layout. Hayai runs in a separate
-environment (`requirements-hayai.txt`) to preserve MAGI's pinned dependencies.
-Runpod setup and prefetch must prepare that environment and model before inference.
+New runs use `zai-org/GLM-OCR` (pinned revision in the effective config) for OCR,
+per the user's 2026-10-22 instruction. MAGI still detects text and characters;
+Koharu provides layout. GLM-OCR runs in a separate environment
+(`requirements-glm-ocr.txt`) to preserve MAGI's pinned dependencies. Runpod setup
+and prefetch must prepare the frozen GLM environment/model before inference.
+Hayai remains a historical compatibility backend, not the new-run default.
 
 Before any Runpod planning, deployment, execution, transfer, monitoring, or teardown, read
 [`docs/news/runpod_agent_fast_policy_vi.md`](docs/news/runpod_agent_fast_policy_vi.md) completely.

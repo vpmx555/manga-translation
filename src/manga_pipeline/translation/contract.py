@@ -1,9 +1,9 @@
-"""Two independent styles; the model writes translations, never identities."""
+"""Natural Vietnamese translation; the model never rewrites identities."""
 import re
-from ..names.stages import object_schema
+from ..v6.semantic_contract import object_schema
 
-POLICY = "vi-dual-v1"
-STYLES = ("natural", "localized")
+POLICY = "vi-natural-v2"
+STYLES = ("natural",)
 PROMPT = (
     "Translate every supplied target from English to Vietnamese exactly once. JSON only. "
     "The exported speaker/addressee IDs are authoritative, including unknown/special values. "
@@ -18,8 +18,6 @@ PROMPT = (
 )
 STYLE_PROMPTS = {
     "natural": "Use natural Vietnamese, faithful to meaning and the character's tone; avoid adding slang or emphasis.",
-    "localized": "Use lively Vietnamese dialogue, flexible colloquial phrasing and appropriate slang. "
-                 "Do not add jokes, plot details, insults or stronger emotion absent from the source.",
 }
 
 

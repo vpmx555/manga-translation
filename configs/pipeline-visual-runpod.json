@@ -1,11 +1,25 @@
 {
   "ocr": {
-    "backend": "hayai",
-    "model": "JustANormalTinkerer/hayai-ocr-v2.5-nova",
-    "revision": "2803d0dc005fa4396ab1e7c5a472d2c450a247f7"
+    "engine": "core",
+    "batch_size": 8,
+    "backend": "glm-ocr",
+    "model": "zai-org/GLM-OCR",
+    "revision": "2e85a62840ccac27daa451df36c736c4636b8628",
+    "max_new_tokens": 2048
   },
-  "character_character_matching_threshold": 0.75,
-  "character_detection_threshold": 0.35,
+  "character_character_matching_threshold": 0.81,
+  "character_detection_threshold": 0.3,
+  "character_bank": {
+    "max_distance": 0.55,
+    "min_margin": 0,
+    "pending_max_page_gap": 1,
+    "prototype_strategy": "closest-2-to-16-paired-mean-v2",
+    "assignment_strategy": "page-frozen-frequent-id-then-distance-v1",
+    "min_embeddings_per_character": 2,
+    "max_embeddings_per_character": 16,
+    "min_crops_per_character": 2,
+    "max_crops_per_character": 16
+  },
   "layout": {
     "enabled": true,
     "python": null,
@@ -14,5 +28,77 @@
   "inpaint": {
     "enabled": false,
     "model_root": "/workspace/manga-runtime/models/visual"
-  }
+  },
+  "analysis_contract": "independent-batches-v6.1",
+  "llm": {
+    "backend": "vllm",
+    "host": "http://127.0.0.1:8000",
+    "model": "cyankiwi/Qwen3.5-27B-AWQ-4bit",
+    "num_ctx": 32768,
+    "num_predict": 2048,
+    "scene_num_predict": 4096,
+    "analyze_num_predict": 8192,
+    "translation_num_predict": 2048,
+    "temperature": 0,
+    "top_k": 20,
+    "top_p": 0.95,
+    "presence_penalty": 0,
+    "compact_context": true,
+    "require_full_gpu": true,
+    "timeout_retries": 0,
+    "image_max_side": 768,
+    "timeout": 600,
+    "retries": 0
+  },
+  "dialogue_analysis": "essential-v3",
+  "speaker_policy": "individual-v1",
+  "ner": {
+    "backend": "llm-scene",
+    "model": "gliner-community/gliner_small-v2.5",
+    "revision": "f227d3cd637bd4e6757ae143935316d062393341",
+    "threshold": 0.85,
+    "device": "cpu"
+  },
+  "vllm": {
+    "version": "0.31.0",
+    "revision": "5cba9b5f1bca69fab9b75c88ae7817ae22d7d898",
+    "quantization": "compressed-tensors",
+    "dtype": "bfloat16",
+    "gpu_memory_utilization": 0.94,
+    "max_num_batched_tokens": 2048,
+    "startup_timeout": 600,
+    "max_num_seqs": 64,
+    "max_images_per_prompt": 10
+  },
+  "v6": {
+    "enabled": true,
+    "analyze_engine": "independent-batches-v6.1",
+    "analyze_batch_size": 8,
+    "translation_concurrency": 64,
+    "relationship_concurrency": 8,
+    "relationship_min_appearances": 8,
+    "relationship_crops_per_magi": 3,
+    "identity_relationship_policy": "identity-relationship-v2",
+    "identity_name_binding_policy": "chapter-name-binding-simple-v2",
+    "scan_policy": "canonical-scan-v3",
+    "scan_output_tokens": 8192,
+    "identity_min_chapter_crops": 8,
+    "identity_binding_concurrency": 8,
+    "identity_binding_output_tokens": 4096,
+    "identity_visual_min_crop": 0.38,
+    "profile_crops": 10,
+    "profile_concurrency": 8,
+    "profile_output_tokens": 4096,
+    "relationship_output_tokens": 4096,
+    "typeset_mode": "ocr-box"
+  },
+  "runtime": {
+    "llm_slots": 64,
+    "analyze_max_batch": 8,
+    "preset": "l40s",
+    "required_gpu": "L40S",
+    "enabled": true,
+    "story_workers": 1
+  },
+  "device": "cuda"
 }

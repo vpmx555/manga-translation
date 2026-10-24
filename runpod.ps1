@@ -5,7 +5,7 @@ $ProjectPython = Join-Path $ProjectRoot 'venv\Scripts\python.exe'
 if (-not (Test-Path -LiteralPath $ProjectPython)) {
     $ProjectPython = (Get-Command python -ErrorAction Stop).Source
 }
-$Controller = Join-Path $ProjectRoot 'deployment\runpod\sync.py'
+$Controller = Join-Path $ProjectRoot 'deployment\runpod\local_v6.py'
 if (-not $RunpodArguments -or $RunpodArguments.Count -eq 0) {
     $RunpodArguments = @('--help')
 }

@@ -73,13 +73,20 @@ def add_name(state, person_id, surface, *, source, components=()):
     person["primary_name"] = person.get("primary_name") or form["base_name"]
 
 
-def bootstrap(raw, source_bank, persisted=None):
+def bootstrap(raw, source_bank, persisted=None, *, run_scope=None):
     state = copy.deepcopy(persisted) if persisted else {"schema_version": 6, "persons": {},
         "name_index": {}, "cluster_to_person": {}, "redirects": {}, "calling_events": {}, "operations": []}
     if state.get("schema_version") != 6:
         raise ValueError("Unsupported person registry schema")
+    bank_contract = {key: source_bank.get(key) for key in
+                     ("schema_version", "model_fingerprint", "geometry_fingerprint")}
+    previous_contract = state.get("source_bank_contract")
+    if previous_contract is not None and previous_contract != bank_contract:
+        raise ValueError("Person registry source bank schema/model/geometry changed")
+    if all(value is not None for value in bank_contract.values()):
+        state["source_bank_contract"] = bank_contract
     geometry = [{k: p.get(k) for k in ("id", "characters", "character_cluster_labels")} for p in raw["pages"]]
-    scope = fingerprint([raw.get("model_fingerprint"), geometry])[:16]
+    scope = fingerprint([raw.get("model_fingerprint"), geometry, run_scope])[:16]
     observations, legacy = copy.deepcopy(state.get("observations", {})), {}
     story = raw.get("story_id") or raw["document_id"]
     def person_for(bank_id, cluster_ref):
@@ -117,19 +124,36 @@ def bootstrap(raw, source_bank, persisted=None):
 
 
 def calling_event(*, raw, row, mention, target_person_id, recipient_cluster_ref, caller_person_id=None,
-                  visual_support=False, evidence=""):
+                  visual_support=False, evidence="", recipient_observations=None):
     source = next(p for p in raw["pages"] if p["id"] == row["page_id"])
     source_image_hash = file_hash(source["image_path"])
-    anchors = [(b["source_text_id"], b.get("bbox")) for b in row["source_boxes"]]
+    anchors = [b.get("bbox") for b in row["source_boxes"]]
     base = name_form(mention["name"])["base_name"]
-    local_cluster = recipient_cluster_ref.rsplit(":c", 1)[-1]
-    recipient_boxes = [box for box, label in zip(source["characters"], source["character_cluster_labels"])
-                       if str(label) == local_cluster]
-    occurrence = fingerprint([source_image_hash, anchors, base, recipient_boxes, "direct_name_call"])
+    if recipient_observations is None:
+        recipient_page_id = recipient_cluster_ref.rsplit(":c", 1)[0].split(":", 1)[-1]
+        local_cluster = recipient_cluster_ref.rsplit(":c", 1)[-1]
+        recipient_page = next((p for p in raw["pages"] if p["id"] == recipient_page_id), None)
+        if recipient_page is None:
+            raise ValueError("Calling recipient page is not in the source run")
+        recipient_observations = [{"page_id": recipient_page["id"], "bbox": box, "character_index": i}
+            for i, (box, label) in enumerate(zip(recipient_page["characters"], recipient_page["character_cluster_labels"]))
+            if str(label) == local_cluster]
+    recipient_sources = []
+    for observation in recipient_observations:
+        page = next(p for p in raw["pages"] if p["id"] == observation["page_id"])
+        recipient_sources.append({"page_id": page["id"], "image_hash": file_hash(page["image_path"]),
+                                  "bbox": observation["bbox"], "character_index": observation["character_index"]})
+    if not recipient_sources:
+        raise ValueError("Calling recipient has no source observation")
+    physical_recipient = [{k: item[k] for k in ("image_hash", "bbox")} for item in recipient_sources]
+    occurrence = fingerprint([source_image_hash, anchors, mention.get("original_start", mention.get("start")),
+                              mention.get("original_end", mention.get("end")),
+                              base, physical_recipient, "direct_name_call"])
     return {"event_id": occurrence, "event_type": "direct_name_call", "source_occurrence_key": occurrence,
         "source_utterance_id": row["id"], "source_text_ids": row["source_text_ids"],
         "name_key": name_form(mention["name"])["surface"], "caller_person_id": caller_person_id,
         "recipient_cluster_ref": recipient_cluster_ref, "target_person_id": target_person_id,
+        "recipient_observations": recipient_sources,
         "confirmation_status": "confirmed", "visual_support": bool(visual_support), "evidence": evidence}
 
 

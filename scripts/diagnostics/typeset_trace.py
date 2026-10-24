@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 from scipy import ndimage as ndi
 
 from manga_pipeline.storage.io import atomic_json, file_hash, read_json
-from manga_pipeline.v6.typeset import slots
+from manga_pipeline.v6.typeset import draw_body_centered_line, slots
 from manga_pipeline.v6.visual import bbox, disk
 from manga_pipeline.visual.geometry import read_mask, write_png
 
@@ -207,7 +207,7 @@ def render_trace(store, row, parts, config, font_path, trials, plan, glyphs, ori
         draw = ImageDraw.Draw(allocated)
         for index, item in enumerate(trial["parts"]):
             for line in item["lines"]:
-                draw.text((line["x"], line["y"]), line["text"], font=font, fill=COLORS[index % len(COLORS)], anchor="lt")
+                draw_body_centered_line(draw,line,font,fill=COLORS[index % len(COLORS)])
         if trial["parts"]:
             save(f"09-trial-{trial_index:03d}-font-{trial['font_size_px']:02d}-allocation", allocated,
                 f"Phân bổ thật tại {trial['font_size_px']}px: từ liên tiếp mỗi part, kết quả {trial['status']}.", "trial")
@@ -219,7 +219,7 @@ def render_trace(store, row, parts, config, font_path, trials, plan, glyphs, ori
         for index, item in enumerate(plan["parts"]):
             for line in item["lines"]:
                 draw.rectangle((line["x"], line["y"], line["x"]+line["width"], line["y"]+line["height"]), outline=COLORS[index % len(COLORS)], width=2)
-                draw.text((line["x"], line["y"]), line["text"], font=chosen, fill=(0,0,0), anchor="lt")
+                draw_body_centered_line(draw,line,chosen,fill=(0,0,0))
         save("10-chosen-line-boxes", value, "Ngắt dòng được chọn sau group; bbox và cỡ chữ lấy từ plan thực tế.")
         composed = clean.copy()
         for index, (part, glyph) in enumerate(zip(parts, glyphs), 1):

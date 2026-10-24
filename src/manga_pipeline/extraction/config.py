@@ -3,14 +3,15 @@ import math
 
 DETECTION_DEFAULTS = {
     "text_detection_threshold": 0.45,
-    "character_detection_threshold": 0.35,
-    "character_character_matching_threshold": 0.75,
+    "character_detection_threshold": 0.3,
+    "character_character_matching_threshold": 0.81,
     "text_character_matching_threshold": 0.25,
     "text_classification_threshold": -0.5,
 }
 
 # Missing fields in committed manifests mean the original MAGI behavior.
 LEGACY_IMPLICIT_THRESHOLDS = {
+    "character_character_matching_threshold": 0.75,
     "character_detection_threshold": 0.30,
     "text_character_matching_threshold": 0.35,
     "text_classification_threshold": 0.5,
