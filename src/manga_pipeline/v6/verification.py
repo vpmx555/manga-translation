@@ -35,7 +35,7 @@ def verify(artifacts, config, frozen, bank, plan):
     essential = [r for r in normalized if r.get("is_essential_text") is True]
     scenes = analyzed["scenes"]
     if essential:
-        if artifacts['scan'].get('policy') == 'canonical-scan-v3':
+        if artifacts['scan'].get('policy') in {'canonical-scan-v3', 'canonical-scan-v4'}:
             expected_ids = [r['id'] for r in essential]
             valid = (all(isinstance(s.get('summary'), str) and s.get('target_ids')
                          and s.get('scene_id') == f'scene:{i}' for i, s in enumerate(scenes, 1))
@@ -92,6 +92,8 @@ def verify(artifacts, config, frozen, bank, plan):
             raise ValueError("Batch cut or token budget provenance changed")
         branch_cursors[key], preceding[key] = end, job
         reconstructed = prepare(rows, entry, state, candidates, job["anchor_exception"])
+        if config.get('llm', {}).get('analyze_thinking'):
+            reconstructed['reserve'] = config['llm']['analyze_num_predict']
         if any(reconstructed[k] != job[k] for k in reconstructed):
             raise ValueError("Batch pool, names, schema or source snapshot changed")
         for row in rows:

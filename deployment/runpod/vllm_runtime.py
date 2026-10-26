@@ -33,7 +33,8 @@ def python():
 
 def signature(config):
     return hashlib.sha256(json.dumps({"model": config["llm"]["model"],
-        "num_ctx": config["llm"]["num_ctx"], "engine": config["vllm"],
+        "num_ctx": max(config['llm']['num_ctx'], config['llm'].get('analyze_num_ctx', config['llm']['num_ctx'])),
+        "analyze_thinking": config['llm'].get('analyze_thinking', False), "engine": config["vllm"],
         "llm_slots": config["vllm"]["max_num_seqs"]}, sort_keys=True).encode()).hexdigest()
 
 
@@ -104,7 +105,8 @@ def command(config):
         raise RuntimeError("Managed vLLM is restricted to the loopback endpoint")
     args = [str(python().parent / "vllm"), "serve", str(model_path(config)),
         "--served-model-name", cfg["model"], "--host", "127.0.0.1", "--port", "8000",
-        "--max-model-len", str(cfg["num_ctx"]), "--max-num-seqs", str(config["vllm"]["max_num_seqs"]),
+        "--max-model-len", str(max(cfg['num_ctx'], cfg.get('analyze_num_ctx', cfg['num_ctx']))),
+        "--max-num-seqs", str(config["vllm"]["max_num_seqs"]),
         "--max-num-batched-tokens", str(engine["max_num_batched_tokens"]),
         "--gpu-memory-utilization", str(engine["gpu_memory_utilization"]),
         "--dtype", engine["dtype"], "--quantization", engine["quantization"],
@@ -112,6 +114,8 @@ def command(config):
         "--no-enable-prefix-caching", "--generation-config", "vllm"]
     if 'max_images_per_prompt' in engine:
         args.extend(['--limit-mm-per-prompt', json.dumps({'image': engine['max_images_per_prompt'], 'video': 0})])
+    if cfg.get('analyze_thinking'):
+        args.extend(['--reasoning-parser', 'qwen3'])
     return args
 
 
@@ -165,8 +169,7 @@ def start(config=None):
         else:
             raise RuntimeError("Port 8000 belongs to an unmanaged server; it was not changed")
         manage.validate_gpu_profile(config)
-        env = manage.environment()
-        env.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", VLLM_NO_USAGE_STATS="1")
+        env = server_environment()
         log = manage.RUNTIME / "logs/vllm.log"
         log.parent.mkdir(parents=True, exist_ok=True)
         with log.open("ab") as output:
@@ -177,7 +180,8 @@ def start(config=None):
             raise RuntimeError("vLLM exited during startup; inspect logs/vllm.log")
         record = {"identity": identity, "signature": signature(config), "command": command(config),
                   "model": config["llm"]["model"], "revision": config["vllm"]["revision"],
-                  "version": config["vllm"]["version"], "cpu_offload_gb": 0, "max_model_len": config["llm"]["num_ctx"],
+                  "version": config["vllm"]["version"], "cpu_offload_gb": 0,
+                  "max_model_len": max(config['llm']['num_ctx'], config['llm'].get('analyze_num_ctx', config['llm']['num_ctx'])),
                   "max_num_seqs": config["vllm"]["max_num_seqs"]}
         manage.atomic_json(manage.RUNTIME / "config/vllm-process.json", identity)
         manage.atomic_json(path, record)
@@ -196,6 +200,14 @@ def start(config=None):
         # Startup has not admitted any generation requests; reclaim only this process group.
         os.killpg(process.pid, signal.SIGTERM)
         raise RuntimeError("vLLM startup timed out; its task-owned process group was stopped")
+
+
+def server_environment():
+    """Expose locked vLLM console tools to JIT subprocesses (notably ninja)."""
+    env = manage.environment()
+    env['PATH'] = str(python().parent) + os.pathsep + env.get('PATH', '')
+    env.update(HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1', VLLM_NO_USAGE_STATS='1')
+    return env
 
 
 def stop():

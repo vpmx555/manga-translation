@@ -45,7 +45,9 @@ class Calls:
     def call(self, key, task, prompt, request, schema, *, reserve, attempt=0, oom_retry=True, images=None):
         if self.paused.is_set():
             raise InferenceUncertain("Analyze queue paused after uncertain request completion")
-        identity = fingerprint([key, task, prompt, request, schema, reserve, attempt])
+        from ..runtime.stage_policy import request_policy
+        identity = fingerprint([key, task, prompt, request, schema, reserve, attempt,
+                                request_policy(self.config, task)])
         if images:
             identity = fingerprint([identity, images])
         path = self.directory / (identity + ".json")

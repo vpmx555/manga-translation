@@ -33,7 +33,7 @@ speaker for a direct call; do not change a resolved analyze speaker. JSON only.'
 
 
 def enabled(config):
-    return config.get('v6', {}).get('identity_name_binding_policy') in {POLICY, 'chapter-name-binding-simple-v2'}
+    return config.get('v6', {}).get('identity_name_binding_policy') in {POLICY, 'chapter-name-binding-simple-v2', 'analyze-authoritative-v3'}
 
 
 def schema(request):
@@ -359,6 +359,9 @@ def effective_updates(analyzed, state, accepted, people):
 
 def build(store, provider, analyzed):
     """Return staged registry changes; identity_v2 commits them atomically."""
+    if store.manifest['config']['v6'].get('identity_name_binding_policy') == 'analyze-authoritative-v3':
+        from .identity_from_analyze import build as from_analyze
+        return from_analyze(store, provider, analyzed)
     if store.manifest['config']['v6'].get('identity_name_binding_policy') == 'chapter-name-binding-simple-v2':
         from .identity_binding_simple import build as simple_build
         return simple_build(store, provider, analyzed)

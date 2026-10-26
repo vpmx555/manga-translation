@@ -79,7 +79,7 @@ class StructuralTests(unittest.TestCase):
     def test_new_defaults_and_historical_unversioned_file(self):
         config = load_config()
         self.assertEqual(config['v6']['scan_policy'], scan.POLICY)
-        self.assertEqual(config['v6']['identity_name_binding_policy'], binding.POLICY)
+        self.assertEqual(config['v6']['identity_name_binding_policy'], 'analyze-authoritative-v3')
         self.assertEqual(config['v6']['identity_min_chapter_crops'], 8)
         with tempfile.TemporaryDirectory() as directory:
             historical = copy.deepcopy(config)
@@ -217,6 +217,7 @@ class NewBindingIntegrationTests(unittest.TestCase):
     def setUp(self):
         fixtures.NameBindingTests.setUp(self)
         self.store.manifest['config'] = load_config()
+        self.store.manifest['config']['v6']['identity_name_binding_policy'] = binding.POLICY
         # Eight distinct real detections per main MAGI in this chapter.
         base = self.raw['pages'][0]
         self.raw['pages'] = [{**copy.deepcopy(base), 'id': 'p'+str(i+1), 'page': i+1} for i in range(8)]
@@ -311,7 +312,7 @@ class NewBindingIntegrationTests(unittest.TestCase):
                        addressee_type='individual', content_type='dialogue', speaker_kind='person')
         real = RunStore.create(self.root / 'new-full-run',
             source={'story': 'story', 'chapter': 'chapter-1', 'images': []},
-            config=load_config(), bank_path=self.store.manifest['bank_path'])
+            config=self.store.manifest['config'], bank_path=self.store.manifest['bank_path'])
         for stage, value in [('layout', {}), ('extract', self.raw), ('bubble_geometry', {}),
                 ('normalize', self.store.values['normalize']), ('scan', self.scanned), ('analyze', self.analyzed)]:
             real.finish(stage, value)
@@ -336,7 +337,7 @@ class NewBindingIntegrationTests(unittest.TestCase):
         self.raw['pages'] = self.raw['pages'][:7]
         real = RunStore.create(self.root / 'below-threshold',
             source={'story': 'story', 'chapter': 'chapter-1', 'images': []},
-            config=load_config(), bank_path=self.store.manifest['bank_path'])
+            config=self.store.manifest['config'], bank_path=self.store.manifest['bank_path'])
         for stage, value in [('layout', {}), ('extract', self.raw), ('bubble_geometry', {}),
                 ('normalize', self.store.values['normalize']), ('scan', self.scanned), ('analyze', self.analyzed)]:
             real.finish(stage, value)

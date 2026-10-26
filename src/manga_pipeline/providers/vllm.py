@@ -15,6 +15,7 @@ import urllib.request
 from ..storage.io import atomic_json, fingerprint, read_json
 from ..runtime.resources import BudgetExceeded, ResourceExhausted, event, gpu_lease, is_oom, quarantine
 from ..runtime.llm_budget import OutputTruncated, final_prompt, output_tokens
+from ..runtime.stage_policy import request_policy, server_context
 from ..runtime.inference_state import InferenceUncertain, pause, require_ready, server_identity, server_replaced
 
 
@@ -27,6 +28,7 @@ class VLLM:
         self.digest = self.config["model"] + "@" + self.engine["revision"]
         self._token_counts = {}
         self._token_lock = threading.RLock()
+        self._http_options = threading.local()
         self.reduce_admission = lambda: None
         self.pause_path = Path(os.environ.get("MANGA_LLM_PAUSE_FILE", str(self.cache_dir / "inference-pause.json")))
 
@@ -35,7 +37,7 @@ class VLLM:
         request = urllib.request.Request(self.config["host"].rstrip("/") + route,
             data=body, headers={"Content-Type": "application/json"})
         try:
-            with urllib.request.urlopen(request, timeout=self.config["timeout"]) as response:
+            with urllib.request.urlopen(request, timeout=getattr(self._http_options, 'timeout', self.config['timeout'])) as response:
                 return json.load(response)
         except json.JSONDecodeError as exc:
             raise RuntimeError("vLLM: server returned malformed JSON") from exc
@@ -62,11 +64,11 @@ class VLLM:
         record = read_json(Path(record_path)) if record_path else {}
         if (not isinstance(record, dict) or record.get("model") != self.config["model"] or record.get("revision") != self.engine["revision"]
                 or record.get("version") != self.engine["version"] or record.get("cpu_offload_gb") != 0
-                or record.get("max_model_len") != self.config["num_ctx"]
+                 or record.get("max_model_len") != server_context(self.pipeline_config)
                 or record.get("max_num_seqs") != self.engine["max_num_seqs"]):
             raise RuntimeError("vLLM: service revision/profile differs from the provider's frozen configuration")
         rows = self._http("/v1/models").get("data", [])
-        if not any(r.get("id") == self.config["model"] and r.get("max_model_len") == self.config["num_ctx"] for r in rows):
+        if not any(r.get("id") == self.config["model"] and r.get("max_model_len") == server_context(self.pipeline_config) for r in rows):
             raise RuntimeError("vLLM: served model/context differs from the frozen configuration")
 
     def _messages(self, task, prompt, data, schema, images=None):
@@ -80,7 +82,8 @@ class VLLM:
 
     def request_budget(self, task, prompt, data, schema, images=None, *, reserve=None):
         messages = self._messages(task, prompt, data, schema, images)
-        key = fingerprint([self.digest, self.engine, messages, {"enable_thinking": False}])
+        policy = request_policy(self.pipeline_config, task)
+        key = fingerprint([self.digest, self.engine, messages, policy])
         with self._token_lock:
             count = self._token_counts.get(key)
             if count is None:
@@ -88,7 +91,7 @@ class VLLM:
                     self._ready()
                     value = self._http("/tokenize", {"model": self.config["model"],
                         "messages": messages, "add_generation_prompt": True,
-                        "chat_template_kwargs": {"enable_thinking": False}})
+                        "chat_template_kwargs": {"enable_thinking": policy['enable_thinking']}})
                 count = value.get("count")
                 if type(count) is not int or count <= 0:
                     raise RuntimeError("vLLM: tokenizer did not return a valid chat token count")
@@ -96,8 +99,8 @@ class VLLM:
         reserve = output_tokens(self.pipeline_config, task) if reserve is None else reserve
         fraction = self.pipeline_config.get("runtime", {}).get("context_fraction", 0.85)
         return {"estimate": count + reserve + 512, "input_tokens": count,
-                "limit": math.floor(self.config["num_ctx"] * fraction),
-                "num_ctx": self.config["num_ctx"], "output_reserve": reserve,
+                "limit": math.floor(policy['num_ctx'] * fraction),
+                "num_ctx": policy['num_ctx'], "output_reserve": reserve,
                 "method": "vllm-tokenize-chat-with-schema-v1"}
 
     def infer_once(self, task, prompt, data, schema, validator, images=None):
@@ -109,7 +112,7 @@ class VLLM:
     def healthy(self):
         require_ready(self.pause_path)
         rows = self._http("/v1/models").get("data", [])
-        return any(r.get("id") == self.config["model"] and r.get("max_model_len") == self.config["num_ctx"] for r in rows)
+        return any(r.get("id") == self.config["model"] and r.get("max_model_len") == server_context(self.pipeline_config) for r in rows)
 
     def metrics(self):
         request = urllib.request.Request(self.config["host"].rstrip("/") + "/metrics")
@@ -129,14 +132,16 @@ class VLLM:
 
     def infer(self, task, prompt, data, schema, validator, images=None, *, retries=None, reserve=None):
         require_ready(self.pause_path)
+        policy = request_policy(self.pipeline_config, task)
         payload = {"model": self.config["model"], "stream": False,
             "messages": self._messages(task, prompt, data, schema, images),
             "max_tokens": output_tokens(self.pipeline_config, task) if reserve is None else reserve,
-            "temperature": self.config.get("temperature", 0), "top_k": self.config.get("top_k", 20),
-            "top_p": self.config.get("top_p", 0.95), "presence_penalty": self.config.get("presence_penalty", 0),
-            "chat_template_kwargs": {"enable_thinking": False},
+            "temperature": policy['temperature'], "top_k": self.config.get("top_k", 20),
+            "top_p": self.config.get("top_p", 0.95), "presence_penalty": policy['presence_penalty'],
+            "chat_template_kwargs": {"enable_thinking": policy['enable_thinking']},
             "response_format": {"type": "json_schema", "json_schema": {"name": "manga_result", "strict": True, "schema": schema}}}
-        key = fingerprint({"backend": "vllm", "version": self.engine["version"], "digest": self.digest, "request": payload})
+        key = fingerprint({"backend": "vllm", "version": self.engine["version"], "digest": self.digest,
+                           "request": payload, "stage_policy": policy})
         cache_path, ledger_path = self.cache_dir / (key + ".json"), self.cache_dir / "timeouts" / (key + ".json")
         cache_validator = getattr(validator, "validate_cache", validator)
         if cache_path.exists():
@@ -180,7 +185,11 @@ class VLLM:
                 atomic_json(ledger_path, ledger)
                 post_started = time.monotonic()
                 try:
-                    response = self._http("/v1/chat/completions", payload)
+                    self._http_options.timeout = policy['timeout']
+                    try:
+                        response = self._http("/v1/chat/completions", payload)
+                    finally:
+                        del self._http_options.timeout
                 except (ResourceExhausted, BudgetExceeded, RuntimeError) as exc:
                     atomic_json(ledger_path, {**ledger, "status": "terminated_error", "error": str(exc),
                         "oom_failures": ledger.get("oom_failures", 0) + int(isinstance(exc, ResourceExhausted)),
@@ -203,7 +212,7 @@ class VLLM:
         choices = response.get("choices", [])
         if not choices or choices[0].get("finish_reason") != "stop":
             raise OutputTruncated("vLLM output incomplete; split targets without accepting partial JSON")
-        if usage.get("prompt_tokens", budget["input_tokens"]) + payload["max_tokens"] + 512 > self.config["num_ctx"]:
+        if usage.get("prompt_tokens", budget["input_tokens"]) + payload["max_tokens"] + 512 > policy['num_ctx']:
             raise BudgetExceeded("vLLM actual prompt exceeded context reserve")
         try:
             result = json.loads(choices[0]["message"]["content"])

@@ -9,7 +9,7 @@ def require_config(config):
     binding = config.get('v6', {}).get('identity_name_binding_policy')
     if binding is not None:
         v6 = config['v6']
-        if (binding not in {'chapter-multimodal-name-binding-v1', 'chapter-name-binding-simple-v2'}
+        if (binding not in {'chapter-multimodal-name-binding-v1', 'chapter-name-binding-simple-v2', 'analyze-authoritative-v3'}
                 or v6.get('identity_relationship_policy') != 'identity-relationship-v2'
                 or type(v6.get('identity_binding_concurrency')) is not int
                 or not 1 <= v6['identity_binding_concurrency'] <= 8

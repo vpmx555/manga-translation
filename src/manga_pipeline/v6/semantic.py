@@ -23,6 +23,8 @@ def snapshot(store, raw):
 
 def scan(store, document, raw, detector, progress=None, provider=None):
     if store.manifest['config'].get('v6', {}).get('scan_policy') == 'canonical-scan-v3':
+        raise ValueError('Historical scan v3 must use its frozen source; prepare a new canonical-scan-v4 batch')
+    if store.manifest['config'].get('v6', {}).get('scan_policy') == 'canonical-scan-v4':
         from .scan_v3 import build
         return build(store, document, raw, provider)
     state = snapshot(store, raw)["state"]
@@ -159,25 +161,34 @@ def export(document, analyzed, linked):
         result["name_normalization"] = copy.deepcopy(analyzed["name_normalization"])
     classified = {r["utterance_id"]: r for r in analyzed["utterances"]}
     state = linked["person_state"]
+    authoritative = linked.get('name_binding', {}).get('policy') == 'analyze-authoritative-v3'
     retained, effects = [], []
     for row in result["utterances"]:
         item = copy.deepcopy(classified[row["id"]])
-        if linked.get('name_binding') is not None:
+        if linked.get('name_binding') is not None and not authoritative:
             from .identity_binding import project
             item = project(item, linked)
         pid = item.get("speaker_person_id")
-        if (pid is None or linked.get('policy') == 'identity-relationship-v2') and item.get("speaker_cluster_ref"):
+        if not authoritative and (pid is None or linked.get('policy') == 'identity-relationship-v2') and item.get("speaker_cluster_ref"):
             pid = state["cluster_to_person"].get(item["speaker_cluster_ref"], pid)
-        pid = persons.canonical(state, pid)
+        identity_pid = persons.canonical(state, pid)
+        if not authoritative:
+            pid = identity_pid
         row.update(item)
         row.update(speech_style_evidence=item.get("speech_style_evidence", item["evidence"]), speech_style_source=analyzed["policy"],
                    speech_style_status="needs_review" if item["speech_style"] == "unknown" or item.get("semantic_resolution") == "unresolved" else "provisional")
         kind = item.get("speaker_kind", "person" if pid else "others")
         row.update(speaker_person_id=pid, speaker_id=pid if pid else kind if "speaker_kind" in item else None,
-            speaker_display_label=(state["persons"][pid].get("primary_name") or pid) if pid else kind if "speaker_kind" in item else "Other",
-            speaker_name=state["persons"][pid].get("primary_name") if pid else None,
-            addressee_ids=[persons.canonical(state, p) for p in item["addressee_person_ids"]])
-        if linked.get('policy') == 'identity-relationship-v2':
+            speaker_display_label=(state["persons"][identity_pid].get("primary_name") or identity_pid) if identity_pid else kind if "speaker_kind" in item else "Other",
+            speaker_name=state["persons"][identity_pid].get("primary_name") if identity_pid else None,
+            addressee_ids=(copy.deepcopy(item['addressee_person_ids']) if authoritative else
+                           [persons.canonical(state, p) for p in item["addressee_person_ids"]]))
+        if authoritative:
+            row.update(identity_projection_policy='analyze-authoritative-v3', speaker_identity_id=identity_pid,
+                addressee_identity_ids=[persons.canonical(state, p) for p in item['addressee_person_ids']],
+                mention_identity_ids={m['candidate_id']: persons.canonical(state, m.get('target_person_id'))
+                                      for m in item.get('mentions', []) if m.get('candidate_id')})
+        if linked.get('policy') == 'identity-relationship-v2' and not authoritative:
             for mention in row.get('mentions', []):
                 if mention.get('target_person_id'):
                     mention['target_person_id'] = persons.canonical(state, mention['target_person_id'])

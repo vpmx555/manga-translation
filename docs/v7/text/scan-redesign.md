@@ -1,9 +1,16 @@
 # Thiết kế lại scan: tên model sửa là OCR hiện hành
 
-**Trạng thái: đã triển khai `canonical-scan-v3`, ngày 24/10/2026.** Mặc định mới
+**Trạng thái: đã triển khai `canonical-scan-v4`, ngày 24/10/2026.** Mặc định mới
 đã có trong Python và bốn config đang dùng. Đã kiểm tra bằng test không gọi model;
 chưa đánh giá chất lượng inference thật. Không chạy Runpod trong lượt triển khai.
 Xem [báo cáo triển khai](../delivery/simplified-validators-implementation.md).
+
+**Bổ sung OCR surface v4:** [sửa OCR giữ cách gọi](../delivery/ocr-surface-spelling-fix.md).
+`canonical_name` chỉ là metadata nhóm. `new_name` chỉ sửa chính tả/spacing của
+tên đang dùng trong câu, không tự thêm họ/tên hay honorific và không đổi thứ tự.
+Replace-all chỉ khớp tên nguyên vẹn, bảo vệ tên dài đã đúng. Đề xuất chèn/bỏ
+thành phần tên hoặc đổi thứ tự rõ ràng được giữ review, không áp vào OCR.
+Các phép sửa hợp lệ vẫn chạy tuần tự. Run v3 cũ không bị viết lại.
 
 Thiết kế này thay cơ chế scan phải khớp substring OCR thô, patch phải có bằng
 chứng chính tả, canonical name phải có sẵn trong source, coverage thiếu thì gọi

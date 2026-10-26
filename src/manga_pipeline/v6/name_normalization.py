@@ -248,7 +248,7 @@ def mapped_span(start, end, patches):
 def apply(document, normalization):
     result = copy.deepcopy(document)
     rows = result["utterances"]
-    if normalization.get('policy') == 'canonical-scan-v3':
+    if normalization.get('policy') in {'canonical-scan-v3', 'canonical-scan-v4'}:
         values = normalization['canonical_rows']
         if fingerprint(values) != normalization['canonical_hash']:
             raise ValueError('Canonical OCR snapshot changed')

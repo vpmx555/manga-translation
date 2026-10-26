@@ -46,7 +46,7 @@ def prepare(rows, scene, state, candidates, reason):
         "targets": [{k: r[k] for k in ("id", "text", "essential_index", "speaker_anchor", "original_speaker")}
                     for r in rows], "mentions": [
                         {k: v for k, v in m.items() if k not in {'raw_surface', 'original_start', 'original_end'}}
-                        if m.get('source') == 'llm_scan_v3' else m for m in mentions.values()],
+                        if m.get('source') in {'llm_scan_v3', 'llm_scan_v4'} else m for m in mentions.values()],
         "cluster_pool": {ref: {"person_id": persons.canonical(state, state["cluster_to_person"][ref]),
                                "observations": items} for ref, items in clusters.items()},
         "known_names": {p: {"name": state["persons"][p]["primary_name"],
@@ -81,6 +81,9 @@ def plan(rows, scenes, state, candidates, calls, soft=8):
                 cuts += [i for i in range(end-1, start, -1) if i not in cuts]
                 for cut in cuts:
                     job = prepare(branch_rows[start:cut], scene, state, candidates, reason)
+                    config = getattr(calls, 'config', {})
+                    if config.get('llm', {}).get('analyze_thinking'):
+                        job['reserve'] = config['llm']['analyze_num_predict']
                     budget = calls.budget("analyze_dialogue_v6", PROMPT, job["request"], job["schema"], job["reserve"])
                     if budget["estimate"] <= budget["limit"]:
                         selected = job

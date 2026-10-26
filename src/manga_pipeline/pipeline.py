@@ -52,7 +52,9 @@ DEFAULT_CONFIG = {
     "llm": {
         "backend": "vllm", "host": "http://127.0.0.1:8000", "model": "cyankiwi/Qwen3.5-27B-AWQ-4bit",
         "num_ctx": 32768, "num_predict": 2048, "image_max_side": 768, "timeout": 600, "retries": 0,
-        "scene_num_predict": 4096, "analyze_num_predict": 8192, "translation_num_predict": 2048,
+        "scene_num_predict": 4096, "analyze_num_predict": 12288, "translation_num_predict": 2048,
+        "analyze_thinking": True, "analyze_num_ctx": 65536, "analyze_timeout": 1200,
+        "analyze_temperature": 1.0, "analyze_presence_penalty": 1.5,
         "temperature": 0, "top_k": 20, "top_p": 0.95, "presence_penalty": 0,
         "compact_context": False, "require_full_gpu": True, "timeout_retries": 0},
 }
@@ -78,6 +80,12 @@ def load_config(path=None, device=None):
             config['v6']['scan_policy'] = None
         if 'identity_name_binding_policy' not in supplied.get('v6', {}):
             config['v6']['identity_name_binding_policy'] = 'chapter-multimodal-name-binding-v1'
+        for key, default in (('analyze_thinking', False), ('analyze_num_ctx', config['llm']['num_ctx']),
+                             ('analyze_timeout', config['llm']['timeout']),
+                             ('analyze_temperature', config['llm']['temperature']),
+                             ('analyze_presence_penalty', config['llm']['presence_penalty'])):
+            if key not in supplied.get('llm', {}):
+                config['llm'][key] = default
     if device:
         config["device"] = device
     validate_ocr_config(config["ocr"])
@@ -110,6 +118,11 @@ def load_config(path=None, device=None):
     if type(config["llm"]["retries"]) is not int or not 0 <= config["llm"]["retries"] <= 3:
         raise ValueError("retries must be 0..3")
     llm = config["llm"]
+    if (type(llm['analyze_thinking']) is not bool
+            or type(llm['analyze_num_ctx']) is not int or llm['analyze_num_ctx'] not in {32768, 65536}
+            or type(llm['analyze_timeout']) is not int or not 1 <= llm['analyze_timeout'] <= 3600
+            or llm['analyze_num_predict'] + 512 >= llm['analyze_num_ctx']):
+        raise ValueError('Invalid analyze thinking/context/timeout budget')
     if llm["backend"] != "vllm":
         raise ValueError("llm.backend must be vllm")
     if llm["backend"] == "vllm":
@@ -128,7 +141,8 @@ def load_config(path=None, device=None):
     for key in ("compact_context", "require_full_gpu"):
         if type(llm[key]) is not bool:
             raise ValueError(f"Invalid llm.{key}")
-    for key, low, high in (("temperature", 0, 2), ("top_p", 0.01, 1), ("presence_penalty", -2, 2)):
+    for key, low, high in (("temperature", 0, 2), ("top_p", 0.01, 1), ("presence_penalty", -2, 2),
+                           ("analyze_temperature", 0, 2), ("analyze_presence_penalty", -2, 2)):
         if type(llm[key]) not in (int, float) or not low <= llm[key] <= high:
             raise ValueError(f"Invalid llm.{key}")
     if type(llm["top_k"]) is not int or not 1 <= llm["top_k"] <= 100:

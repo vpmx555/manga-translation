@@ -1,5 +1,9 @@
 # Triển khai scan và validator giản lược — 24/10/2026
 
+**Cập nhật sau lượt test:** OCR mặc định đã nâng lên
+[`canonical-scan-v4`, sửa tên giữ cách gọi](ocr-surface-spelling-fix.md).
+Phần dưới ghi lại bản triển khai v3 ban đầu và kết quả kiểm tra tại thời điểm đó.
+
 Đã triển khai local theo thiết kế người dùng chốt. Không kết nối Runpod, không
 tạo pod, không chạy OCR hay model inference trong đợt triển khai này. Các kết quả
 chapter đã chạy trước đây được giữ nguyên, không coi là kết quả của contract mới.

@@ -49,17 +49,19 @@ def verify(plan_path):
                 raise RuntimeError('Replica archive CRC mismatch: ' + str(archive))
         verified.append({'receipt': str(path), 'archive': str(archive),
                          'sha256': ready['archive_sha256'], 'bytes': ready['archive_bytes']})
-    expected = [r.get('publication') for r in state.get('chapters', []) if r.get('publication')]
+    replay = plan.get('kind') == 'relationship-only-replay'
+    expected = ([state['output_publication']] if replay else
+                [r.get('publication') for r in state.get('chapters', []) if r.get('publication')])
     expected.extend([state['bank_publication'], state['audit_publication']])
     hashes = {r['sha256'] for r in verified}
     if any(r['archive_sha256'] not in hashes for r in expected):
         return None
-    if len(state.get('chapters', [])) != len(plan['chapters']):
+    if not replay and len(state.get('chapters', [])) != len(plan['chapters']):
         return None
     return {'status': 'replica_archives_verified', 'batch': plan['batch'], 'verified_at': time.time(),
             'pipeline_status': state['status'], 'chapter_statuses': [
                 {'story': r['story'], 'chapter': r['chapter'], 'status': r['status'],
-                 'summary': r.get('summary'), 'error': r.get('error')} for r in state['chapters']],
+                 'summary': r.get('summary'), 'error': r.get('error')} for r in state.get('chapters', [])],
             'archives': verified, 'native_transfer': True, 'agent_collector_required': False}
 
 

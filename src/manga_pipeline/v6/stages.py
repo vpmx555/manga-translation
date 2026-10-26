@@ -225,7 +225,7 @@ def write_review(store, step=None):
             lines.append(f"- Scene `{scene['scene_id']}`: {scene['summary']}")
         normalization = data.get("name_normalization") or {}
         for patch in normalization.get("patches", []):
-            if normalization.get('policy') == 'canonical-scan-v3':
+            if normalization.get('policy') in {'canonical-scan-v3', 'canonical-scan-v4'}:
                 lines.append(f"- OCR `{patch['utterance_id']}`: {patch['before']!r} → {patch['after']!r}; "
                              f"rule={patch['rule_index']}; matches={patch['matches']}")
                 continue

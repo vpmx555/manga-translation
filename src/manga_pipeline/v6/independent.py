@@ -29,7 +29,7 @@ def analyze(store, raw, document, scanned, provider, progress=None):
     rows = route([r for r in document["utterances"] if r.get("is_essential_text") is True],
                  raw, initial, read_json(store.manifest["bank_path"]))
     calls = Calls(store, provider)
-    if config["ner"]["backend"] == "llm-scene" or scanned.get('policy') == 'canonical-scan-v3':
+    if config["ner"]["backend"] == "llm-scene" or scanned.get('policy') in {'canonical-scan-v3', 'canonical-scan-v4'}:
         if scanned.get("scene_source_hash") != source_hash or "scenes" not in scanned:
             raise ValueError("Combined scene/name scan missing or stale; rerun scan")
         scenes = copy.deepcopy(scanned["scenes"])

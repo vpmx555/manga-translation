@@ -9,7 +9,7 @@ POLICY = 'chapter-name-binding-simple-v2'
 
 
 def enabled(config):
-    return config.get('identity_name_binding_policy') == POLICY
+    return config.get('identity_name_binding_policy') in {POLICY, 'analyze-authoritative-v3'}
 
 
 def sources(request):

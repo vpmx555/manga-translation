@@ -1,5 +1,5 @@
 """Single-attempt chapter scan with authoritative, sequential name replacements."""
-import copy
+import re
 import unicodedata
 
 from ..storage.io import atomic_json, fingerprint
@@ -8,15 +8,31 @@ from .semantic_contract import object_schema
 from .name_normalization import registry_context
 from .scene_wire import mapping
 
-POLICY = 'canonical-scan-v3'
+POLICY = 'canonical-scan-v4'
 PROMPT = '''Read the chapter's CURRENT OCR. In ONE response propose scene starts,
 person-name groups and names. Each name record has text_id, old_name, new_name,
 group_id (or null). new_name is your corrected spelling and becomes current OCR;
 it need not be an original substring. Use exact source spellings for old_name
 when possible, without character offsets. Corrections replace ALL matches in
 the chapter, ignoring case, whitespace and hyphens, IN YOUR RETURNED ORDER;
-later corrections also see text created by earlier ones. Return each source
+later corrections also see text created by earlier ones. Match complete name
+surfaces, never a prefix or suffix inside another word. Return each source
 surface once per text. Only correct names, not whole sentences or pronouns.
+OCR CORRECTION AND IDENTITY GROUPING ARE DIFFERENT OUTPUTS:
+- canonical_name is the complete identity/group name, used ONLY as group metadata.
+- new_name preserves the SAME name form the speaker actually used. Repair OCR
+  spelling, spacing and hyphenation only; do not expand, shorten or reorder names.
+- TORU -> Toru, NEVER Toru Mizushima. KOYUKI -> Koyuki, NEVER Koyuki Sasamori.
+- MIZU- SHIMA -> Mizushima, NEVER Toru Mizushima.
+- sasa- mori - chan -> Sasamori-chan. Preserve the existing honorific; never
+  add, remove or change -san/-chan/-kun or replace a surname with a given name.
+- Koyuk -> Koyuki applies to the complete typo Koyuk, NOT the prefix of Koyuki.
+  yuki-chan must NOT match inside Koyuki-chan; -sa must NOT match inside -san.
+- Already correct Toru Mizushima stays Toru Mizushima. NEVER produce duplicated
+  components such as Toru Mizushima Mizushima or Koyuki Sasamori Sasamori.
+For an unchanged name, return old_name and new_name unchanged; still assign its
+group_id. Do not copy canonical_name into every new_name. If uncertain about an
+OCR repair, keep the source name and use grouping to associate its identity.
 Group surname, given name, full/reversed forms and OCR variants when context
 identifies the same person. Use the most complete name as canonical_name.
 Keep unrelated/uncertain people separate; no fixed number of groups. Names
@@ -54,9 +70,64 @@ def find_all(text, old):
         if found < 0:
             return result
         span = (positions[found][0], positions[found + len(target)-1][1])
-        if span not in result:
+        # Casefold may expand one character (e.g. ß -> ss); never cut it in half.
+        complete = ((found == 0 or positions[found-1] != positions[found])
+                    and (found+len(target) == len(positions)
+                         or positions[found+len(target)-1] != positions[found+len(target)]))
+        left, right = span
+        boundary = ((left == 0 or not word_character(text[left-1]))
+                    and (right == len(text) or not word_character(text[right])))
+        if complete and boundary and span not in result:
             result.append(span)
-        offset = found + len(target)
+        offset = found + (len(target) if complete and boundary else 1)
+
+
+def word_character(char):
+    return char.isalnum() or unicodedata.category(char)[0] == 'M' or unicodedata.category(char) == 'Pc'
+
+
+def name_parts(value):
+    return [units(part)[0] for part in re.split(r'[\s\-–—]+', value) if units(part)[0]]
+
+
+def inserts_name_part(short, long):
+    """Recognize explicit word/honorific insertion, not spelling similarity."""
+    key = units(short)[0]
+    if not key or key == units(long)[0]:
+        return False
+    parts = name_parts(long)
+    return any(''.join(parts[:a]+parts[b:]) == key
+               for a in range(len(parts)) for b in range(a+1, len(parts)+1))
+
+
+def scope_change(old, new):
+    if inserts_name_part(old, new):
+        return 'name_expansion'
+    if inserts_name_part(new, old):
+        return 'name_shortening'
+    before, after = name_parts(old), name_parts(new)
+    if before != after and sorted(before) == sorted(after):
+        return 'name_reordering'
+    return None
+
+
+def replacement_matches(text, old, protected_names, cache=None):
+    matches = find_all(text, old)
+    protected = cache.get(text) if cache is not None else None
+    if protected is None:
+        protected = []
+        fold = lambda value: ' '.join(unicodedata.normalize('NFC', value).casefold().split())
+        for name in protected_names:
+            if len(name_parts(name)) < 2:
+                continue
+            for a, b in find_all(text, name):
+                # Protect already-correct full surfaces, not OCR spelling/hyphen errors.
+                if fold(text[a:b]) == fold(name):
+                    protected.append((a, b))
+        if cache is not None:
+            cache[text] = protected
+    return [(a, b) for a, b in matches
+            if not any(c <= a and b <= d and (a, b) != (c, d) for c, d in protected)]
 
 
 def move_span(start, end, matches, replacement):
@@ -76,9 +147,13 @@ def schema():
     string = {'type': 'string'}
     return object_schema({
         'scenes': {'type': 'array', 'items': object_schema({'start_id': string, 'summary': string})},
-        'groups': {'type': 'array', 'items': object_schema({'group_id': string, 'canonical_name': string, 'reason': string})},
-        'names': {'type': 'array', 'items': object_schema({'text_id': string, 'old_name': string,
-            'new_name': string, 'group_id': {'type': ['string', 'null']}})}})
+        'groups': {'type': 'array', 'items': object_schema({'group_id': string,
+            'canonical_name': {'type': 'string', 'description': 'Full group identity name; metadata only, not a replacement for every alias.'},
+            'reason': string})},
+        'names': {'type': 'array', 'items': object_schema({'text_id': string,
+            'old_name': {'type': 'string', 'description': 'Original complete name surface in this text; not a prefix of a longer word.'},
+            'new_name': {'type': 'string', 'description': 'Spelling-only repair preserving given/surname/full-name form, order and honorific. TORU -> Toru, never Toru Mizushima. Unchanged names stay unchanged.'},
+            'group_id': {'type': ['string', 'null']}})}})
 
 
 def parse(value, document, essential, ledger, state):
@@ -88,8 +163,8 @@ def parse(value, document, essential, ledger, state):
     original = {r['id']: r for r in rows}
     current = {uid: row['text'] for uid, row in original.items()}
     warnings, groups, records = [], {}, []
-    def warn(kind, **detail):
-        warnings.append({'reason': kind, **detail})
+    def warn(reason, **detail):
+        warnings.append({'reason': reason, **detail})
     def array(field):
         data = value.get(field, [])
         if not isinstance(data, list):
@@ -124,7 +199,12 @@ def parse(value, document, essential, ledger, state):
         if not isinstance(gid, str) or gid not in groups:
             warn('ungrouped_name', index=index, group_id=gid)
             gid = None
-        record = {'index': index, 'utterance_id': uid, 'old_name': old, 'new_name': new, 'group_id': gid}
+        change = scope_change(old, new)
+        record = {'index': index, 'utterance_id': uid, 'old_name': old,
+                  'new_name': old if change else new, 'proposed_new_name': new, 'group_id': gid}
+        if change:
+            warn('ocr_name_scope_change_not_applied', index=index, kind=change,
+                 utterance_id=uid, old_name=old, proposed_new_name=new, kept_name=old)
         records.append(record)
         for occurrence, (a, b) in enumerate(find_all(original[uid]['text'], old)):
             anchors.append({'record': record, 'start': a, 'end': b, 'original_start': a, 'original_end': b,
@@ -132,15 +212,21 @@ def parse(value, document, essential, ledger, state):
         if not any(a['record'] is record for a in anchors):
             anchors.append({'record': record, 'start': None, 'end': None,
                             'original_start': None, 'original_end': None, 'occurrence': 0})
+        if change:
+            continue  # Keep the name/group candidate; only the OCR edit is withheld.
         key = (units(old)[0], new)
         if key not in rule_keys:
             rules.append({'old_name': old, 'new_name': new, 'source_index': index})
             rule_keys.add(key)
+    protected_names = [g['canonical_name'] for g in groups.values()]
+    protected_names.extend(r['old_name'] for r in records
+                           if units(r['old_name'])[0] == units(r['new_name'])[0])
+    protection_cache = {}
     history = []
     for number, rule in enumerate(rules):
         total = 0
         for uid, text in list(current.items()):
-            matches = find_all(text, rule['old_name'])
+            matches = replacement_matches(text, rule['old_name'], protected_names, protection_cache)
             if not matches:
                 continue
             after = text
@@ -173,7 +259,7 @@ def parse(value, document, essential, ledger, state):
                 if anchor['original_start'] is not None else record['old_name'],
             'corrected_surface': surface, 'start': a, 'end': b,
             'original_start': anchor['original_start'], 'original_end': anchor['original_end'],
-            'source': 'llm_scan_v3', 'candidate_person_ids': [], 'name_suspect': False,
+            'source': 'llm_scan_v4', 'candidate_person_ids': [], 'name_suspect': False,
             'group_id': gid, 'location_status': 'mapped' if a is not None else 'unmapped'}
         key = (uid, a, b, surface) if a is not None else (uid, record['old_name'], surface)
         if key in candidates:

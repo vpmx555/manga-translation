@@ -1,5 +1,7 @@
 # v7 — Pipeline dịch manga hiện hành
 
+Thay đổi mới nhất: [analyze có quyền ưu tiên, đăng ký identity bằng code](delivery/analyze-authoritative-identity.md).
+
 Mốc đối chiếu mã: **2026-10-24**. Đây là bộ tài liệu vận hành hiện hành, thay cho
 các mô tả mặc định cũ trong `docs/v6`. Cấu trúc giữ cách chia theo nền tảng,
 thị giác, văn bản, hội thoại, identity, dịch và triển khai của v6.
@@ -18,7 +20,9 @@ bản **natural**. Tài liệu phân biệt hành vi đã có trong mã với ch
 | Chọn model, môi trường và tài nguyên | [Models và runtime](foundation/models-and-runtime.md) |
 | Hiểu file đầu ra, checkpoint, ID và review | [Data contracts](foundation/data-contracts.md) |
 | Hiểu validator scan, identity, profile và relationship | [Cách các validator hoạt động](foundation/validators.md) |
+| Tự chạy full-pipeline test Runpod bằng PowerShell + Console, không cần agent | [Hướng dẫn tự chạy](deployment/self-service-test.md) |
 | Xem thay đổi scan/OCR, ngưỡng identity và kiểm tra tích hợp mới | [Triển khai validator giản lược](delivery/simplified-validators-implementation.md) |
+| Sửa OCR giữ tên ngắn, tránh lặp tên và khớp tiền tố | [OCR surface spelling v4](delivery/ocr-surface-spelling-fix.md) |
 | Xem ảnh thật và dữ liệu đối chiếu từng bước | [Ví dụ pipeline và HTML review](examples/README.md) |
 | Layout, text/character detection, geometry | [Thị giác và bank](vision/detection-and-bank.md) |
 | OCR, scan scene và sửa tên có vị trí | [OCR và tên](text/ocr-and-name-scan.md) |

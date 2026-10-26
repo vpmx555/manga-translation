@@ -54,7 +54,7 @@ class V6Review:
         self.pages = raw.get("pages", [])
         normalized = self.data.get('normalize', {})
         correction = self.data.get('scan', {}).get('name_normalization')
-        if correction and correction.get('policy') == 'canonical-scan-v3':
+        if correction and correction.get('policy') in {'canonical-scan-v3', 'canonical-scan-v4'}:
             from ..v6.name_normalization import apply
             normalized = apply(normalized, correction)
         self.rows = {r["id"]: r for r in normalized.get("utterances", [])}

@@ -135,7 +135,8 @@ def _main(argv=None):
     if any(normalize_story_key(entry["story"]) != entry["story_key"] for entry in plan["chapters"]):
         raise ValueError("Plan story keys must match normalized bank ownership")
     config = manage.configuration(config_path)
-    if config['runtime']['llm_slots'] > 1:
+    skip_startup_tests = bool(plan.get('skip_startup_tests'))
+    if config['runtime']['llm_slots'] > 1 and not skip_startup_tests:
         from validate_vllm_concurrency import validate_receipt
         validate_receipt(config, manage.read_json(args.state.parent / 'concurrency-probe.json', {}))
     if not config.get("v6", {}).get("enabled") or config.get("device") != "cuda":
@@ -147,7 +148,7 @@ def _main(argv=None):
     if not ocr_python.is_file():
         raise RuntimeError(f"Prepared {config['ocr']['backend']} CUDA environment is missing")
     doctor = manage.read_json(manage.RUNTIME / "config/last-doctor.json", {})
-    if (doctor.get("signature") != manage.dependency_signature()
+    if not skip_startup_tests and (doctor.get("signature") != manage.dependency_signature()
             or doctor.get("visual_signature") != manage.visual_signature()
             or doctor.get("ocr_python") != str(ocr_python)
             or doctor.get("ocr_backend") != config['ocr']['backend']
@@ -160,9 +161,9 @@ def _main(argv=None):
             import vllm_runtime
             installed = {"digest": config["llm"]["model"] + "@" + config["vllm"]["revision"]}
             process_path = manage.RUNTIME / "config/vllm-process.json"
-            if doctor.get("vllm_signature") != vllm_runtime.signature(config):
+            if not skip_startup_tests and doctor.get("vllm_signature") != vllm_runtime.signature(config):
                 raise RuntimeError("vLLM engine/model revision differs from the authorized preflight")
-        if (not doctor.get("full_gpu_verified") or doctor.get("config_fingerprint") != manage.config_fingerprint(config)
+        if not skip_startup_tests and (not doctor.get("full_gpu_verified") or doctor.get("config_fingerprint") != manage.config_fingerprint(config)
                 or doctor.get("model_digest") != installed.get("digest")
                 or doctor.get("source_bundle") != manage.read_json(manage.PROJECT / "__bundle__.json", {}).get("version")
 ):

@@ -170,10 +170,13 @@ def build(store, provider):
             state, binding = identity_binding.build(store, provider, analyzed)
         else:
             state = copy.deepcopy(analyzed['person_state'])
-        for event in analyzed['calling_events']:
-            state.setdefault('calling_events', {})[event['event_id']] = event
-        proposed = persons.propose(state, [], minimum=store.manifest['config']['v6']['min_confirmed_call_events'])
-        state, names, reviews = guarded_name_links(state, proposed)
+        from .identity_from_analyze import enabled as authoritative
+        names, reviews = [], []
+        if not authoritative(store.manifest['config']):
+            for event in analyzed['calling_events']:
+                state.setdefault('calling_events', {})[event['event_id']] = event
+            proposed = persons.propose(state, [], minimum=store.manifest['config']['v6']['min_confirmed_call_events'])
+            state, names, reviews = guarded_name_links(state, proposed)
         metadata = read_json(store.manifest['bank_path'])
         retained, issues = vectors(store.manifest['bank_path'], metadata)
         state, visual, visual_reviews, anchors = visual_links(state, metadata, retained,

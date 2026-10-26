@@ -1,11 +1,23 @@
 # Validator của scan, build_identity, profile và relationship
 
 Mốc source: **24/10/2026**. Các policy mặc định đang triển khai là
-`canonical-scan-v3` và `chapter-name-binding-simple-v2`.
+`canonical-scan-v4` và `analyze-authoritative-v3`.
 Đã kiểm tra bằng test không gọi model; chưa đánh giá chất lượng suy luận thật.
 Xem [báo cáo triển khai](../delivery/simplified-validators-implementation.md).
 
 ## 1. Nguyên tắc
+
+**Cập nhật hiện hành:** build_identity không gọi LLM gán tên/owner và không gửi
+panel. Code lấy owner đã xác nhận bởi analyze và alias group của scan; chọn tên
+theo số occurrence khác nhau, rồi introduction, direct_address, reference và
+thứ tự xuất hiện. Gate tạo mới vẫn là >=8 crop thật trong chapter và có tên.
+Các nhóm cạnh tranh được lưu để review; không hợp nhất chúng để giải quyết hòa.
+Speaker, addressee, mentions và owner của analyze được giữ nguyên trong export;
+mapping identity nằm trong các trường bổ sung cho downstream.
+Xem [thiết kế hiện hành](../identity/analyze-authoritative-build-identity-design.md).
+Những đoạn mô tả request name-binding/model bên dưới chỉ áp dụng policy v1/v2
+được giữ để đọc lại output lịch sử. Profile và relationship tiếp tục dùng LLM,
+thinking tắt; chúng không sửa quyết định của analyze.
 
 Model quyết định tên, alias, owner, profile và quan hệ. Code kiểm tra cấu trúc,
 kiểu dữ liệu, ID có tồn tại và tính toàn vẹn snapshot/file. Validator không dùng
@@ -41,7 +53,10 @@ Tên gồm `text_id`, `old_name`, `new_name`, `group_id`; không yêu cầu offs
 | Dữ liệu | Code xử lý |
 |---|---|
 | `new_name` khác OCR thô | Cho phép; tên model sửa là nguồn hiện hành |
+| Tên ngắn → họ tên đầy đủ, chèn/bỏ phần tên hoặc đảo thứ tự rõ ràng | Giữ tên nguồn và group candidate; ghi đề xuất model để review, không áp phép sửa |
 | Phép sửa tên | Find-all trên toàn chapter, bỏ qua hoa/thường, khoảng trắng và dấu gạch nối |
+| Tiền tố/hậu tố của một từ | Không khớp: Koyuk không sửa Koyuki, yuki-chan không sửa Koyuki-chan |
+| Tên dài đã đúng | Không sửa một phần bên trong bằng rule tên ngắn; canonical_name dùng làm metadata riêng |
 | Thứ tự phép sửa | Một lượt theo thứ tự model; A→B rồi B→C tạo C |
 | Không tìm thấy `old_name` | Ghi `no_match`; giữ suy luận tên để review, không bác bỏ các phép sửa khác |
 | `text_id` không tồn tại hoặc sai kiểu | Bỏ riêng mục; ghi warning |

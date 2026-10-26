@@ -7,11 +7,14 @@ import math
 from pathlib import Path
 import re
 import subprocess
+import sys
 import threading
 import time
 from urllib.request import Request, urlopen
 
 import manage
+sys.path.insert(0, str(manage.PROJECT / 'src'))
+from manga_pipeline.runtime.stage_policy import request_policy
 
 PROBE_POLICY = 'long-prefill-bounded-decode-v3'
 SHORT_POLICY = 'short-prefill-bounded-decode-v3'
@@ -26,11 +29,12 @@ def sample_count(config, *, short=False):
 
 
 def phase_policy(config, *, short=False):
-    return SHORT_POLICY if short else PROBE_POLICY
+    base = SHORT_POLICY if short else PROBE_POLICY
+    return base + '-stage-thinking-v2' if config['llm'].get('analyze_thinking') else base
 
 
 def mixed_policy(config):
-    return MIXED_POLICY
+    return MIXED_POLICY + '-stage-thinking-v2' if config['llm'].get('analyze_thinking') else MIXED_POLICY
 
 
 def engine_profile(config):
@@ -39,8 +43,8 @@ def engine_profile(config):
 
 def probe_contract(config, *, short=False):
     """Keep decoding alive while other long prompts enter chunked prefill."""
-    context = config['llm']['num_ctx']
-    reserve = config['llm']['analyze_num_predict']
+    context = config['llm']['num_ctx'] if short else config['llm'].get('analyze_num_ctx', config['llm']['num_ctx'])
+    reserve = 8192 if short else config['llm']['analyze_num_predict']
     ceiling = math.floor(context * config['runtime']['context_fraction'])
     target = min(context // 2, ceiling - reserve - 640)
     if short:
@@ -74,6 +78,14 @@ def validate_receipt(config, receipt, *, short=False):
             raise RuntimeError('Qualification phases used different servers')
         return
     responses = receipt.get('responses', [])
+    if config['llm'].get('analyze_thinking'):
+        expected_context = config['llm']['num_ctx'] if short else config['llm']['analyze_num_ctx']
+        sampler = request_policy(config, 'qualification_short' if short else 'analyze_qualification')
+        if (receipt.get('enable_thinking') != (not short) or receipt.get('num_ctx') != expected_context
+                or receipt.get('output_reserve') != (8192 if short else config['llm']['analyze_num_predict'])
+                or receipt.get('temperature') != sampler['temperature']
+                or receipt.get('presence_penalty') != sampler['presence_penalty']):
+            raise RuntimeError('Qualification does not prove the stage thinking/context/output profile')
     if (receipt.get('status') != 'passed' or receipt.get('slots') != slots
             or receipt.get('probe_policy') != phase_policy(config, short=short)
             or receipt.get('sample_count') != sample_count(config, short=short)
@@ -110,7 +122,7 @@ def verify(config, receipt_path, *, short=False):
         return
     record = manage.read_json(manage.RUNTIME / 'config/vllm-service.json', {})
     if (record.get('max_num_seqs') != config['vllm']['max_num_seqs'] or record.get('cpu_offload_gb') != 0
-            or record.get('max_model_len') != config['llm']['num_ctx']):
+            or record.get('max_model_len') != max(config['llm']['num_ctx'], config['llm'].get('analyze_num_ctx', config['llm']['num_ctx']))):
         raise RuntimeError('Concurrent server profile is not verified')
     import vllm_runtime
     if not vllm_runtime.owns(record):
@@ -122,7 +134,8 @@ def verify(config, receipt_path, *, short=False):
         request = Request(host + route,
                           data=json.dumps(payload).encode() if payload is not None else None,
                           headers={'Content-Type': 'application/json'})
-        with urlopen(request, timeout=600 if payload is not None else 10) as response:
+        with urlopen(request, timeout=(config['llm'].get('analyze_timeout', 600) if not short else 600)
+                     if payload is not None else 10) as response:
             body = response.read()
             return body.decode() if raw else json.loads(body)
 
@@ -130,18 +143,24 @@ def verify(config, receipt_path, *, short=False):
 
     def messages(repeats):
         instruction = f'Return only JSON with ok=true and samples containing exactly {samples} zero integers. Write every array item; do not abbreviate.'
+        if config['llm'].get('analyze_thinking') and not short:
+            instruction += (' This is a mechanical serving probe, not an arithmetic task. '
+                            'The schema-constrained decoder enforces the array size automatically. '
+                            'Keep reasoning brief. Do not count, enumerate, simulate, or verify '
+                            'array items in your reasoning. Generate the array only in the final JSON.')
         return [{'role': 'system', 'content': instruction},
                 {'role': 'user', 'content': 'Ignore this reference filler: '
                  + 'background ' * repeats + '\n' + instruction}]
 
     # Exercise configured simultaneous contexts while leaving the real output reserve.
-    context = config['llm']['num_ctx']
+    context = config['llm']['num_ctx'] if short else config['llm'].get('analyze_num_ctx', config['llm']['num_ctx'])
     target, reserve, schema = probe_contract(config, short=short)
     low, high, selected = 0, context * 2, None
     for _ in range(20):
         repeats = (low + high) // 2
         value = http('/tokenize', {'model': model, 'messages': messages(repeats),
-                     'add_generation_prompt': True, 'chat_template_kwargs': {'enable_thinking': False}})
+                     'add_generation_prompt': True, 'chat_template_kwargs': {
+                         'enable_thinking': bool(config['llm'].get('analyze_thinking')) and not short}})
         count = value['count']
         if not isinstance(count, int):
             raise RuntimeError('Invalid tokenizer response')
@@ -155,8 +174,11 @@ def verify(config, receipt_path, *, short=False):
     if selected is None:
         raise RuntimeError('Could not construct a bounded long-context probe')
     prompt, input_tokens = selected
+    sampler = request_policy(config, 'qualification_short' if short else 'analyze_qualification')
     payload = {'model': model, 'messages': prompt, 'stream': False, 'max_tokens': reserve,
-               'temperature': 0, 'chat_template_kwargs': {'enable_thinking': False},
+               'temperature': sampler['temperature'], 'presence_penalty': sampler['presence_penalty'],
+               'top_k': config['llm'].get('top_k', 20), 'top_p': config['llm'].get('top_p', .95),
+               'chat_template_kwargs': {'enable_thinking': bool(config['llm'].get('analyze_thinking')) and not short},
                'response_format': {'type': 'json_schema', 'json_schema': {
                    'name': 'concurrency_probe', 'strict': True, 'schema': schema}}}
     barrier = threading.Barrier(slots)
@@ -167,8 +189,9 @@ def verify(config, receipt_path, *, short=False):
         response = http('/v1/chat/completions', payload)
         manage.atomic_json(receipt_path.with_name(f'{receipt_path.stem}-response-{index:02d}.json'), response)
         choice = response['choices'][0]
-        if (json.loads(choice['message']['content']) != {'ok': True, 'samples': [0] * samples}
-                or choice['finish_reason'] != 'stop'):
+        if choice.get('finish_reason') != 'stop':
+            raise RuntimeError('Qualification output incomplete: finish_reason=' + str(choice.get('finish_reason')))
+        if json.loads(choice['message']['content']) != {'ok': True, 'samples': [0] * samples}:
             raise RuntimeError('Concurrent response failed JSON/finish validation')
         usage = response.get('usage', {})
         if usage.get('prompt_tokens', 0) < target or usage.get('completion_tokens', 0) < 1024:
@@ -180,6 +203,8 @@ def verify(config, receipt_path, *, short=False):
               'engine_profile_fingerprint': engine_profile(config),
               'signature': vllm_runtime.signature(config), 'config_fingerprint': manage.config_fingerprint(config),
               'num_ctx': context, 'slots': slots, 'input_tokens_each': input_tokens,
+              'enable_thinking': bool(config['llm'].get('analyze_thinking')) and not short, 'output_reserve': reserve,
+              'temperature': sampler['temperature'], 'presence_penalty': sampler['presence_penalty'],
               'cpu_offload_gb': 0, 'peak_running_requests': 0, 'peak_gpu_memory_mib': 0}
     manage.atomic_json(receipt_path, result)
     try:

@@ -4,6 +4,7 @@ import copy
 import io
 import json
 import math
+from .stage_policy import request_policy
 
 
 class BudgetExceeded(ValueError):
@@ -72,8 +73,9 @@ def request_budget(config, task, prompt, data, schema, images=None):
     reserve = output_tokens(config, task)
     estimate = input_estimate(final_prompt(task, prompt), data, images=images or [],
                               num_predict=reserve, schema=schema)
-    return {"estimate": estimate, "limit": math.floor(cfg["num_ctx"] * fraction),
-            "num_ctx": cfg["num_ctx"], "output_reserve": reserve,
+    context = request_policy(config, task)['num_ctx']
+    return {"estimate": estimate, "limit": math.floor(context * fraction),
+            "num_ctx": context, "output_reserve": reserve,
             "method": "utf8-half-plus-template-and-images-v2"}
 
 

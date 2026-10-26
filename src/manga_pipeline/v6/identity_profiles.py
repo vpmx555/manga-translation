@@ -61,6 +61,8 @@ def eligible(state, metadata, minimum, prior_ids=()):
 
 
 def source_rows(document):
+    from .identity_projection import document_view
+    document = document_view(document)
     fields = ('id', 'text', 'content_type', 'speaker_person_id', 'addressee_ids',
               'mentions', 'semantic_resolution', 'scene_id', 'reading_order', 'communication_evidence')
     return [{k: row.get(k) for k in fields} for row in sorted(document['utterances'],

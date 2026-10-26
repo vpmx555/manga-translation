@@ -107,7 +107,12 @@ Validator OCR nằm trong `extraction/hayai.py` và contract GLM trong
 | `num_ctx` | 32768 | Validator vLLM khóa32768 |
 | `num_predict` | 2048 | Default reserve, số nguyên dương |
 | `scene_num_predict` | 4096 | Key có trong schema; scene path hiện hardcode8192 |
-| `analyze_num_predict` | 8192 | Stage reserve; planner có budget riêng |
+| `analyze_num_predict` | 12288 | Tổng output thinking + JSON; planner dự trữ toàn bộ |
+| `analyze_thinking` | true | Chỉ analyze bật thinking; các stage khác tắt |
+| `analyze_num_ctx` | 65536 | Context riêng analyze; server vLLM chạy ceiling64k, stage khác32k |
+| `analyze_timeout` | 1200 | Giây cho mỗi request analyze; không đổi timeout stage khác |
+| `analyze_temperature` | 1.0 | Chỉ khi analyze bật thinking; stage khác dùng `temperature` |
+| `analyze_presence_penalty` | 1.5 | Chỉ khi analyze bật thinking; hạn chế lặp trong suy luận |
 | `translation_num_predict` | 2048 | Default stage reserve; parallel path truyền reserve tính theo target count |
 | `image_max_side` | 768 | Số nguyên dương; giới hạn ảnh provider |
 | `temperature` | 0 | 0..2 |
@@ -179,14 +184,14 @@ sequences; không gọi chung là “batch16/64”.
 
 ## Identity, profile và relationship trong section `v6`
 
-Mặc định mới dùng `v6.scan_policy=canonical-scan-v3` và
+Mặc định mới dùng `v6.scan_policy=canonical-scan-v4` và
 `v6.scan_output_tokens=8192` (int 1..16384). Scan một request, không retry.
 `scan_policy=null` giữ đường scan legacy cho cấu hình lịch sử.
 
 | `v6.*` | Giá trị | Miền / phạm vi |
 |---|---:|---|
 | `identity_relationship_policy` | identity-relationship-v2 | Khóa DAG mới |
-| `identity_name_binding_policy` | chapter-name-binding-simple-v2 | Validator dữ liệu tối thiểu; policy v1/null vẫn đọc được cho run lịch sử |
+| `identity_name_binding_policy` | analyze-authoritative-v3 | Đăng ký bằng code từ analyze + scan; v1/v2/null chỉ dành cho lịch sử |
 | `identity_min_chapter_crops` | 8 | int1..100000; số detection thật của từng MAGI trong chapter để tạo identity có tên mới; không phải số crop giữ trong gallery |
 | `identity_binding_concurrency` | 8 | int1..8; một queue cho mọi group/child |
 | `identity_binding_output_tokens` | 4096 | int1..8192; reserve cho tokenize/chia child trước POST |

@@ -62,6 +62,22 @@ def generate_identity_reviews(reviewer, output):
             'model_evidence_refs': claim.get('model_evidence_refs', claim['evidence_refs']),
             'images': [crops[r] for r in claim.get('supplied_evidence_refs', claim['evidence_refs']) if r in crops]})
     rows = {r['utterance_id']: r for r in reviewer.data.get('analyze', {}).get('utterances', [])}
+    if binding.get('policy') == 'analyze-authoritative-v3':
+        for selection in binding.get('selections', []):
+            if not selection['eligible']:
+                continue
+            winning = next(c for c in selection['candidates'] if c['group_id'] == selection['group_id'])
+            first = winning['occurrences'][0]
+            claims.append({'id': first['candidate_id'], 'name': selection['canonical_name'],
+                'group_id': selection['group_id'], 'magi': selection['magi_id'],
+                'person': reviewer.person(selection['identity_id']), 'text': reviewer.sentence(first['utterance_id']),
+                'utterance_id': first['utterance_id'], 'kind': 'registered_from_analyze',
+                'reason': f"Analyze support: {selection['support']}; eligible={selection['eligible']}; "
+                          f"crop_count={selection['chapter_crop_count']}; {selection['tie_break']}",
+                'evidence_refs': [o['utterance_id'] for o in winning['occurrences']],
+                'supplied_evidence_refs': [], 'model_evidence_refs': [],
+                'registration': selection,
+                'images': [c for c in crops.values() if c['kind'] != 'panel' and c['magi'] == selection['magi_id']][:10]})
     edges = []
     for edge in graph.get('address_table', []):
         copied = dict(edge)
@@ -79,6 +95,7 @@ def generate_identity_reviews(reviewer, output):
         'summary': binding.get('summary', {}), 'claims': claims, 'nodes': nodes, 'edges': edges,
         'social_relations': graph.get('social_relations', []),
         'identity_reviews': binding.get('needs_review', identity.get('needs_review', [])),
+        'name_registrations': binding.get('selections', []),
         'relationship_reviews': graph.get('needs_review', []),
         'inference_failures': [*binding.get('inference_failures', []), *graph.get('inference_failures', [])],
         'effective_updates': binding.get('effective_updates', {}),

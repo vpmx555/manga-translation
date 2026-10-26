@@ -2,6 +2,9 @@
 
 [← Chỉ mục](../README.md)
 
+Hướng dẫn thao tác không cần agent, có đầy đủ lệnh PowerShell và thiết lập
+Runpod Console: [Tự chạy test toàn pipeline](self-service-test.md).
+
 ## Phạm vi và điểm vào
 
 Đọc toàn bộ [fast policy](../../archive/news/runpod_agent_fast_policy_vi.md) trước thao

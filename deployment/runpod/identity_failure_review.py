@@ -79,6 +79,9 @@ def generate_failure_review(run, output, stage_dir=None):
     if stage_dir is None:
         stage_dir = next(iter(run.glob('*_build_identity')), run / '07_build_identity')
     directory = Path(stage_dir) / 'name-binding'
+    result_path = directory / 'result.json'
+    if local(result_path).exists() and read(result_path).get('policy') == 'analyze-authoritative-v3':
+        return authoritative_review(output, read(result_path))
     manifest_path = run / 'manifest.json'
     if (manifest_path.exists() and read(manifest_path).get('config', {}).get('v6', {}).get(
             'identity_name_binding_policy') == 'chapter-name-binding-simple-v2'):
@@ -218,6 +221,26 @@ def simplified_review(run, output, directory):
     document += ('<header><h1>Identity: lỗi và mục cần review</h1><p>'+esc(payload['warning'])+
                  '</p><a href="index.html">Identity / relationship</a></header><main>'+''.join(sections)+'</main></html>')
     local(output / 'errors.html').write_text(document, encoding='utf-8')
+    return payload
+
+
+def authoritative_review(output, result):
+    """Render code registrations, including conflicts and below-threshold candidates."""
+    output.mkdir(parents=True, exist_ok=True)
+    selections = result.get('selections', [])
+    payload = {'version': 'analyze-authoritative-review-v3', 'request_count': 0,
+               'decision_count': len(selections), 'results': selections,
+               'reviews': result.get('needs_review', []),
+               'warning': 'Đăng ký từ analyze bằng code; không có request gán lại owner. '
+                          'Hiển thị cả ứng viên chưa đạt gate và các nhóm tên cạnh tranh.'}
+    serialized = json.dumps(payload, ensure_ascii=False, indent=2)
+    local(output / 'errors.json').write_text(serialized, encoding='utf-8')
+    local(output / 'errors.md').write_text('# Review đăng ký identity\n\n' + payload['warning'] +
+        '\n\n[HTML](errors.html) · [JSON](errors.json)\n\n```json\n' + serialized + '\n```\n', encoding='utf-8')
+    local(output / 'errors.html').write_text('<!doctype html><html lang="vi"><meta charset="utf-8">' +
+        '<title>Review đăng ký identity</title>' + STYLE + '<header><h1>Review đăng ký identity</h1><p>' +
+        html.escape(payload['warning']) + '</p><a href="index.html">Identity / relationship</a></header>' +
+        '<main><pre>' + html.escape(serialized) + '</pre></main></html>', encoding='utf-8')
     return payload
 
 

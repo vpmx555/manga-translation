@@ -84,12 +84,25 @@ def spread(rows, count):
     return [rows[i] for i in sorted(indices)]
 
 
+def profile_input(profile):
+    """Send profile claims and citations, without duplicated review provenance.
+
+    The complete profile stays in the committed artifact. In particular,
+    supplied_evidence_refs is an audit of all supplied sources, not additional
+    evidence for each individual claim.
+    """
+    return {'person_id': profile['person_id'], 'version': profile['version'],
+            'attributes': {name: {key: value for key, value in claim.items()
+                                  if key in {'value', 'status', 'basis', 'evidence_refs'}}
+                           for name, claim in profile['attributes'].items()}}
+
+
 def pack(calls, task, prompt, request, schema, reserve, image_data):
     request = copy.deepcopy(request)
     if task == 'character_profile_v2' and request.get('previous'):
-        request['previous'] = {k: request['previous'][k] for k in ('person_id', 'version', 'attributes')}
+        request['previous'] = profile_input(request['previous'])
     if 'profiles' in request:
-        request['profiles'] = {pid: {k: profile[k] for k in ('person_id', 'version', 'attributes')}
+        request['profiles'] = {pid: profile_input(profile)
                                for pid, profile in request['profiles'].items()}
     if task == 'relationship_vi_v2' and request.get('previous'):
         request['previous'] = {k: request['previous'][k] for k in ('version', 'decision')}

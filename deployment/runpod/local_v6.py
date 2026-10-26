@@ -172,8 +172,12 @@ def prepare(args):
     plan['native_ingress'] = (WORK / 'ingress' / args.batch).as_posix()
     plan['input_ingress'] = (WORK / 'ingress' / args.batch / 'inputs').as_posix()
     frozen_config = json.loads((directory / 'pipeline-v6.json').read_text(encoding='utf-8'))
-    plan['verify_concurrency'] = bool(getattr(args, 'verify_concurrency', False)
-                                      or frozen_config['runtime']['llm_slots'] > 1)
+    plan['skip_startup_tests'] = bool(getattr(args, 'skip_startup_tests', False))
+    if plan['skip_startup_tests'] and (getattr(args, 'verify_concurrency', False)
+                                       or getattr(args, 'qualification_from', None)):
+        raise ValueError('Skipping startup tests cannot be combined with qualification flags')
+    plan['verify_concurrency'] = not plan['skip_startup_tests'] and bool(
+        getattr(args, 'verify_concurrency', False) or frozen_config['runtime']['llm_slots'] > 1)
     if getattr(args, 'restore_from', None):
         if not args.reanalyze_existing:
             raise ValueError('Restored publications require explicit --reanalyze-existing')
@@ -311,23 +315,25 @@ def remote_run(args):
             else:
                 alias.parent.mkdir(parents=True, exist_ok=True)
                 alias.symlink_to(target, target_is_directory=True)
-        manage.doctor(inference=True, config=config)
-        # Real CUDA parity is required before any chapter inference.
-        parity = ('import os,sys,unittest;os.environ["MANGA_TEST_CUDA"]="1";sys.path.insert(0,' + repr(str(manage.PROJECT / 'src')) + ');'
-                  'suite=unittest.defaultTestLoader.discover(' + repr(str(manage.PROJECT / 'tests')) +
-                  ',pattern="test_v6_geometry_backend.py");'
-                  'r=unittest.TextTestRunner(verbosity=2).run(suite);'
-                  'sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)')
-        manage.call([manage.current_python(), '-c', parity])
-        if plan.get('qualification'):
-            from validate_vllm_concurrency import validate_receipt
-            proof = manage.read_json(incoming / plan['qualification']['file'])
-            validate_receipt(config, proof)
-            manage.atomic_json(directory / 'concurrency-probe.json', proof)
-            manage.atomic_json(directory / 'qualification-reused.json', plan['qualification'])
-            print('Reused verified concurrency qualification on the same pod/profile', flush=True)
-        elif plan.get('verify_concurrency'):
-            qualify_concurrency(config, directory)
+        if plan.get('skip_startup_tests'):
+            print('Startup inference probe, CUDA parity and concurrency qualification skipped by explicit request', flush=True)
+        else:
+            manage.doctor(inference=True, config=config)
+            parity = ('import os,sys,unittest;os.environ["MANGA_TEST_CUDA"]="1";sys.path.insert(0,' + repr(str(manage.PROJECT / 'src')) + ');'
+                      'suite=unittest.defaultTestLoader.discover(' + repr(str(manage.PROJECT / 'tests')) +
+                      ',pattern="test_v6_geometry_backend.py");'
+                      'r=unittest.TextTestRunner(verbosity=2).run(suite);'
+                      'sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)')
+            manage.call([manage.current_python(), '-c', parity])
+            if plan.get('qualification'):
+                from validate_vllm_concurrency import validate_receipt
+                proof = manage.read_json(incoming / plan['qualification']['file'])
+                validate_receipt(config, proof)
+                manage.atomic_json(directory / 'concurrency-probe.json', proof)
+                manage.atomic_json(directory / 'qualification-reused.json', plan['qualification'])
+                print('Reused verified concurrency qualification on the same pod/profile', flush=True)
+            elif plan.get('verify_concurrency'):
+                qualify_concurrency(config, directory)
         status.update(status='inference', updated_at=time.time())
         manage.atomic_json(directory / 'bootstrap.json', status)
         import batch_v6
@@ -456,6 +462,8 @@ def main():
                       help='Verified bound plan on the same pod and identical config; reuse real concurrency evidence')
     prep.add_argument('--verify-concurrency', action='store_true',
                       help='Require two real long-context requests before chapter inference')
+    prep.add_argument('--skip-startup-tests', action='store_true',
+                      help='Explicitly skip inference preflight, CUDA parity and concurrency qualification; retain integrity checks')
     prep.add_argument('--caption-max-distance', type=int, choices=range(1,65))
     prep.add_argument('--until', choices=['scan', 'analyze', 'build_identity', 'relationship'],
                       help='Stop at the selected semantic checkpoint; no downstream rendering/translation')

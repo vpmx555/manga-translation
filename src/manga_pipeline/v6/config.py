@@ -9,7 +9,7 @@ DEFAULT_CONFIG = {
     "body_margin_px": 10, "body_margin_ratio": 0.0,
     "font_path": "assets/fonts/astro-city-teddy-bear.ttf", "font_min_px": 10, "font_max_px": 48,
     "line_spacing": 1.6, "shorten_attempts": 2,
-    "min_confirmed_call_events": 2, "analyze_batch_size": 8,
+    "min_confirmed_call_events": 3, "analyze_batch_size": 8,
     "context_image_max_side": 384,
     "typeset_mode": "ocr-box",
     "analyze_engine": "independent-batches-v6.1", "caption_max_distance": 7,
@@ -20,9 +20,9 @@ DEFAULT_CONFIG = {
     "identity_visual_min_crop": 0.38, "profile_crops": 10,
     "profile_concurrency": 8, "profile_output_tokens": 4096,
     "relationship_output_tokens": 4096,
-    "identity_name_binding_policy": "chapter-name-binding-simple-v2",
+    "identity_name_binding_policy": "analyze-authoritative-v3",
     "identity_binding_concurrency": 8, "identity_binding_output_tokens": 4096,
-    "scan_policy": "canonical-scan-v3", "scan_output_tokens": 8192,
+    "scan_policy": "canonical-scan-v4", "scan_output_tokens": 8192,
     "identity_min_chapter_crops": 8,
 }
 
@@ -39,9 +39,9 @@ def validate_config(config):
         raise ValueError('Invalid v6.speaker_merge_policy')
     if config['identity_relationship_policy'] != 'identity-relationship-v2':
         raise ValueError('Invalid identity/relationship policy')
-    if config['identity_name_binding_policy'] not in {None, 'chapter-multimodal-name-binding-v1', 'chapter-name-binding-simple-v2'}:
+    if config['identity_name_binding_policy'] not in {None, 'chapter-multimodal-name-binding-v1', 'chapter-name-binding-simple-v2', 'analyze-authoritative-v3'}:
         raise ValueError('Invalid identity name-binding policy')
-    if config['scan_policy'] not in {None, 'canonical-scan-v3'}:
+    if config['scan_policy'] not in {None, 'canonical-scan-v3', 'canonical-scan-v4'}:
         raise ValueError('Invalid scan policy')
     if (type(config['identity_visual_min_crop']) not in {float, int}
             or not math.isfinite(config['identity_visual_min_crop'])

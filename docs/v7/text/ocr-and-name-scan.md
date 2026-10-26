@@ -4,7 +4,7 @@
 tên model sửa là OCR hiện hành, replace-all tuần tự và validator dữ liệu tối thiểu.
 Phần GLM-OCR bên dưới vẫn áp dụng. Các phần scan từ mục “Scan scene và tên trong
 cùng lượt” là mô tả legacy, chỉ dùng khi `scan_policy=null`; không áp dụng các
-validator span/coverage/retry đó cho `canonical-scan-v3`.
+validator span/coverage/retry đó cho `canonical-scan-v4`.
 
 [← Chỉ mục](../README.md)
 

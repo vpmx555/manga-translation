@@ -1,5 +1,9 @@
 # Thiết kế build_identity với validator tối thiểu
 
+> Tài liệu lịch sử cho policy v2. Mặc định mới là
+> [analyze-authoritative-v3](analyze-authoritative-build-identity-design.md):
+> không còn request model gán lại tên/owner hoặc panel trong build_identity.
+
 **Trạng thái: đã triển khai `chapter-name-binding-simple-v2`, ngày 24/10/2026.**
 Đã kiểm tra bằng test không gọi model; chưa chạy inference thật hoặc Runpod.
 Tài liệu cụ thể hóa [điều kiện tạo identity](identity-validator-simplification.md)

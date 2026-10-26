@@ -22,8 +22,20 @@ from manga_pipeline.pipeline import load_config
 
 
 class MixedTests(unittest.TestCase):
-    def fixture(self, slots=32):
+    def test_server_path_exposes_locked_jit_tools_without_losing_system_path(self):
+        import os
+        with patch.object(vllm_runtime.manage, 'environment', return_value={'PATH': '/system/bin'}), \
+                patch.object(vllm_runtime, 'python', return_value=Path('/locked/vllm/bin/python')):
+            env = vllm_runtime.server_environment()
+        self.assertEqual(env['PATH'].split(os.pathsep)[0], str(Path('/locked/vllm/bin')))
+        self.assertTrue(env['PATH'].endswith('/system/bin'))
+        self.assertEqual(env['HF_HUB_OFFLINE'], '1')
+
+    def fixture(self, slots=32, thinking=False):
         cfg = load_config()
+        if not thinking:
+            cfg['llm'].update(analyze_thinking=False, analyze_num_ctx=32768,
+                              analyze_timeout=600, analyze_num_predict=8192)
         cfg['runtime']['llm_slots'] = slots
         cfg['vllm']['max_num_seqs'] = slots
         def phase(slots, short):
@@ -34,12 +46,31 @@ class MixedTests(unittest.TestCase):
                 'sample_count': gate.sample_count(c, short=short), 'signature': vllm_runtime.signature(c),
                 'config_fingerprint': manage.config_fingerprint(c), 'engine_profile_fingerprint': gate.engine_profile(c),
                 'cpu_offload_gb': 0, 'input_tokens_each': count, 'peak_running_requests': slots,
+                'enable_thinking': thinking and not short,
+                'temperature': c['llm']['analyze_temperature'] if thinking and not short else c['llm']['temperature'],
+                'presence_penalty': c['llm']['analyze_presence_penalty'] if thinking and not short else c['llm']['presence_penalty'],
+                'num_ctx': c['llm']['num_ctx'] if short else c['llm']['analyze_num_ctx'],
+                'output_reserve': 8192 if short else c['llm']['analyze_num_predict'],
                 'server_identity': {'fixture': 'not-real'},
                 'responses': [{'usage': {'prompt_tokens': count, 'completion_tokens': 4096}} for _ in range(slots)]}
         result = {'status': 'passed', 'slots': slots, 'probe_policy': gate.mixed_policy(cfg),
             'signature': vllm_runtime.signature(cfg), 'engine_profile_fingerprint': gate.engine_profile(cfg),
             'cpu_offload_gb': 0, 'long_context': phase(8, False), 'short_context': phase(slots, True)}
         return cfg, result
+
+    def test_stage_thinking_receipt_requires_new_context_and_output_proof(self):
+        cfg, result = self.fixture(64, thinking=True)
+        gate.validate_receipt(cfg, result)
+        for phase, field, value in [('long_context', 'enable_thinking', False),
+                                    ('long_context', 'num_ctx', 32768),
+                                    ('long_context', 'output_reserve', 8192),
+                                    ('short_context', 'enable_thinking', True),
+                                    ('long_context', 'temperature', 0),
+                                    ('long_context', 'presence_penalty', 0)]:
+            wrong = copy.deepcopy(result)
+            wrong[phase][field] = value
+            with self.assertRaises(RuntimeError):
+                gate.validate_receipt(cfg, wrong)
 
     def test_both_real_usage_profiles_are_required(self):
         cfg, result = self.fixture()
@@ -76,10 +107,13 @@ class MixedTests(unittest.TestCase):
             gate.validate_receipt(cfg, result)
 
     def test_tokenizer_count_never_changes_requested_or_validated_array_length(self):
-        cfg = load_config()
+        cfg, _ = self.fixture(thinking=True)
+        input_tokens = cfg['llm']['analyze_num_ctx'] // 2
+        truncated = [False]
         cfg['runtime']['llm_slots'] = 1
         record = {'max_num_seqs': cfg['vllm']['max_num_seqs'], 'cpu_offload_gb': 0,
-                  'max_model_len': cfg['llm']['num_ctx'], 'identity': {'fixture': 'not-real'}}
+                  'max_model_len': max(cfg['llm']['num_ctx'], cfg['llm']['analyze_num_ctx']),
+                  'identity': {'fixture': 'not-real'}}
         seen = []
 
         def http(request, timeout):
@@ -87,14 +121,16 @@ class MixedTests(unittest.TestCase):
             if route == 'metrics':
                 return io.BytesIO(b'vllm:num_requests_running 1\n')
             if route == 'tokenize':
-                return io.BytesIO(json.dumps({'count': 16384}).encode())
+                return io.BytesIO(json.dumps({'count': input_tokens}).encode())
             wire = json.loads(request.data)
             seen.append(wire)
             # Keep the in-memory fixture alive for one metrics sample.
             time.sleep(.03)
             response = {'choices': [{'message': {'content': json.dumps({'ok': True,
                 'samples': [0] * gate.SAMPLE_COUNT})}, 'finish_reason': 'stop'}],
-                'usage': {'prompt_tokens': 16384, 'completion_tokens': 1545}}
+                'usage': {'prompt_tokens': input_tokens, 'completion_tokens': 1545}}
+            if truncated[0]:
+                response['choices'][0].update(message={'content': None}, finish_reason='length')
             return io.BytesIO(json.dumps(response).encode())
 
         with tempfile.TemporaryDirectory() as directory:
@@ -105,13 +141,19 @@ class MixedTests(unittest.TestCase):
                     patch.object(vllm_runtime, 'owns', return_value=True), \
                     patch.object(gate.subprocess, 'check_output', return_value='12345'):
                 gate.verify(cfg, receipt)
+                truncated[0] = True
+                with self.assertRaisesRegex(RuntimeError, 'finish_reason=length'):
+                    gate.verify(cfg, Path(directory) / 'truncated.json')
             result = json.loads(receipt.read_text())
             self.assertEqual(result['status'], 'passed')
             self.assertEqual(result['sample_count'], gate.SAMPLE_COUNT)
-            self.assertEqual(result['input_tokens_each'], 16384)
+            self.assertEqual(result['input_tokens_each'], input_tokens)
             self.assertTrue(receipt.with_name('fixture-response-00.json').is_file())
         self.assertIn(f'exactly {gate.SAMPLE_COUNT} zero integers', seen[0]['messages'][0]['content'])
         self.assertIn(f'exactly {gate.SAMPLE_COUNT} zero integers', seen[0]['messages'][1]['content'])
+        self.assertIn('Do not count, enumerate, simulate, or verify', seen[0]['messages'][0]['content'])
+        self.assertTrue(seen[0]['chat_template_kwargs']['enable_thinking'])
+        self.assertEqual(seen[0]['temperature'], 1.0)
 
     def test_verified_mixed_proof_reuse_allows_only_the_same_engine_profile(self):
         from preanalyze_import import prepare_qualification

@@ -46,7 +46,9 @@ def partition(rows, analyzed_batches):
 
 def translate(store, provider, progress=None):
     from .translation import resources, wire_schema, ordered_response
-    document = copy.deepcopy(store.read("export"))
+    from .identity_projection import document_view
+    source_document = store.read('export')
+    document = document_view(source_document)
     rows = sorted([*document["utterances"], *document["effects"]], key=lambda r: r["reading_order"])
     cfg = store.manifest["config"]
     frozen = resources(store, rows)
@@ -207,6 +209,10 @@ def translate(store, provider, progress=None):
     document.update(policy=POLICY, failures=failures, translation_resources=frozen,
                     relationship_graph=graph, translation_plan_hash=fingerprint(plan),
                     unresolved_translation_targets=missing)
+    for field in ('utterances', 'effects', 'excluded'):
+        if field in source_document:
+            document[field] = [{**copy.deepcopy(row), **({'translations': by_id[row['id']]['translations']}
+                                if row['id'] in by_id else {})} for row in source_document[field]]
     atomic_json(store.artifact_path("translate").parent / "effects-translated.json", {"effects": document["effects"]})
     atomic_json(store.artifact_path("translate").parent / "partial.json", document)
     if any(f.get("systemic") for f in failures):

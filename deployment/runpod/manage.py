@@ -551,7 +551,13 @@ def _doctor(*, inference=False, config=None):
         from manga_pipeline.runtime.resources import configure_batch
         from manga_pipeline.runtime.llm_budget import preflight_case
         from manga_pipeline.providers.vllm import VLLM
-        os.environ.update(configure_batch(config, RUNTIME / "config/vllm-preflight"))
+        # A preflight lease belongs to one frozen batch. Sharing this audit root
+        # across batches makes an interrupted old probe block every later run.
+        preflight_root = RUNTIME / "config/vllm-preflight"
+        batch_id = os.environ.get("MANGA_BATCH_ID")
+        if batch_id:
+            preflight_root = preflight_root / batch_id
+        os.environ.update(configure_batch(config, preflight_root))
         provider = VLLM(config, RUNTIME / "cache/vllm-preflight" / uuid.uuid4().hex)
         probe = preflight_case(config)
         def check(value):

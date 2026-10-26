@@ -23,6 +23,7 @@ def load_config(*args, **kwargs):
     config = current_config(*args, **kwargs)
     config['v6'].update(scan_policy=None, identity_name_binding_policy='chapter-multimodal-name-binding-v1',
                         scan_output_tokens=4096)
+    config['llm'].update(analyze_thinking=False, analyze_num_ctx=32768, analyze_timeout=600, analyze_num_predict=8192)
     return config
 
 
