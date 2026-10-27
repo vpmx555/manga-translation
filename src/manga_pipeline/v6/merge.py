@@ -40,7 +40,12 @@ def merge(rows, completed, initial, candidates, raw):
         resolve_speaker(item, initial)
         for mention in item["mentions"]:
             candidate = candidates[mention["candidate_id"]]
-            form = persons.name_form(candidate["name"])
+            try:
+                form = persons.name_form(candidate["name"])
+            except ValueError as exc:
+                mention["name_registration_review"] = {"surface": candidate["name"], "reason": str(exc)}
+                item["semantic_needs_review"] = True
+                continue
             mention.update(name_key=form["surface"], base_name=form["base_name"], honorific=form["honorific"],
                            raw_surface=candidate.get("raw_surface", candidate["name"]),
                            start=candidate["start"], end=candidate["end"])
@@ -49,7 +54,10 @@ def merge(rows, completed, initial, candidates, raw):
                     mention[field] = copy.deepcopy(candidate[field])
             pid = mention.get("target_person_id")
             if mention["confirmed_person_name"] and pid is not None:
-                persons.add_name(state, pid, candidate["name"], source=candidate["id"], components=mention["components"])
+                reviews = persons.add_name(state, pid, candidate["name"], source=candidate["id"], components=mention["components"])
+                if reviews:
+                    mention["name_component_reviews"] = reviews
+                    item["semantic_needs_review"] = True
                 ref = mention.get("recipient_cluster_ref")
                 if item["content_type"] == "dialogue" and mention["mention_type"] == "direct_address" and ref:
                     observations = initial["observations"][ref]

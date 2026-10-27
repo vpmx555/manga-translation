@@ -139,9 +139,9 @@ def validate_runpod_profile(config):
 
 
 def preflight_case(config):
-    from ..v6.batch_contract import PROMPT, schema
-    from ..v6.planning import output_reserve
-    rows = [{"id": "probe:1", "speaker_anchor": {"locked": False, "person_id": None}}]
-    wire = schema(rows, [], {}, {})
-    data = {"targets": [{"id": "probe:1", "text": "Where did you go?"}], "scene_summary": "A brief conversation.", "analysis_branch": "dialogue", "cluster_pool": {}, "known_names": {}, "mentions": [], "unknown_reference": "others"}
-    return {"prompt": final_prompt("analyze_dialogue_v6", PROMPT), "data": data, "schema": wire, "budget": request_budget(config, "analyze_dialogue_v6", PROMPT, data, wire)}
+    from ..v6.event_analysis import PROMPT
+    from ..v6.story_contract import object_schema
+    wire = object_schema({"answer": {"type": "string"}})
+    data = {"targets": [{"id": "probe:1", "text": "Where did you go?"}]}
+    return {"prompt": final_prompt("analyze_event_v7", PROMPT), "data": data, "schema": wire,
+            "budget": request_budget(config, "analyze_event_v7", PROMPT, data, wire)}

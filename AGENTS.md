@@ -120,7 +120,7 @@ tests for the current v6 Runpod preparation task unless the user requests them.
 ## Current Runpod workflow (user instruction, 2026-10-15)
 
 For all new v6 Runpod tasks, use **local working-set + native Syncthing**.
-Read [the current operational runbook](docs/plans/runpod-v6-agent-operational-plan.md)
+Read [the current operational runbook](docs/archive/plans/runpod-v6-agent-operational-plan.md)
 and the fast policy below before planning or operating. `runpod-v6.ps1` routes to
 `deployment/runpod/local_v6.py`; this is the canonical prepare/launch/watch lane.
 Use `native_sync.py` for offline pairing/status and `native_verify.py` for backup proof.
@@ -178,7 +178,7 @@ and prefetch must prepare the frozen GLM environment/model before inference.
 Hayai remains a historical compatibility backend, not the new-run default.
 
 Before any Runpod planning, deployment, execution, transfer, monitoring, or teardown, read
-[`docs/news/runpod_agent_fast_policy_vi.md`](docs/news/runpod_agent_fast_policy_vi.md) completely.
+[`docs/archive/news/runpod_agent_fast_policy_vi.md`](docs/archive/news/runpod_agent_fast_policy_vi.md) completely.
 This is the project-specific policy approved on 2026-10-09: prepare before renting a GPU,
 prefer local execution storage, retain full outputs/visualizations, minimize repeated checks,
 report progress every 2 minutes, and investigate 10 minutes without measurable progress.
@@ -186,3 +186,7 @@ Distinguish implemented features from proposed optimizations in that document; d
 CLI flags, bypass integrity checks, or claim a paused/failed job is running successfully.
 Never leave a billable pod waiting for documentation, offline tests, or an agent response.
 After verified retrieval/backup, terminate only the task-owned resources authorized by the user.
+
+## Current semantic pipeline (2026-10-26)
+
+Use docs/v7/README.md and its stage guides. The current contract is chapter-story-graph-v7: normalize → graph → analyze → reanalyze. Scene workers run in parallel, events sequentially, max 8 utterances/event. All LLM stages use 64K with thinking disabled. scan is no longer a CLI stage; reanalyze is chapter review, and revise creates a new run revision. Historical outputs must use their frozen source or verified upstream import, never a manifest contract rewrite. This does not authorize model tests or Runpod use.

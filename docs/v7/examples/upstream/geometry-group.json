@@ -1,0 +1,693 @@
+{
+  "group": {
+    "id": "b68ed9e490d577e6:p11:g1",
+    "bbox": [
+      766,
+      66,
+      903,
+      242
+    ],
+    "candidate_ids": [
+      "p11:b1",
+      "p11:b3"
+    ],
+    "panel_indices": [
+      0
+    ],
+    "outer_rings": [
+      {
+        "kind": "outer",
+        "points": [
+          [
+            860.0,
+            66.0
+          ],
+          [
+            876.0,
+            67.0
+          ],
+          [
+            879.0,
+            71.0
+          ],
+          [
+            881.0,
+            71.0
+          ],
+          [
+            884.0,
+            74.0
+          ],
+          [
+            884.0,
+            76.0
+          ],
+          [
+            888.0,
+            79.0
+          ],
+          [
+            888.0,
+            81.0
+          ],
+          [
+            892.0,
+            84.0
+          ],
+          [
+            892.0,
+            86.0
+          ],
+          [
+            900.0,
+            95.0
+          ],
+          [
+            903.0,
+            110.0
+          ],
+          [
+            903.0,
+            126.0
+          ],
+          [
+            900.0,
+            134.0
+          ],
+          [
+            900.0,
+            139.0
+          ],
+          [
+            898.0,
+            140.0
+          ],
+          [
+            894.0,
+            150.0
+          ],
+          [
+            884.0,
+            154.0
+          ],
+          [
+            869.0,
+            156.0
+          ],
+          [
+            862.0,
+            159.0
+          ],
+          [
+            858.0,
+            159.0
+          ],
+          [
+            844.0,
+            151.0
+          ],
+          [
+            841.0,
+            151.0
+          ],
+          [
+            840.0,
+            157.0
+          ],
+          [
+            842.0,
+            159.0
+          ],
+          [
+            842.0,
+            164.0
+          ],
+          [
+            847.0,
+            177.0
+          ],
+          [
+            853.0,
+            203.0
+          ],
+          [
+            845.0,
+            211.0
+          ],
+          [
+            845.0,
+            213.0
+          ],
+          [
+            841.0,
+            216.0
+          ],
+          [
+            841.0,
+            218.0
+          ],
+          [
+            837.0,
+            221.0
+          ],
+          [
+            837.0,
+            223.0
+          ],
+          [
+            828.0,
+            233.0
+          ],
+          [
+            822.0,
+            234.0
+          ],
+          [
+            820.0,
+            236.0
+          ],
+          [
+            811.0,
+            238.0
+          ],
+          [
+            803.0,
+            242.0
+          ],
+          [
+            797.0,
+            242.0
+          ],
+          [
+            791.0,
+            238.0
+          ],
+          [
+            788.0,
+            238.0
+          ],
+          [
+            780.0,
+            231.0
+          ],
+          [
+            771.0,
+            214.0
+          ],
+          [
+            766.0,
+            183.0
+          ],
+          [
+            767.0,
+            160.0
+          ],
+          [
+            769.0,
+            158.0
+          ],
+          [
+            770.0,
+            153.0
+          ],
+          [
+            773.0,
+            150.0
+          ],
+          [
+            773.0,
+            147.0
+          ],
+          [
+            776.0,
+            143.0
+          ],
+          [
+            777.0,
+            138.0
+          ],
+          [
+            779.0,
+            137.0
+          ],
+          [
+            782.0,
+            128.0
+          ],
+          [
+            785.0,
+            125.0
+          ],
+          [
+            796.0,
+            124.0
+          ],
+          [
+            806.0,
+            126.0
+          ],
+          [
+            825.0,
+            126.0
+          ],
+          [
+            823.0,
+            107.0
+          ],
+          [
+            835.0,
+            81.0
+          ],
+          [
+            838.0,
+            77.0
+          ],
+          [
+            844.0,
+            75.0
+          ],
+          [
+            851.0,
+            69.0
+          ],
+          [
+            860.0,
+            66.0
+          ]
+        ]
+      }
+    ],
+    "parts": [
+      {
+        "id": "b68ed9e490d577e6:p11:g1:part1",
+        "bbox": [
+          766,
+          66,
+          903,
+          242
+        ],
+        "body_mask": {
+          "mask_path": "03_bubble_geometry/masks/b68ed9e490d577e6-p11/1-body-1.png",
+          "mask_sha256": "42ebfc5943d26f4a280581c1fdbc451472330235c5e3baf16a3fc244336e993c"
+        },
+        "body_rings": [
+          {
+            "kind": "outer",
+            "points": [
+              [
+                860.0,
+                66.0
+              ],
+              [
+                876.0,
+                67.0
+              ],
+              [
+                879.0,
+                71.0
+              ],
+              [
+                881.0,
+                71.0
+              ],
+              [
+                884.0,
+                74.0
+              ],
+              [
+                884.0,
+                76.0
+              ],
+              [
+                888.0,
+                79.0
+              ],
+              [
+                888.0,
+                81.0
+              ],
+              [
+                892.0,
+                84.0
+              ],
+              [
+                892.0,
+                86.0
+              ],
+              [
+                900.0,
+                95.0
+              ],
+              [
+                903.0,
+                110.0
+              ],
+              [
+                903.0,
+                126.0
+              ],
+              [
+                900.0,
+                134.0
+              ],
+              [
+                900.0,
+                139.0
+              ],
+              [
+                898.0,
+                140.0
+              ],
+              [
+                894.0,
+                150.0
+              ],
+              [
+                884.0,
+                154.0
+              ],
+              [
+                869.0,
+                156.0
+              ],
+              [
+                862.0,
+                159.0
+              ],
+              [
+                858.0,
+                159.0
+              ],
+              [
+                844.0,
+                151.0
+              ],
+              [
+                841.0,
+                151.0
+              ],
+              [
+                840.0,
+                157.0
+              ],
+              [
+                842.0,
+                159.0
+              ],
+              [
+                842.0,
+                164.0
+              ],
+              [
+                847.0,
+                177.0
+              ],
+              [
+                853.0,
+                203.0
+              ],
+              [
+                845.0,
+                211.0
+              ],
+              [
+                845.0,
+                213.0
+              ],
+              [
+                841.0,
+                216.0
+              ],
+              [
+                841.0,
+                218.0
+              ],
+              [
+                837.0,
+                221.0
+              ],
+              [
+                837.0,
+                223.0
+              ],
+              [
+                828.0,
+                233.0
+              ],
+              [
+                822.0,
+                234.0
+              ],
+              [
+                820.0,
+                236.0
+              ],
+              [
+                811.0,
+                238.0
+              ],
+              [
+                803.0,
+                242.0
+              ],
+              [
+                797.0,
+                242.0
+              ],
+              [
+                787.0,
+                237.0
+              ],
+              [
+                780.0,
+                231.0
+              ],
+              [
+                771.0,
+                214.0
+              ],
+              [
+                766.0,
+                183.0
+              ],
+              [
+                767.0,
+                160.0
+              ],
+              [
+                769.0,
+                158.0
+              ],
+              [
+                770.0,
+                153.0
+              ],
+              [
+                773.0,
+                150.0
+              ],
+              [
+                773.0,
+                147.0
+              ],
+              [
+                776.0,
+                143.0
+              ],
+              [
+                777.0,
+                138.0
+              ],
+              [
+                779.0,
+                137.0
+              ],
+              [
+                782.0,
+                128.0
+              ],
+              [
+                785.0,
+                125.0
+              ],
+              [
+                796.0,
+                124.0
+              ],
+              [
+                806.0,
+                126.0
+              ],
+              [
+                825.0,
+                126.0
+              ],
+              [
+                823.0,
+                107.0
+              ],
+              [
+                835.0,
+                81.0
+              ],
+              [
+                838.0,
+                77.0
+              ],
+              [
+                844.0,
+                75.0
+              ],
+              [
+                851.0,
+                69.0
+              ],
+              [
+                860.0,
+                66.0
+              ]
+            ]
+          }
+        ],
+        "visual_evidence": {
+          "bubble_shape": "cloud",
+          "border_style": "solid",
+          "bubble_style": "unknown",
+          "confidence": 0.6,
+          "confidence_kind": "heuristic_not_calibrated",
+          "source": "geometry_rules_v1",
+          "style_hints": [],
+          "evidence": {
+            "solidity": 0.8658,
+            "rectangularity": 0.6959,
+            "circularity": 0.554,
+            "acute_corners": 0,
+            "border_dark_support": 1.0,
+            "border_transitions": 0
+          },
+          "text_used": false,
+          "feature_sources": [
+            "image_pixels",
+            "geometry_masks"
+          ],
+          "observed_boundary_fraction": 1.0,
+          "rejection_reasons": [
+            "visual_support_below_acceptance",
+            "cloud_shape_without_independent_border_evidence"
+          ],
+          "policy": "visual-hints-v6.1"
+        },
+        "visual_cache_key": "1c400dd56289bdde4be41c4699266e727bada89307a1689a7356d8879de1d2a7"
+      }
+    ],
+    "connections": [],
+    "inferred_pixel_count": 0,
+    "policy": "group-geometry-v6.1",
+    "observed_mask": {
+      "mask_path": "03_bubble_geometry/masks/b68ed9e490d577e6-p11/1-observed.png",
+      "mask_sha256": "72a47df07f05f70dbf276200a05ef131442233cf600db2bfebb7b5e1d0626a7c"
+    },
+    "refined_mask": {
+      "mask_path": "03_bubble_geometry/masks/b68ed9e490d577e6-p11/1-refined.png",
+      "mask_sha256": "72a47df07f05f70dbf276200a05ef131442233cf600db2bfebb7b5e1d0626a7c"
+    },
+    "inferred_mask": {
+      "mask_path": "03_bubble_geometry/masks/b68ed9e490d577e6-p11/1-inferred.png",
+      "mask_sha256": "d1d16a4ce033afef1a2b6701accfa0b6d9a133eee60d96c4e6ac85424a2c8bb6"
+    },
+    "bridge_mask": {
+      "mask_path": "03_bubble_geometry/masks/b68ed9e490d577e6-p11/1-bridge.png",
+      "mask_sha256": "d1d16a4ce033afef1a2b6701accfa0b6d9a133eee60d96c4e6ac85424a2c8bb6"
+    },
+    "tail_mask": {
+      "mask_path": "03_bubble_geometry/masks/b68ed9e490d577e6-p11/1-tail.png",
+      "mask_sha256": "3fcde6c67ab7c5bcd8f27c41408625e3e0cb5a7582bee3c4aa3a006af44104f3"
+    }
+  },
+  "texts": [
+    {
+      "id": "b68ed9e490d577e6:p11:t0",
+      "page_id": "b68ed9e490d577e6:p11",
+      "page": 11,
+      "text_index": 0,
+      "reading_order": 51,
+      "text": "?",
+      "bbox": [
+        852.7470703125,
+        94.49797821044922,
+        880.22900390625,
+        128.89414978027344
+      ],
+      "panel_index": 0,
+      "character_detection_index": 11,
+      "speaker_cluster_id": "b68ed9e490d577e6:p11:c0",
+      "speaker_id": 2,
+      "speaker_display_label": "2",
+      "speaker_status": "resolved",
+      "tail_index": null,
+      "is_essential_text": true,
+      "speaker_affinity": null,
+      "speaker_affinity_source": "not_exposed_by_magi_prediction",
+      "association_source": "magi_text_character_associations",
+      "ocr_detail": {
+        "raw_text": "?",
+        "text": "?",
+        "output_tokens": 1,
+        "truncated": false,
+        "empty": false
+      },
+      "group_id": "b68ed9e490d577e6:p11:g1",
+      "part_ids": [
+        "b68ed9e490d577e6:p11:g1:part1"
+      ],
+      "mapping_status": "matched",
+      "coverage": 1.0,
+      "role_evidence": {
+        "koharu_class_1": [],
+        "final_role": false
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p11:t1",
+      "page_id": "b68ed9e490d577e6:p11",
+      "page": 11,
+      "text_index": 1,
+      "reading_order": 52,
+      "text": "??",
+      "bbox": [
+        787.7415161132812,
+        165.32542419433594,
+        822.728759765625,
+        196.30555725097656
+      ],
+      "panel_index": 0,
+      "character_detection_index": 11,
+      "speaker_cluster_id": "b68ed9e490d577e6:p11:c0",
+      "speaker_id": 2,
+      "speaker_display_label": "2",
+      "speaker_status": "resolved",
+      "tail_index": 0,
+      "is_essential_text": true,
+      "speaker_affinity": null,
+      "speaker_affinity_source": "not_exposed_by_magi_prediction",
+      "association_source": "magi_text_character_associations",
+      "ocr_detail": {
+        "raw_text": "??",
+        "text": "??",
+        "output_tokens": 1,
+        "truncated": false,
+        "empty": false
+      },
+      "group_id": "b68ed9e490d577e6:p11:g1",
+      "part_ids": [
+        "b68ed9e490d577e6:p11:g1:part1"
+      ],
+      "mapping_status": "matched",
+      "coverage": 1.0,
+      "role_evidence": {
+        "koharu_class_1": [],
+        "final_role": false
+      }
+    }
+  ]
+}

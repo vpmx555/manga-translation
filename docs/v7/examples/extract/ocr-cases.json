@@ -1,0 +1,226 @@
+[
+  {
+    "id": "b68ed9e490d577e6:p12:t0",
+    "page_id": "b68ed9e490d577e6:p12",
+    "page": 12,
+    "text_index": 0,
+    "reading_order": 56,
+    "text": "I FEEL LIKE DYING...",
+    "bbox": [
+      571.1813354492188,
+      160.16732788085938,
+      680.87939453125,
+      250.76478576660156
+    ],
+    "panel_index": 1,
+    "character_detection_index": 6,
+    "speaker_cluster_id": "b68ed9e490d577e6:p12:c0",
+    "speaker_id": 5,
+    "speaker_display_label": "5",
+    "speaker_status": "resolved",
+    "tail_index": null,
+    "is_essential_text": true,
+    "speaker_affinity": null,
+    "speaker_affinity_source": "not_exposed_by_magi_prediction",
+    "association_source": "magi_text_character_associations",
+    "ocr_detail": {
+      "raw_text": "I FEEL LIKE DYING...",
+      "text": "I FEEL LIKE DYING...",
+      "output_tokens": 9,
+      "truncated": false,
+      "empty": false
+    }
+  },
+  {
+    "id": "b68ed9e490d577e6:p12:t5",
+    "page_id": "b68ed9e490d577e6:p12",
+    "page": 12,
+    "text_index": 5,
+    "reading_order": 61,
+    "text": "BUT WHAT KIND OF FACE SHOULD I PLUT ON TOMORROW?",
+    "bbox": [
+      169.0313262939453,
+      629.9320678710938,
+      332.64996337890625,
+      720.83642578125
+    ],
+    "panel_index": 2,
+    "character_detection_index": 0,
+    "speaker_cluster_id": "b68ed9e490d577e6:p12:c0",
+    "speaker_id": 5,
+    "speaker_display_label": "5",
+    "speaker_status": "resolved",
+    "tail_index": 2,
+    "is_essential_text": true,
+    "speaker_affinity": null,
+    "speaker_affinity_source": "not_exposed_by_magi_prediction",
+    "association_source": "magi_text_character_associations",
+    "ocr_detail": {
+      "raw_text": "BUT WHAT KIND OF FACE SHOULD I PLUT ON TOMORROW?",
+      "text": "BUT WHAT KIND OF FACE SHOULD I PLUT ON TOMORROW?",
+      "output_tokens": 21,
+      "truncated": false,
+      "empty": false
+    }
+  },
+  {
+    "id": "b68ed9e490d577e6:p12:t6",
+    "page_id": "b68ed9e490d577e6:p12",
+    "page": 12,
+    "text_index": 6,
+    "reading_order": 62,
+    "text": "UMM...",
+    "bbox": [
+      102.4051742553711,
+      708.849853515625,
+      158.795166015625,
+      732.4977416992188
+    ],
+    "panel_index": 2,
+    "character_detection_index": 0,
+    "speaker_cluster_id": "b68ed9e490d577e6:p12:c0",
+    "speaker_id": 5,
+    "speaker_display_label": "5",
+    "speaker_status": "resolved",
+    "tail_index": 2,
+    "is_essential_text": true,
+    "speaker_affinity": null,
+    "speaker_affinity_source": "not_exposed_by_magi_prediction",
+    "association_source": "magi_text_character_associations",
+    "ocr_detail": {
+      "raw_text": "UMM...",
+      "text": "UMM...",
+      "output_tokens": 3,
+      "truncated": false,
+      "empty": false
+    }
+  },
+  {
+    "id": "b68ed9e490d577e6:p8:t1",
+    "page_id": "b68ed9e490d577e6:p8",
+    "page": 8,
+    "text_index": 1,
+    "reading_order": 30,
+    "text": "NEWSPAPER: THE BULLYING PROBLEM: \"EXTREMELY SERIOUS\"",
+    "bbox": [
+      457.9884338378906,
+      408.46319580078125,
+      878.7835693359375,
+      431.1066589355469
+    ],
+    "panel_index": 0,
+    "character_detection_index": null,
+    "speaker_cluster_id": null,
+    "speaker_id": null,
+    "speaker_display_label": "Other",
+    "speaker_status": "unlinked",
+    "tail_index": null,
+    "is_essential_text": false,
+    "speaker_affinity": null,
+    "speaker_affinity_source": "not_exposed_by_magi_prediction",
+    "association_source": "magi_text_character_associations",
+    "ocr_detail": {
+      "raw_text": "NEWSPAPER: THE BULLYING PROBLEM: \"EXTREMELY SERIOUS\"",
+      "text": "NEWSPAPER: THE BULLYING PROBLEM: \"EXTREMELY SERIOUS\"",
+      "output_tokens": 24,
+      "truncated": false,
+      "empty": false
+    }
+  },
+  {
+    "id": "b68ed9e490d577e6:p8:t2",
+    "page_id": "b68ed9e490d577e6:p8",
+    "page": 8,
+    "text_index": 2,
+    "reading_order": 31,
+    "text": "BECAUSE FOOLISHLY ATTRACTING ATTENTION JUST MAKES MORE ENEMIES.",
+    "bbox": [
+      390.7454833984375,
+      647.9573364257812,
+      509.4979248046875,
+      770.8489990234375
+    ],
+    "panel_index": 2,
+    "character_detection_index": null,
+    "speaker_cluster_id": null,
+    "speaker_id": null,
+    "speaker_display_label": "Other",
+    "speaker_status": "unlinked",
+    "tail_index": null,
+    "is_essential_text": true,
+    "speaker_affinity": null,
+    "speaker_affinity_source": "not_exposed_by_magi_prediction",
+    "association_source": "magi_text_character_associations",
+    "ocr_detail": {
+      "raw_text": "BECAUSE FOOLISHLY ATTRACTING ATTENTION JUST MAKES MORE ENEMIES.",
+      "text": "BECAUSE FOOLISHLY ATTRACTING ATTENTION JUST MAKES MORE ENEMIES.",
+      "output_tokens": 28,
+      "truncated": false,
+      "empty": false
+    }
+  },
+  {
+    "id": "b68ed9e490d577e6:p8:t0",
+    "page_id": "b68ed9e490d577e6:p8",
+    "page": 8,
+    "text_index": 0,
+    "reading_order": 29,
+    "text": "MY FAVORITE MOTTO IS \"MINIMAL EXPOSURE\"...",
+    "bbox": [
+      587.2765502929688,
+      113.51531219482422,
+      690.8471069335938,
+      195.62176513671875
+    ],
+    "panel_index": 0,
+    "character_detection_index": 7,
+    "speaker_cluster_id": "b68ed9e490d577e6:p8:c6",
+    "speaker_id": null,
+    "speaker_display_label": "Other",
+    "speaker_status": "pending_identity",
+    "tail_index": null,
+    "is_essential_text": true,
+    "speaker_affinity": null,
+    "speaker_affinity_source": "not_exposed_by_magi_prediction",
+    "association_source": "magi_text_character_associations",
+    "ocr_detail": {
+      "raw_text": "MY FAVORITE\nMOTTO IS\n\"MINIMAL\nEXPOSURE\"...",
+      "text": "MY FAVORITE MOTTO IS \"MINIMAL EXPOSURE\"...",
+      "output_tokens": 21,
+      "truncated": false,
+      "empty": false
+    }
+  },
+  {
+    "id": "b68ed9e490d577e6:p11:t4",
+    "page_id": "b68ed9e490d577e6:p11",
+    "page": 11,
+    "text_index": 4,
+    "reading_order": 55,
+    "text": "",
+    "bbox": [
+      190.12876892089844,
+      1044.164306640625,
+      230.73976135253906,
+      1221.756591796875
+    ],
+    "panel_index": 5,
+    "character_detection_index": 14,
+    "speaker_cluster_id": "b68ed9e490d577e6:p11:c11",
+    "speaker_id": null,
+    "speaker_display_label": "Other",
+    "speaker_status": "pending_identity",
+    "tail_index": null,
+    "is_essential_text": true,
+    "speaker_affinity": null,
+    "speaker_affinity_source": "not_exposed_by_magi_prediction",
+    "association_source": "magi_text_character_associations",
+    "ocr_detail": {
+      "raw_text": "```markdown\n\n```",
+      "text": "",
+      "output_tokens": 5,
+      "truncated": false,
+      "empty": true
+    }
+  }
+]

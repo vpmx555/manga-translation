@@ -1,0 +1,56 @@
+{
+  "utterance_id": "b68ed9e490d577e6:p36:g6:anchor-segment-1:u",
+  "content_type": "dialogue",
+  "speech_style": "normal",
+  "speaker_kind": "person",
+  "speaker_person_id": "person:bbd1cdc5e54921165151",
+  "speaker_cluster_ref": "da7845c9d55ddb7c:b68ed9e490d577e6:p36:c8",
+  "addressee_type": "audience",
+  "addressee_person_ids": [],
+  "mentions": [],
+  "confidence": {
+    "speaker": 10,
+    "addressee": 8,
+    "content_type": 10,
+    "speech_style": 9
+  },
+  "evidence": "MAGI anchor links speaker to person:bbd1cdc5e54921165151. Text expresses shock at the situation.",
+  "evidence_refs": [
+    "b68ed9e490d577e6:p36:g6:anchor-segment-1:u"
+  ],
+  "semantic_resolution": "resolved",
+  "semantic_response_used": true,
+  "repair_count": 0,
+  "semantic_needs_review": false,
+  "semantic_errors": [],
+  "speaker_merge_policy": "inference-first-v1",
+  "scene_id": "scene:30",
+  "event_id": "scene:30:event:1",
+  "essential_index": 215,
+  "analysis_branch": "dialogue",
+  "speaker_anchor": {
+    "locked": true,
+    "person_id": "person:bbd1cdc5e54921165151",
+    "sources": [
+      {
+        "source_text_id": "b68ed9e490d577e6:p36:t0",
+        "cluster_ref": "da7845c9d55ddb7c:b68ed9e490d577e6:p36:c8",
+        "bank_id": 5,
+        "person_id": "person:bbd1cdc5e54921165151",
+        "tail_index": 1,
+        "character_index": 11
+      }
+    ],
+    "conflicting_person_ids": [],
+    "origin": "MAGIv2_text_tail_character_stable_bank"
+  },
+  "original_speaker": [
+    {
+      "source_text_id": "b68ed9e490d577e6:p36:t0",
+      "cluster_ref": "da7845c9d55ddb7c:b68ed9e490d577e6:p36:c8",
+      "bank_id": 5,
+      "person_id": "person:bbd1cdc5e54921165151"
+    }
+  ],
+  "batch_id": "scene:30:event:1"
+}

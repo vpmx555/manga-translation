@@ -1,0 +1,52 @@
+{
+  "page": 11,
+  "source_artifacts": [
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\02_extract\\result.json",
+      "sha256": "bf013e6add869488fd45d112ab60c2b090e1f50fb432e085e058018757e2b2c9"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\result.json",
+      "sha256": "eec0ac77f19338bdb10ce069c6b44586a5398864c8db304a2c047bcf297c2447"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\04_normalize\\result.json",
+      "sha256": "1a5839615f29dee56d27eb0e9d545dc7094aca3c1e16d4d70d9c1563665c6c38"
+    },
+    {
+      "file": "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\11.webp",
+      "sha256": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\masks\\b68ed9e490d577e6-p11\\1-refined.png",
+      "sha256": "72a47df07f05f70dbf276200a05ef131442233cf600db2bfebb7b5e1d0626a7c"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\masks\\b68ed9e490d577e6-p11\\1-bridge.png",
+      "sha256": "d1d16a4ce033afef1a2b6701accfa0b6d9a133eee60d96c4e6ac85424a2c8bb6"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\masks\\b68ed9e490d577e6-p11\\1-observed.png",
+      "sha256": "72a47df07f05f70dbf276200a05ef131442233cf600db2bfebb7b5e1d0626a7c"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\overlays\\b68ed9e490d577e6-p11.png",
+      "sha256": "134acd83eaec6ccb17eb7aa8e2ff944fb64203b4da533158280cc08572c11945"
+    }
+  ],
+  "generator_sha256": "55145410f4cae84c25760735e9418d8c67c15c6564b76851675fbed73a6e80d7",
+  "model_requests": 0,
+  "assets": {
+    "bridge_mask.png": "7a69694f612439ac9a62d5f60a2dab5813d121177969c5beae1272c7b736c6c0",
+    "character-zoom.png": "f4fa19d5deee2ea68d6992dc3f1b8bc4b95f650efab1086a27b5d6e64ca4e874",
+    "extract-overview.png": "2f3ac67b3747d3e2dca4c6de2d374b4951fca642b775cccd20ab47034a869bbd",
+    "extract-page.json": "eec555d930aa0da3b9a6a3949a3f4f769e3e693d445681acc55caa7676b4d40d",
+    "geometry-group.json": "8e29dc0141263ca25ced495b0b3aa3dda3b5d13bebc15c865116d52dfac72e04",
+    "geometry-overview.png": "134acd83eaec6ccb17eb7aa8e2ff944fb64203b4da533158280cc08572c11945",
+    "input.webp": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d",
+    "normalize-zoom.png": "325d6229a2cc9600e37bf23652fb4cc51246a256d498c5019907e2fc23773c74",
+    "normalized-utterance.json": "8981b32814abf4417133f65afd45694df4443b1012915982333d1abfac0756b8",
+    "observed_mask.png": "b6f8b0ac2e84f2c9bfd5785f1f0b26ed64d9ae03bb6176b00b60b3ab1606a385",
+    "refined_mask.png": "b6f8b0ac2e84f2c9bfd5785f1f0b26ed64d9ae03bb6176b00b60b3ab1606a385"
+  }
+}

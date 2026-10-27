@@ -35,48 +35,6 @@ class Backend:
                 "onomatopoeia":[{"bbox":[20,110,80,135],"confidence":.9}]}
 
 
-class Detector:
-    def detect(self,text):
-        if text == "Clench":
-            return [{"name":"Clench","start":0,"end":6,"source":"ner"}]
-        return []
-
-
-class Provider:
-    def __init__(self):
-        self.calls = []
-
-    def infer(self,task,prompt,data,schema,validator,images=None):
-        self.calls.append(task)
-        if task == "analyze_scene_v6":
-            result = {"scenes": [{"start_id": next(r['id'] for r in data['targets'] if r['scene_target']), "summary": "A greeting."}],
-                      "names": [{"utterance_id": r["id"], "name": "Clench"}
-                                for r in data["targets"] if r["text"] == "Clench"],
-                      "name_normalization": {"patches": [], "groups": [], "suspicions": []}}
-        elif task == "analyze_dialogue_v6":
-            rows = []
-            for target in data["targets"]:
-                mentions = [{"candidate_id":m["id"],"confirmed_person_name":False,"mention_type":"unknown",
-                    "target_person_id":None,"recipient_cluster_ref":None,"visual_support":"unknown",
-                    "components":[],"evidence":"Action description, not a name"}
-                    for m in data["mentions"] if m["utterance_id"] == target["id"]]
-                rows.append({"utterance_id":target["id"],"content_type":"action_state" if target["text"] == "Clench" else "dialogue",
-                    "speech_style":"unknown","speaker_person_id":None,"speaker_cluster_ref":None,
-                    "addressee_person_ids":[],"mentions":mentions,"evidence":"Ambiguous speaker remains Other",
-                    "speaker_kind":"others", "addressee_type":"unknown", "evidence_refs":[target["id"]]})
-            result = {"utterances":{r["utterance_id"]:{k:v for k,v in r.items() if k != "utterance_id"} for r in reversed(rows)},
-                      "distinct_person_pairs":[]}
-        else:
-            result = {"translations":[{"id":target["id"],"translation":"Siết chặt" if target["text"] == "Clench" else "Xin chào bạn hôm nay",
-                "needs_review":False,"review_reason":"","glossary_proposals":[]} for target in data["targets"]]}
-            result["translations"] = {r["id"]:{k:v for k,v in r.items() if k != "id"} for r in reversed(result["translations"])}
-        validator(result)
-        return result
-
-    def infer_once(self,*args,**kwargs):
-        return self.infer(*args,**kwargs)
-
-
 class V6Tests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -232,18 +190,6 @@ class V6Tests(unittest.TestCase):
         linked = persons.apply_links(state,proposals)
         self.assertEqual(linked["cluster_to_person"]["b2"],"a")
 
-    def test_split_honorific_is_indexed_without_changing_source_ocr(self):
-        store,raw = self.fixture()
-        store.manifest['config']['v6']['scan_policy'] = None  # Historical detector/index contract.
-        store.manifest['config']['ner']['backend'] = 'gliner'
-        raw["texts"][0]["text"] = "Arase -san"
-        store.finish("extract",raw)
-        document = normalize(geometry(store))
-        result = semantic.scan(store,document,raw,Detector(),provider=Provider())
-        address = next(m for m in result["candidates"] if m["key"]=="arase-san")
-        self.assertEqual(address["name"],"arase-san")
-        self.assertEqual(address["raw_surface"],"Arase -san")
-        self.assertEqual(raw["texts"][0]["text"],"Arase -san")
 
     def test_visual_cache_key_changes_with_image_pixels(self):
         mask = joined_mask()
@@ -279,34 +225,7 @@ class V6Tests(unittest.TestCase):
                 shorten(store,provider,row,"natural","arase-san không có 3 người ở đây",{"usable_lines":1},1)
         self.assertEqual(provider.calls,1)
 
-    def test_v6_inpaint_waits_for_semantics_and_preserves_effect_pixels(self):
-        self.cfg["inpaint"]["enabled"] = True
-        store,raw = self.fixture()
-        self.assertIn("export",store.dependencies("inpaint"))
-        provider = Provider()
-        runner = Pipeline(store,provider=provider,translation_provider=provider,detector=Detector())
-        self.assertTrue(runner.run())
-        result = runner.store.read("inpaint")["pages"][0]
-        self.assertEqual(result["aot_calls"],0)
-        self.assertEqual(len(result["decisions"]),2)
-        with Image.open(runner.store.directory/result["clean_path"]) as image:
-            self.assertEqual(image.getpixel((30,120)),(0,0,0))
-            self.assertEqual(image.getpixel((50,50)),(255,255,255))
-        self.assertTrue(all(p["render_kind"]=="clean_render" for p in runner.store.read("typeset")["pages"]))
 
-    def test_nonwhite_v6_page_uses_one_mock_aot_pass(self):
-        from tests.test_visual_pipeline import InpaintBackend
-        self.cfg["inpaint"]["enabled"] = True
-        original = Image.new
-        def gray_page(mode, size, color=0):
-            return original(mode, size, (120,120,120) if mode == "RGB" and size == (220,140) and color == "white" else color)
-        with patch("PIL.Image.new", side_effect=gray_page):
-            store, _ = self.fixture()
-        provider, backend = Provider(), InpaintBackend()
-        runner = Pipeline(store, provider=provider, detector=Detector(), inpaint_backend=backend)
-        self.assertTrue(runner.run(until="inpaint"))
-        self.assertEqual(backend.calls, 1)
-        self.assertEqual(runner.store.read("inpaint")["pages"][0]["aot_calls"], 1)
 
     def test_balanced_group_glyphs_share_font_and_never_cross_bridge(self):
         mask = joined_mask()
@@ -321,36 +240,6 @@ class V6Tests(unittest.TestCase):
             pixels = np.asarray(glyph)>0
             self.assertFalse(np.any(pixels & ~part["mask"]))
             self.assertFalse(np.any(pixels & bridge))
-
-    def test_complete_local_flow_routes_effects_and_resumes_without_model_calls(self):
-        store,raw = self.fixture()
-        provider = Provider()
-        bank_before = persons.bank_snapshot(store.manifest["bank_path"])
-        runner = Pipeline(store,provider=provider,translation_provider=provider,detector=Detector())
-        self.assertTrue(runner.run())
-        store = runner.store
-        self.assertEqual(store.manifest["pipeline_version"],6)
-        exported = store.read("export")
-        self.assertEqual(len(exported["utterances"]),2)
-        self.assertEqual(exported["effects"],[])
-        self.assertEqual(exported["utterances"][1]["text"],"Clench")
-        self.assertEqual(exported["utterances"][1]["semantic_resolution"],"source_only")
-        self.assertNotIn("clench",store.read("build_identity")["person_state"]["name_index"])
-        self.assertIsNone(exported["utterances"][0]["speaker_person_id"])
-        self.assertEqual(bank_before,persons.bank_snapshot(store.manifest["bank_path"]))
-        result = store.read("typeset")
-        self.assertEqual(result["failures"],[])
-        self.assertEqual(len(result["pages"]),1)
-        self.assertTrue(all(p["render_kind"]=="placement_preview_original_text_present" for p in result["pages"]))
-        self.assertFalse(result["effects_image_edits"])
-        calls = len(provider.calls)
-        self.assertTrue(runner.run())
-        self.assertEqual(len(provider.calls),calls)
-        self.assertTrue((store.directory/"review.md").exists())
-        path = store.directory/next(iter(result["pages"][0]["files"]))
-        path.write_bytes(b"corrupted")
-        with self.assertRaises(ValueError):
-            store.read("typeset")
 
 
 if __name__ == "__main__":

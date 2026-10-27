@@ -22,7 +22,7 @@ def verify_v6(store, entry, *, allow_partial=False):
         raise RuntimeError("Source page count mismatch")
     artifacts, incomplete = {}, []
     until = entry.get("until")
-    if until not in {None, 'scan', "analyze", 'build_identity', 'relationship'}:
+    if until not in {None, 'graph', 'analyze', 'reanalyze', 'build_identity', 'relationship'}:
         raise RuntimeError("Unsupported expected stage limit")
     required_steps = store.steps[:store.steps.index(until) + 1] if until else store.steps
     with store.verification_pass():
@@ -61,7 +61,7 @@ def verify_v6(store, entry, *, allow_partial=False):
         fields = ("content_type", "speech_style", "speech_style_evidence", "speech_style_source",
                   "speech_style_status", "source_boxes", "speaker_person_id")
         rows = [*exported["utterances"], *exported.get("effects", [])]
-        if analyzed.get("policy") == "independent-batches-v6.1":
+        if analyzed.get("policy") == "chapter-story-graph-v7":
             essential_metadata = {r["utterance_id"]: r for r in analyzed["utterances"]}
             for row in rows:
                 original = essential_metadata[row["id"]]

@@ -16,7 +16,7 @@ SUPPORTED = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 def prepared(plan_path):
     plan = manage.read_json(plan_path)
     if (not plan or plan.get("pipeline_version") != 6 or not safe_key(plan.get("batch"))
-            or plan.get("analysis_contract") != "independent-batches-v6.1"):
+            or plan.get("analysis_contract") != "chapter-story-graph-v7"):
         raise ValueError("Invalid prepared v6 plan")
     if manage.file_hash(plan_path.parent / "pipeline-v6.json") != plan["config_sha256"]:
         raise ValueError("Prepared config changed; prepare a new job")
@@ -45,15 +45,12 @@ def prepare(args):
         required = {"rtx4090": "RTX 4090", "rtx5090": "RTX 5090", "l40s": "L40S"}.get(args.gpu_preset)
         supplied.setdefault("runtime", {}).update(enabled=True, preset=args.gpu_preset, required_gpu=required)
         config = (json.dumps(supplied, ensure_ascii=False, indent=2) + "\n").encode()
-    overrides = {name: getattr(args, name, None) for name in ("llm_slots", "story_workers", "caption_max_distance")}
+    overrides = {name: getattr(args, name, None) for name in ("llm_slots", "story_workers")}
     if any(value is not None for value in overrides.values()):
         supplied = json.loads(config)
         for name in ("llm_slots", "story_workers"):
             if overrides[name] is not None:
                 supplied.setdefault("runtime", {}).update(enabled=True, **{name: overrides[name]})
-        for name, key in (("caption_max_distance", "caption_max_distance"),):
-            if overrides[name] is not None:
-                supplied.setdefault("v6", {})[key] = overrides[name]
         config = (json.dumps(supplied, ensure_ascii=False, indent=2) + "\n").encode()
     sys.path.insert(0, str(sync.PROJECT / "src"))
     from manga_pipeline.runtime.llm_budget import validate_runpod_profile
@@ -62,7 +59,7 @@ def prepare(args):
     destination.mkdir(parents=True)
     bundle = sync.bundle(destination / "source.zip")
     (destination / "pipeline-v6.json").write_bytes(config)
-    plan = {"pipeline_version": 6, "analysis_contract": "independent-batches-v6.1", "batch": args.batch, "execution_root": args.execution_root,
+    plan = {"pipeline_version": 6, "analysis_contract": "chapter-story-graph-v7", "batch": args.batch, "execution_root": args.execution_root,
             "reanalyze_existing": bool(getattr(args, "reanalyze_existing", False)),
             "source_bundle_hash": bundle["version"], "config_sha256": hashlib.sha256(config).hexdigest(),
             "chapters": [{"story": args.story, "story_key": args.story, "chapter": args.chapter,
@@ -84,7 +81,7 @@ def prepare(args):
             "images": {p.name: {"bytes": p.stat().st_size, "sha256": manage.file_hash(p)} for p in extra}})
     until = getattr(args, "until", None)
     if until:
-        if until not in {'scan', 'analyze', 'build_identity', 'relationship'}:
+        if until not in {'graph', 'analyze', 'reanalyze', 'build_identity', 'relationship'}:
             raise ValueError('Unsupported semantic stage limit')
         plan["until"] = until
         for entry in plan["chapters"]:

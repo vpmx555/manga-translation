@@ -104,20 +104,15 @@ def dispatch(pipeline, step):
     if step == "normalize":
         bank = read_json(store.manifest["bank_path"])
         return normalize.normalize(store.read("bubble_geometry"), store.manifest["config"]["v6"], bank)
-    if step == "scan":
-        try:
-            joint = store.manifest["config"]["ner"]["backend"] == "llm-scene"
-            return semantic.scan(store, store.read("normalize"), store.read("extract"),
-                                 None if joint else pipeline.detector(), pipeline.progress,
-                                 provider=pipeline.provider() if joint else None)
-        finally:
-            if pipeline._detector is not None and hasattr(pipeline._detector, "close"):
-                pipeline._detector.close()
-                pipeline._detector = None
+    if step == "graph":
+        from .graph import build
+        return build(store, pipeline.provider())
     if step == "analyze":
-        return semantic.analyze(store, store.read("extract"), store.read("normalize"), store.read("scan"), pipeline.provider(), pipeline.progress)
-    if step == "identity":
-        return semantic.identity(store, store.read("analyze"))
+        from .event_analysis import analyze
+        return analyze(store, pipeline.provider(), pipeline.progress)
+    if step == "reanalyze":
+        from .reanalysis import build
+        return build(store, pipeline.provider())
     if step == 'build_identity':
         from .identity_v2 import build
         return build(store, pipeline.provider())
@@ -125,12 +120,13 @@ def dispatch(pipeline, step):
         from .relationship_v2 import build
         return build(store, pipeline.provider())
     if step == "export":
-        identity_step = 'build_identity' if 'build_identity' in store.steps else 'identity'
-        result = semantic.export(store.read("normalize"), store.read("analyze"), store.read(identity_step))
-        if identity_step == 'build_identity':
-            graph = store.read('relationship')
-            result['profile_snapshot_hash'] = store.read(identity_step)['profile_snapshot_hash']
-            result['relationship_snapshot_hash'] = graph['snapshot_hash']
+        result = semantic.export(store.read("normalize"), store.analysis(), store.read('build_identity'))
+        reviewed = store.read('reanalyze')
+        result['semantic_source'] = 'analyze' if reviewed['fallback_to_analyze'] else 'reanalyze'
+        result['reanalyze_status'] = reviewed['status']
+        graph = store.read('relationship')
+        result['profile_snapshot_hash'] = store.read('build_identity')['profile_snapshot_hash']
+        result['relationship_snapshot_hash'] = graph['snapshot_hash']
         directory = store.artifact_path(step).parent
         atomic_json(directory / "dialogue.json", result)
         atomic_json(directory / "effects.json", {"effects": result["effects"]})
@@ -155,10 +151,23 @@ def write_review(store, step=None):
             data = read_json(path.parent / "partial.json")
         if name == "translate" and not data and (path.parent / "relationships.json").exists():
             data = {"relationship_graph": read_json(path.parent / "relationships.json")}
-        lines = [f"# Pipeline v6 — {name}", "", f"Status: `{item.get('status', 'pending')}`", "",
+        lines = [f"# Pipeline v7 — {name}", "", f"Status: `{item.get('status', 'pending')}`", "",
             f"Policy: `{data.get('policy', data.get('geometry_policy', 'pipeline-v6.1'))}`", "",
             f"Pages: {len(data.get('pages', []))}; utterances: {len(data.get('utterances', []))}; effects: {len(data.get('effects', []))}.", "",
             "[Machine-readable artifact](./"+path.name+")", ""]
+        if name in {'graph', 'analyze', 'reanalyze'} and data:
+            from .story_review import write_html
+            write_html(store, name, data)
+            lines.extend(['[HTML story graph](./review.html)', '',
+                          'Stage result: '+str(data.get('status', data.get('review_status', 'completed'))), ''])
+            if data.get('fallback_to_analyze'):
+                lines.append('- Reanalyze incomplete; downstream may use analyze unchanged.')
+            for failure in data.get('event_failures', []):
+                lines.append('- Event incomplete: '+str(failure))
+            for rejected in data.get('rejected', []):
+                lines.append('- Reanalyze proposal not applied: '+str(rejected))
+            for failure in data.get('batch_failures', []):
+                lines.append('- Reanalyze half failed: '+str(failure))
         for failure in data.get("failures", []):
             lines.append("- Failure: "+str(failure))
         for failure in data.get('inference_failures', []):
@@ -225,7 +234,7 @@ def write_review(store, step=None):
             lines.append(f"- Scene `{scene['scene_id']}`: {scene['summary']}")
         normalization = data.get("name_normalization") or {}
         for patch in normalization.get("patches", []):
-            if normalization.get('policy') in {'canonical-scan-v3', 'canonical-scan-v4'}:
+            if normalization.get('policy') in {'graph-name-corrections-v7'}:
                 lines.append(f"- OCR `{patch['utterance_id']}`: {patch['before']!r} → {patch['after']!r}; "
                              f"rule={patch['rule_index']}; matches={patch['matches']}")
                 continue
@@ -245,9 +254,8 @@ def write_review(store, step=None):
             if candidate.get("name_suspect"):
                 lines.append(f"- **Name suspect** `{candidate['utterance_id']}`: {candidate['raw_surface']!r}")
         for batch in data.get("batches", []):
-            lines.append(f"- Batch `{batch['batch_id']}`: scene `{batch['request']['scene_id']}`, "
-                         f"{batch['request']['analysis_branch']}; targets {[r['id'] for r in batch['rows']]}; "
-                         f"cluster pool {list(batch['clusters'])}; anchor exception: {batch['anchor_exception']}")
+            lines.append(f"- Event `{batch['batch_id']}`: scene `{batch['request']['scene_id']}`; "
+                         f"targets {[r['id'] for r in batch['rows']]}")
             for row in batch["rows"]:
                 lines.append(f"  - Anchor `{row['id']}`: {row['speaker_anchor']}")
         if data.get("unresolved_targets"):
@@ -284,6 +292,9 @@ def write_review(store, step=None):
                     link = Path(os.path.relpath(store.directory / relative, path.parent)).as_posix()
                     lines.extend(["", f"[Page {page.get('page', '')} visualization]({link})"])
         rendered = '\n'.join(lines) + '\n'
+        if name in {'graph', 'analyze', 'reanalyze'} and data:
+            from .story_review import compact_markdown
+            rendered = compact_markdown(name, data)
         if name in {'build_identity', 'relationship'}:
             from .identity_v2 import membership
             state = data.get('person_state', {})
@@ -295,7 +306,7 @@ def write_review(store, step=None):
             for pid in sorted(labels, key=len, reverse=True):
                 rendered = re.sub(r'(?<!\w)' + re.escape(pid) + r'(?!\w)', lambda m: labels[pid], rendered)
         atomic_bytes(path.parent / "review.md", rendered.encode("utf-8"))
-    overview = ["# Pipeline v6 run", "", "Original MAGI cluster bank and semantic person registry are separate.", ""]
+    overview = ["# Pipeline v7 run", "", "Original MAGI cluster bank and semantic person registry are separate.", ""]
     for name in store.steps:
         overview.append(f"- [{name}]({store.directories[name]}/review.md): {store.manifest['steps'].get(name, {}).get('status', 'pending')}")
     atomic_bytes(store.directory / "review.md", ("\n".join(overview)+"\n").encode("utf-8"))

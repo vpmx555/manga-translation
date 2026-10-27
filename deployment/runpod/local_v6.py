@@ -183,7 +183,7 @@ def prepare(args):
             raise ValueError('Restored publications require explicit --reanalyze-existing')
         if getattr(args, 'import_preanalyze', False):
             from preanalyze_import import prepare_import
-            prepare_import(args.restore_from, directory, plan, through=getattr(args, 'import_through', 'scan'))
+            prepare_import(args.restore_from, directory, plan, through=getattr(args, 'import_through', 'normalize'))
         else:
             prepare_restore(args.restore_from, directory, plan)
     if getattr(args, 'reuse_runtime', False):
@@ -302,7 +302,7 @@ def remote_run(args):
                 pass
         manage.prefetch(config=config)
         config = manage.configuration(directory / 'pipeline-v6.json')
-        if plan.get('until') not in {'scan', 'analyze', 'build_identity', 'relationship'} and config.get('inpaint', {}).get('enabled'):
+        if plan.get('until') not in {'graph', 'analyze', 'reanalyze', 'build_identity', 'relationship'} and config.get('inpaint', {}).get('enabled'):
             worker = manage.visual_python()
             manage.call([worker, '-B', manage.PROJECT / 'scripts/setup_visual_models.py',
                          '--only', 'inpaint', '--model-root', manage.RUNTIME / 'models/visual'])
@@ -453,9 +453,9 @@ def main():
     prep.add_argument('--restore-from', type=Path,
                       help='Verified terminal native backup to restore before reanalysis')
     prep.add_argument('--import-preanalyze', action='store_true',
-                      help='Import verified v6 stages through scan into a fresh contract; never copy analyze/cache')
-    prep.add_argument('--import-through', choices=['normalize', 'scan', 'analyze', 'inpaint'], default='scan',
-                      help='Last committed stage to import; normalize re-runs the complete scan')
+                      help='Import verified upstream artifacts; historical runs must rerun graph/analyze')
+    prep.add_argument('--import-through', choices=['normalize', 'graph', 'analyze', 'inpaint'], default='normalize',
+                      help='Last committed stage to import; normalize reruns the complete graph')
     prep.add_argument('--reuse-runtime', action='store_true',
                       help='Reuse existing banks only after matching every file to the frozen restore inventory')
     prep.add_argument('--qualification-from', type=Path,
@@ -464,8 +464,7 @@ def main():
                       help='Require two real long-context requests before chapter inference')
     prep.add_argument('--skip-startup-tests', action='store_true',
                       help='Explicitly skip inference preflight, CUDA parity and concurrency qualification; retain integrity checks')
-    prep.add_argument('--caption-max-distance', type=int, choices=range(1,65))
-    prep.add_argument('--until', choices=['scan', 'analyze', 'build_identity', 'relationship'],
+    prep.add_argument('--until', choices=['graph', 'analyze', 'reanalyze', 'build_identity', 'relationship'],
                       help='Stop at the selected semantic checkpoint; no downstream rendering/translation')
     prep.add_argument('--story', required=True)
     prep.add_argument('--chapter', default='chapter-001')

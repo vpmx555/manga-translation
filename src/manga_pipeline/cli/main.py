@@ -8,9 +8,9 @@ from ..storage.runs import ALL_STEPS, V6_STEPS, RunStore
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(description="Koharu layout + MAGI + semantics/translation + independent inpaint; independent-batches v6")
+    parser = argparse.ArgumentParser(description="Koharu layout + MAGI + semantics/translation + independent inpaint; chapter-story-graph v7")
     commands = parser.add_subparsers(dest="command", required=True)
-    p = commands.add_parser("reanalyze", help="New essential-only run reusing completed MAGI extraction")
+    p = commands.add_parser("revise", help="Create a new run revision reusing extraction; reanalyze is now a stage")
     p.add_argument("--run-dir", required=True, type=Path)
     p.add_argument("--output-root", type=Path, default=PROJECT / "outputs")
     p.add_argument("--config", type=Path)
@@ -60,7 +60,7 @@ def main(argv=None):
                 raise ValueError("Source bank changed while reverting person registry")
             print(f"Reverted person operation: {args.operation}")
             return 0
-        if args.command == "reanalyze":
+        if args.command == "revise":
             store = reanalyze_run(args.run_dir, args.output_root, load_config(args.config))
             print(f"Run directory: {store.directory}", flush=True)
             until = args.until

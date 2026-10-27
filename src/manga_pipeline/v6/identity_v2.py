@@ -80,22 +80,6 @@ def vectors(bank_path, metadata):
     return result, issues
 
 
-def guarded_name_links(state, proposals):
-    """Calling evidence cannot move an already named identity to another one."""
-    accepted, reviews = [], []
-    for proposal in proposals:
-        target = persons.canonical(state, proposal['person_id'])
-        sources = {persons.canonical(state, state['cluster_to_person'][ref])
-                   for ref in proposal.get('cluster_refs', [proposal['cluster_ref']])
-                   if ref in state['cluster_to_person']}
-        if not confirmed(state, target) or any(p != target and confirmed(state, p) for p in sources):
-            reviews.append({**proposal, 'same_person_status': 'needs_review',
-                            'reason': 'confirmed_identity_is_immutable'})
-        else:
-            accepted.append(proposal)
-    return persons.apply_links(state, accepted), accepted, reviews
-
-
 def visual_links(state, metadata, retained, threshold):
     """Freeze main members; minimum crop matching never propagates via new links."""
     members, _ = membership(state)
@@ -152,14 +136,14 @@ def visual_links(state, metadata, retained, threshold):
 def build(store, provider):
     from . import semantic
     from .identity_profiles import build_profiles
-    analyzed = store.read('analyze')
+    analyzed = store.analysis()
     directory = store.artifact_path('build_identity').parent
     frozen_path = directory / 'identity-plan.json'
     source_hash = fingerprint([analyzed, store.manifest['config']['v6']])
     from . import identity_binding
     use_binding = identity_binding.enabled(store.manifest['config'])
     if use_binding:
-        source_hash = fingerprint([source_hash, store.read('scan'), store.read('extract'), store.read('normalize')])
+        source_hash = fingerprint([source_hash, store.read('graph'), store.read('extract'), store.read('normalize')])
     if frozen_path.exists():
         frozen = read_json(frozen_path)
         if frozen['source_hash'] != source_hash:
@@ -170,13 +154,7 @@ def build(store, provider):
             state, binding = identity_binding.build(store, provider, analyzed)
         else:
             state = copy.deepcopy(analyzed['person_state'])
-        from .identity_from_analyze import enabled as authoritative
         names, reviews = [], []
-        if not authoritative(store.manifest['config']):
-            for event in analyzed['calling_events']:
-                state.setdefault('calling_events', {})[event['event_id']] = event
-            proposed = persons.propose(state, [], minimum=store.manifest['config']['v6']['min_confirmed_call_events'])
-            state, names, reviews = guarded_name_links(state, proposed)
         metadata = read_json(store.manifest['bank_path'])
         retained, issues = vectors(store.manifest['bank_path'], metadata)
         state, visual, visual_reviews, anchors = visual_links(state, metadata, retained,

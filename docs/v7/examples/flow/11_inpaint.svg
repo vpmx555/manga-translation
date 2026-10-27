@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="350" viewBox="0 0 1260 350">
+<rect width="1260" height="350" fill="#f5f8fc"/>
+<style>text{font-family:Arial,sans-serif;fill:#16324b}.h{font-size:22px;font-weight:bold}.b{font-size:18px}.s{font-size:15px;fill:#536779}</style>
+<text x="30" y="40" class="h">Inpaint · tùy chọn</text>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3b6b9d"/></marker></defs>
+<rect x="30" y="70" width="360" height="220" rx="14" fill="white" stroke="#85a8c8" stroke-width="2"/>
+<text x="50" y="104" class="h">INPUT</text>
+<text x="50" y="139" class="b">Ảnh nguồn</text>
+<text x="50" y="173" class="b">Vùng chữ/mask đã export</text>
+<path d="M395,180 L439,180" stroke="#3b6b9d" stroke-width="3" marker-end="url(#a)"/>
+<rect x="450" y="70" width="360" height="220" rx="14" fill="white" stroke="#85a8c8" stroke-width="2"/>
+<text x="470" y="104" class="h">XỬ LÝ</text>
+<text x="470" y="139" class="b">Chuẩn bị mask xóa chữ</text>
+<text x="470" y="173" class="b">Chạy backend inpaint</text>
+<text x="470" y="207" class="b">Giữ checkpoint theo trang</text>
+<path d="M815,180 L859,180" stroke="#3b6b9d" stroke-width="3" marker-end="url(#a)"/>
+<rect x="870" y="70" width="360" height="220" rx="14" fill="white" stroke="#85a8c8" stroke-width="2"/>
+<text x="890" y="104" class="h">OUTPUT</text>
+<text x="890" y="139" class="b">Nền sạch</text>
+<text x="890" y="173" class="b">Mask và receipt</text>
+<text x="890" y="207" class="b">Ảnh cho typeset</text>
+<text x="30" y="327" class="s">Sơ đồ giải thích luồng dữ liệu của code; không phải kết quả suy luận trên một trang cụ thể.</text></svg>

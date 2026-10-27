@@ -9,13 +9,12 @@ from time import monotonic
 from ..policies import DEFAULT_SPEAKER_POLICY
 from .io import atomic_json, file_hash, fingerprint, read_json
 
-LEGACY_V6_STEPS = ("layout", "extract", "bubble_geometry", "normalize", "scan", "analyze", "identity", "export", "inpaint", "translate", "typeset")
-V6_STEPS = ("layout", "extract", "bubble_geometry", "normalize", "scan", "analyze", "build_identity", "relationship", "export", "inpaint", "translate", "typeset")
-ALL_STEPS = (*V6_STEPS, 'identity')  # Historical runs retain their original flow.
+V6_STEPS = ("layout", "extract", "bubble_geometry", "normalize", "graph", "analyze", "reanalyze", "build_identity", "relationship", "export", "inpaint", "translate", "typeset")
+ALL_STEPS = V6_STEPS
 
 
 def flow_steps(config):
-    return V6_STEPS if config.get('v6', {}).get('identity_relationship_policy') == 'identity-relationship-v2' else LEGACY_V6_STEPS
+    return V6_STEPS
 
 
 def now():
@@ -106,17 +105,18 @@ class RunStore:
             raise ValueError(f"Step {step} is not in this run")
         if self.manifest["pipeline_version"] == 6:
             parents = {"layout": (), "extract": ("layout",), "bubble_geometry": ("layout", "extract"),
-                "scan": ("normalize",), "analyze": ("scan", "normalize", "extract"),
+                "graph": ("normalize", "extract"), "analyze": ("graph", "normalize", "extract"),
+                "reanalyze": ("analyze", "graph", "normalize"),
                 "normalize": ("bubble_geometry",), "inpaint": ("export", "bubble_geometry"),
                 "identity": ("analyze", "normalize", "extract"), "export": ("identity", "analyze", "normalize"),
-                "build_identity": ("analyze", "normalize", "extract"),
-                "relationship": ("build_identity", "analyze", "normalize"),
+                "build_identity": ("reanalyze", "normalize", "extract", "graph"),
+                "relationship": ("build_identity", "reanalyze", "normalize"),
                 "translate": ("export",), "typeset": ("translate", "normalize", "bubble_geometry")}
             if 'build_identity' in self.steps:
-                parents['export'] = ('build_identity', 'relationship', 'analyze', 'normalize')
+                parents['export'] = ('build_identity', 'relationship', 'reanalyze', 'normalize')
                 parents['translate'] = ('export', 'relationship', 'build_identity')
             if self.manifest['config'].get('v6', {}).get('identity_name_binding_policy'):
-                parents['build_identity'] = ('analyze', 'normalize', 'extract', 'scan')
+                parents['build_identity'] = ('reanalyze', 'normalize', 'extract', 'graph')
             if step == "typeset" and "inpaint" in self.steps:
                 return (*parents[step], "inpaint")
             return parents[step]
@@ -206,6 +206,11 @@ class RunStore:
                         image = (self.directory / crop['file']).resolve()
                         if not image.is_relative_to(self.directory) or file_hash(image) != crop['retained_sha256']:
                             raise ValueError('Committed identity/relationship crop changed')
+                if step == 'analyze':
+                    for packet in artifact.get('reference_images', []):
+                        image = (self.directory / packet['file']).resolve()
+                        if not image.is_relative_to(self.directory) or file_hash(image) != packet['retained_sha256']:
+                            raise ValueError('Committed event image changed')
                 if step in {"layout", "inpaint"} or self.manifest["pipeline_version"] == 6 and step in {"bubble_geometry", "typeset"}:
                     from ..visual.stages import verify_files
                     for page in artifact.get("pages", []):
@@ -223,6 +228,10 @@ class RunStore:
         if not self.completed(step):
             raise ValueError(f"Prerequisite {step} is not completed")
         return read_json(self.artifact_path(step))
+
+    def analysis(self):
+        """Downstream consumes the immutable, post-reanalyze effective snapshot."""
+        return self.read('reanalyze')['analysis']
 
     def begin(self, step):
         previous = self.manifest["steps"].get(step, {})

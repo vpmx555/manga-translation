@@ -17,7 +17,7 @@ PROJECT = Path(__file__).resolve().parents[2]
 STATE = PROJECT / ".runpod"
 CONNECTION = STATE / "connection.json"
 SKIP = {"__pycache__", ".git", ".venv", "venv", "node_modules", ".runpod"}
-EXTENSIONS = {".py", ".json", ".md", ".txt", ".in", ".ps1", ".ttf"}
+EXTENSIONS = {".py", ".json", ".md", ".txt", ".in", ".ps1", ".ttf", ".html", ".css", ".js"}
 CODE_ROOTS = ["src", "configs", "assets/fonts", "deployment/runpod", "scripts", "tests", "docs/news", "docs/v6", "docs/v7",
               "docs/archive/news", "docs/archive/v6"]
 CODE_FILES = ["run.py", "README.md", "docs/README.md", "pytest.ini", "requirements-names.txt", "requirements-visual-layout.txt",

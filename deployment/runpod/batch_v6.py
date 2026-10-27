@@ -38,10 +38,10 @@ def latest_run(entry):
 
 def validate_plan(plan, config_path):
     if (plan.get("pipeline_version") != 6 or not safe_key(plan.get("batch"))
-            or plan.get("analysis_contract") != "independent-batches-v6.1"):
+            or plan.get("analysis_contract") != "chapter-story-graph-v7"):
         raise ValueError("Invalid v6 batch plan")
     entries = plan.get("chapters", [])
-    if plan.get("until") not in {None, 'scan', "analyze", 'build_identity', 'relationship'} or any(e.get("until") != plan.get("until") for e in entries):
+    if plan.get("until") not in {None, 'graph', 'analyze', 'reanalyze', 'build_identity', 'relationship'} or any(e.get("until") != plan.get("until") for e in entries):
         raise ValueError("Invalid or inconsistent frozen stage limit")
     if not entries or len({(e["story_key"], e["chapter"]) for e in entries}) != len(entries):
         raise ValueError("Empty or duplicate chapter plan")
@@ -256,7 +256,7 @@ def _main(argv=None):
                         if changed:
                             if not plan.get("reanalyze_existing"):
                                 raise RuntimeError("Resume config differs; prepare an explicitly authorized revision")
-                            command = ["reanalyze", "--run-dir", str(directory), "--config", str(config_path)]
+                            command = ["revise", "--run-dir", str(directory), "--config", str(config_path)]
                         else:
                             command = ["resume", "--run-dir", str(directory), "--config", str(config_path)]
                     else:

@@ -236,7 +236,7 @@ def reconcile(previous, fresh):
 def build(store, provider):
     from .semantic import export
     linked = store.read('build_identity')
-    document = export(store.read('normalize'), store.read('analyze'), linked)
+    document = export(store.read('normalize'), store.analysis(), linked)
     identities, profiles = linked['eligible_identities'], linked['profiles']
     cfg = store.manifest['config']['v6']
     path = graph_path(store)

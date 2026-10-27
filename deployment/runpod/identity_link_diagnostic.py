@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
 from manga_pipeline.storage.io import atomic_json, file_hash, fingerprint, read_json
 from manga_pipeline.v6.identity_from_analyze import register
+from manga_pipeline.storage.runs import flow_steps
 from manga_pipeline.v6.identity_v2 import confirmed, membership, visual_links, vectors
 
 
@@ -23,8 +24,8 @@ def main():
     manifest = read_json(args.source_run / 'manifest.json')
     config = manifest['config']
     artifacts = {}
-    for stage in ('extract', 'scan', 'analyze', 'build_identity'):
-        number = next(i for i, name in enumerate(manifest['steps'], 1) if name == stage)
+    for stage in ('extract', 'graph', 'analyze', 'build_identity'):
+        number = flow_steps(config).index(stage) + 1
         file = args.source_run / f'{number:02d}_{stage}' / 'result.json'
         if file_hash(file) != manifest['steps'][stage]['artifact_hash']:
             raise ValueError('Source artifact changed: ' + stage)
@@ -32,7 +33,7 @@ def main():
     baseline = read_json(args.source_run / 'snapshots/persons-v6.json')['state']
     metadata = read_json(args.bank)
     before_bank = file_hash(args.bank)
-    state, binding = register(artifacts['analyze'], artifacts['scan'], artifacts['extract'],
+    state, binding = register(artifacts['analyze'], artifacts['graph'], artifacts['extract'],
         metadata, baseline, config['v6']['identity_min_chapter_crops'],
         minimum_events=args.minimum_mentions)
     retained, issues = vectors(args.bank, metadata)

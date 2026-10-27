@@ -1,0 +1,23 @@
+{
+  "source_artifact": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\01_layout\\result.json",
+  "artifact_sha256": "a248012dbe56820d502c897b1bdff5b1cb0d273a8bdf4f5009364057851b04cc",
+  "page": 4,
+  "source_sha256": "93fa7fba194f167091a7d914c772b6784ea7acb7fce37e3c0b6ffb1bf456dfd4",
+  "model": "mayocream/koharu-layout-rfdetr-seg-2xl-1152",
+  "revision": "aed55fdb8ca953c6bec33cf6ed6dd52a9b72bfa2",
+  "model_asset_sha256": "9bf6d2cbd7793c956d8c857bb1672a396eb7f100eb0682f86830d05e31168efb",
+  "coordinate_space": "original_page_pixels",
+  "generator_sha256": "c3445dbcc42747dabbd92ca8ff7e19b1ca5bc2e255ea3ade78afe8f7495192ba",
+  "model_requests": 0,
+  "assets": {
+    "bubble-mask-full.png": "ed2e9d0cfc5a308a801121b82930d62aa4bef8c1594f3c1ee65520ffbf3b75f1",
+    "bubble-mask-zoom.png": "94fef511117e1ae47cfb1b7df3f2eff9e3d23bcbd0a180689685d4621a695fa2",
+    "bubble-zoom.png": "4f1b90e3896cf828f0976896d1b68c16c300b7a164042992152e0822e46ec1f2",
+    "effect-candidate-zoom.png": "317d671172e2ed9c6b2ec64dd9290ed021364ecafab1da3fe0472c992f115610",
+    "input.webp": "93fa7fba194f167091a7d914c772b6784ea7acb7fce37e3c0b6ffb1bf456dfd4",
+    "layout-page-04.json": "5c0510efa48fc667ec68b7e75b44df46b1cb325d4cd98d6672dd2cf41f0c3048",
+    "overview.png": "6b06eb81c246060b941112b82d59ffc591570a0afaa3c33713e729b4bce80674",
+    "panel-reading-order.png": "638e8a08b1481534f9d300d0f79008a80398cc148a4872734f14455f61b3bac7",
+    "panel-zoom.png": "490248c0e0133e198b08777836f9a7cfcdac9c906e61c56c5941952e146c8a57"
+  }
+}

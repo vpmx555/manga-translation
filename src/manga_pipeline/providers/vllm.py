@@ -72,8 +72,9 @@ class VLLM:
             raise RuntimeError("vLLM: served model/context differs from the frozen configuration")
 
     def _messages(self, task, prompt, data, schema, images=None):
-        system = final_prompt(task, prompt) + "\nJSON schema:\n" + json.dumps(schema, ensure_ascii=False, sort_keys=True)
-        content = json.dumps(data, ensure_ascii=False, sort_keys=True)
+        separators = (',', ':') if task == 'reanalyze_chapter_v7' else None
+        system = final_prompt(task, prompt) + "\nJSON schema:\n" + json.dumps(schema, ensure_ascii=False, sort_keys=True, separators=separators)
+        content = json.dumps(data, ensure_ascii=False, sort_keys=True, separators=separators)
         if images:
             content = [{"type": "text", "text": content}] + [
                 {"type": "image_url", "image_url": {"url": image if image.startswith("data:") else "data:image/png;base64," + image}}

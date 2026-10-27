@@ -2,9 +2,9 @@
 import unittest
 from types import SimpleNamespace
 
-from manga_pipeline.v6 import scan_v3 as scan, semantic
+from manga_pipeline.v6 import graph_names as scan
 from manga_pipeline.v6.name_normalization import apply
-from manga_pipeline.v6.scene_wire import mapping
+from manga_pipeline.v6.graph_wire import mapping
 
 
 class SurfaceSpellingTests(unittest.TestCase):
@@ -14,7 +14,7 @@ class SurfaceSpellingTests(unittest.TestCase):
                  'names': [{'text_id': 'u0', 'old_name': old, 'new_name': new, 'group_id': 'g'}
                            for old, new in edits]}
         result = scan.parse(value, document, document['utterances'], mapping(document['utterances'], []), {})
-        self.assertEqual(result['policy'], 'canonical-scan-v4')
+        self.assertEqual(result['policy'], 'graph-name-corrections-v7')
         return result, apply(document, result['name_normalization'])['utterances'][0]['text']
 
     def test_given_name_stays_short_full_name_and_group_stay_full(self):
@@ -88,14 +88,12 @@ class SurfaceSpellingTests(unittest.TestCase):
         self.assertIn('Spelling-only', field['description'])
 
     def test_historical_v3_can_be_read_but_is_not_rerun_under_new_source(self):
-        store = SimpleNamespace(manifest={'config': {'v6': {'scan_policy': 'canonical-scan-v3'}}})
-        with self.assertRaisesRegex(ValueError, 'frozen source'):
-            semantic.scan(store, {}, {}, None)
         document = {'utterances': [{'id': 'row', 'text': 'TORU', 'is_essential_text': True}]}
         result, _ = self.parse('TORU', [('TORU', 'Toru')])
         normalization = result['name_normalization']
         normalization['policy'] = 'canonical-scan-v3'
-        self.assertEqual(apply(document, normalization)['utterances'][0]['text'], 'Toru')
+        with self.assertRaisesRegex(ValueError, 'frozen source'):
+            apply(document, normalization)
 
 
 if __name__ == '__main__':

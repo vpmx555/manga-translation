@@ -613,7 +613,7 @@ def run_pipeline(arguments):
         use_vllm = config.get("llm", {}).get("backend") == "vllm"
         activate_vllm(config)
         model = ensure_model(config)
-        if args[0] in {"run", "extract", "reanalyze", "translate"}:
+        if args[0] in {"run", "extract", "revise", "translate"}:
             runtime_config = RUNTIME / "config" / (f"pipeline-{story}.json" if parallel else "pipeline.json")
             atomic_json(runtime_config, config)
             args.extend(["--config", str(runtime_config)])
@@ -622,7 +622,7 @@ def run_pipeline(arguments):
                 args.extend(["--device", "cuda"])
             if "--bank-root" not in args:
                 args.extend(["--bank-root", str(RUNTIME / "data/banks")])
-        if args[0] in {"run", "extract", "reanalyze"} and "--output-root" not in args:
+        if args[0] in {"run", "extract", "revise"} and "--output-root" not in args:
             args.extend(["--output-root", str(RUNTIME / "data/outputs")])
         # A copied Windows manifest cannot safely be resumed on Linux.
         if "--run-dir" in args:
@@ -648,7 +648,7 @@ def run_pipeline(arguments):
 
 
 def launch(arguments):
-    if not arguments or arguments[0] not in {"run", "extract", "resume", "reanalyze", "translate", "review"}:
+    if not arguments or arguments[0] not in {"run", "extract", "resume", "revise", "graph", "analyze", "reanalyze", "translate", "review"}:
         raise RuntimeError("launch requires a pipeline command")
     with lock("launch"):
         current_python()
@@ -763,7 +763,7 @@ def install_update(archive):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["setup", "start", "stop", "doctor", "prefetch", "status", "install-update", "code-status", "launch", "jobs", "logs", "run", "extract", "resume", "reanalyze", "translate", "review"])
+    parser.add_argument("command", choices=["setup", "start", "stop", "doctor", "prefetch", "status", "install-update", "code-status", "launch", "jobs", "logs", "run", "extract", "resume", "revise", "graph", "analyze", "reanalyze", "translate", "review"])
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv)
     try:

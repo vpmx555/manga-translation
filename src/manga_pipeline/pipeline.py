@@ -31,7 +31,7 @@ from .runtime.resources import DEFAULT_CONFIG as RUNTIME_CONFIG, validate_config
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT.parent
 DEFAULT_CONFIG = {
-    "analysis_contract": "independent-batches-v6.1",
+    "analysis_contract": "chapter-story-graph-v7",
     "dialogue_analysis": "essential-v3",
     "speaker_policy": DEFAULT_SPEAKER_POLICY,
     "noise_filter": {"policy": NOISE_POLICY, "rules_path": None},
@@ -51,9 +51,9 @@ DEFAULT_CONFIG = {
     "device": "auto", **DETECTION_DEFAULTS, "visualizations": True,
     "llm": {
         "backend": "vllm", "host": "http://127.0.0.1:8000", "model": "cyankiwi/Qwen3.5-27B-AWQ-4bit",
-        "num_ctx": 32768, "num_predict": 2048, "image_max_side": 768, "timeout": 600, "retries": 0,
+        "num_ctx": 65536, "num_predict": 2048, "image_max_side": 1600, "timeout": 600, "retries": 0,
         "scene_num_predict": 4096, "analyze_num_predict": 12288, "translation_num_predict": 2048,
-        "analyze_thinking": True, "analyze_num_ctx": 65536, "analyze_timeout": 1200,
+        "analyze_thinking": False, "analyze_num_ctx": 65536, "analyze_timeout": 1200, "graph_timeout": 1200,
         "analyze_temperature": 1.0, "analyze_presence_penalty": 1.5,
         "temperature": 0, "top_k": 20, "top_p": 0.95, "presence_penalty": 0,
         "compact_context": False, "require_full_gpu": True, "timeout_retries": 0},
@@ -74,12 +74,6 @@ def load_config(path=None, device=None):
             if not isinstance(supplied.get(section, {}), dict) or set(supplied.get(section, {})) - set(config[section]):
                 raise ValueError(f"Unknown {section} configuration fields")
             config[section].update(supplied.get(section, {}))
-        # Unversioned historical configs retain their original contracts.
-        # New defaults and shipped configs explicitly opt into the new policies.
-        if 'scan_policy' not in supplied.get('v6', {}):
-            config['v6']['scan_policy'] = None
-        if 'identity_name_binding_policy' not in supplied.get('v6', {}):
-            config['v6']['identity_name_binding_policy'] = 'chapter-multimodal-name-binding-v1'
         for key, default in (('analyze_thinking', False), ('analyze_num_ctx', config['llm']['num_ctx']),
                              ('analyze_timeout', config['llm']['timeout']),
                              ('analyze_temperature', config['llm']['temperature']),
@@ -107,11 +101,11 @@ def load_config(path=None, device=None):
     if config["layout"]["enabled"] and config["dialogue_analysis"] != "essential-v3":
         raise ValueError("Koharu stages require essential-v3")
     ner = config["ner"]
-    if (ner["backend"] not in {"gliner", "llm-scene"} or ner["device"] not in {"auto", "cpu", "cuda"}
+    if (ner["backend"] != "llm-scene" or ner["device"] not in {"auto", "cpu", "cuda"}
             or type(ner["threshold"]) not in {int, float} or not 0 < ner["threshold"] < 1
             or any(not isinstance(ner[k], str) or not ner[k].strip() for k in ("model", "revision"))):
         raise ValueError("Invalid NER configuration")
-    for key in ("num_ctx", "num_predict", "image_max_side", "timeout", "scene_num_predict",
+    for key in ("num_ctx", "num_predict", "image_max_side", "timeout", "graph_timeout", "scene_num_predict",
                 "analyze_num_predict", "translation_num_predict"):
         if type(config["llm"][key]) is not int or config["llm"][key] <= 0:
             raise ValueError(f"Invalid {key}")
@@ -119,7 +113,7 @@ def load_config(path=None, device=None):
         raise ValueError("retries must be 0..3")
     llm = config["llm"]
     if (type(llm['analyze_thinking']) is not bool
-            or type(llm['analyze_num_ctx']) is not int or llm['analyze_num_ctx'] not in {32768, 65536}
+            or type(llm['analyze_num_ctx']) is not int or llm['analyze_num_ctx'] != 65536
             or type(llm['analyze_timeout']) is not int or not 1 <= llm['analyze_timeout'] <= 3600
             or llm['analyze_num_predict'] + 512 >= llm['analyze_num_ctx']):
         raise ValueError('Invalid analyze thinking/context/timeout budget')
@@ -130,7 +124,7 @@ def load_config(path=None, device=None):
         if (vllm["version"] != "0.31.0" or not isinstance(vllm["revision"], str) or len(vllm["revision"]) != 40
                 or any(c not in "0123456789abcdef" for c in vllm["revision"])
                 or vllm["quantization"] != "compressed-tensors" or vllm["dtype"] != "bfloat16"
-                or vllm["max_num_seqs"] not in {8, 32, 64} or llm["num_ctx"] != 32768
+                or vllm["max_num_seqs"] not in {8, 32, 64} or llm["num_ctx"] != 65536
                 or type(vllm["gpu_memory_utilization"]) not in (int, float)
                 or not 0.5 <= vllm["gpu_memory_utilization"] <= 0.95
                 or type(vllm["max_num_batched_tokens"]) is not int or not 512 <= vllm["max_num_batched_tokens"] <= llm["num_ctx"]
@@ -251,10 +245,10 @@ def reanalyze_run(source_directory, output_root, config):
 
 
 class Pipeline:
-    def __init__(self, store, *, detector=None, provider=None, extractor=None, progress=None,
+    def __init__(self, store, *, provider=None, extractor=None, progress=None,
                  translation_provider=None, context_provider=None, layout_backend=None, inpaint_backend=None):
         self.store = store
-        self._detector, self._provider, self.extractor = detector, provider, extractor
+        self._provider, self.extractor = provider, extractor
         self.progress = progress if progress is not None else NullProgress()
         self.translation_provider, self.context_provider = translation_provider, context_provider
         self.layout_backend, self.inpaint_backend = layout_backend, inpaint_backend
@@ -292,12 +286,6 @@ class Pipeline:
             detail = read_json(error)["error"] if error.exists() else f"worker exit {code}"
             raise RuntimeError(f"{stage} failed: {detail}; log: {log}")
         return read_json(result)
-
-    def detector(self):
-        if self._detector is None:
-            from .providers.names import create_detector
-            self._detector = create_detector(self.store.manifest["config"])
-        return self._detector
 
     def provider(self):
         if self._provider is None:
@@ -367,8 +355,6 @@ class Pipeline:
                 if config.get("runtime", {}).get("enabled") and not os.environ.get("MANGA_GPU_COORDINATOR"):
                     raise RuntimeError("Enabled GPU runtime requires the frozen batch controller and shared coordinator")
                 visual = step in {"layout", "extract", "inpaint", "bubble_geometry"}
-                visual |= (step == "scan" and config.get("ner", {}).get("backend") == "gliner"
-                           and config.get("ner", {}).get("device") in {"cuda", "auto"})
                 guarded = visual and not self.store.completed(step)
                 started, cpu_started = time.monotonic(), time.process_time()
                 try:
@@ -467,7 +453,7 @@ class Pipeline:
                     try:
                         gpu_lock = (exclusive_lock(self.store.directory / ".gpu-stage.lock", timeout=3600)
                                     if self.store.manifest["pipeline_version"] == 6 and
-                                     step in {"layout", "extract", "inpaint", "scan", "analyze", "build_identity", "relationship", "translate"}
+                                     step in {"layout", "extract", "inpaint", "graph", "analyze", "reanalyze", "build_identity", "relationship", "translate"}
                                     else nullcontext())
                         with gpu_lock:
                             completed = self.execute(step)

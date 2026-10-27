@@ -13,7 +13,7 @@ from ..storage.runs import flow_steps
 TITLES = {
     "layout": "Koharu — panel và bubble", "extract": "MAGI + OCR — text và nhân vật",
     "bubble_geometry": "Hình học bubble và mapping OCR", "normalize": "Chuẩn hóa và gộp câu",
-    "scan": "Tìm ứng viên tên", "analyze": "Phân tích semantic, người nói/nghe và tên",
+    "graph": "Dựng story graph chapter", "analyze": "Phân tích scene và event", "reanalyze": "Đối chiếu toàn chapter",
     "identity": "Liên kết danh tính nhân vật", "export": "Xuất thoại và hiệu ứng",
     "build_identity": "Liên kết identity và profile nhân vật", "relationship": "Quan hệ và xưng hô có hướng",
     "inpaint": "Xóa chữ, tạo nền sạch", "translate": "Dịch natural",
@@ -53,14 +53,15 @@ class V6Review:
         raw = self.data.get("bubble_geometry", self.data.get("extract", {}))
         self.pages = raw.get("pages", [])
         normalized = self.data.get('normalize', {})
-        correction = self.data.get('scan', {}).get('name_normalization')
-        if correction and correction.get('policy') in {'canonical-scan-v3', 'canonical-scan-v4'}:
+        correction = self.data.get('graph', {}).get('name_normalization')
+        if correction and correction.get('policy') in {'graph-name-corrections-v7'}:
             from ..v6.name_normalization import apply
             normalized = apply(normalized, correction)
         self.rows = {r["id"]: r for r in normalized.get("utterances", [])}
         self.rows.update({r["id"]: r for r in self.data.get("export", {}).get("utterances", [])})
         self.texts = {r["id"]: r for r in raw.get("texts", [])}
         state = (self.data.get('build_identity', {}).get('person_state') or self.data.get('identity', {}).get('person_state')
+                 or self.data.get('reanalyze', {}).get('analysis', {}).get('person_state')
                  or self.data.get('analyze', {}).get('person_state'))
         snapshot = self.root / 'snapshots/persons-v6.json'
         if not state:
@@ -138,17 +139,18 @@ class V6Review:
 
     def analyze_trace(self, rows, base):
         data = self.data.get("analyze", {})
-        parts = ["### Independent analysis batches", "",
-            table(["Scene", "English summary", "Các câu"],
-                  ((item["scene_id"], item.get("summary", "Historical scene: summary unavailable"), value([self.sentence(key) for key in item.get("target_ids", [])]))
-                   for item in data.get("scenes", []))),
-            table(["Batch", "Scene", "Branch", "Các câu", "Cluster pool", "Anchor exception"],
-                  ((item["batch_id"], item["request"]["scene_id"], item["request"]["analysis_branch"],
-                    value([self.sentence(r["id"]) for r in item["rows"]]), value(list(dict.fromkeys(self.cluster(ref) for ref in item['clusters']))), item["anchor_exception"])
-                   for item in data.get("batches", []))),
-            self.page_tables(rows, ["Câu", "Batch", "Scene", "Branch", "Nhân vật từ nguồn", "Người nói sau merge", "Resolution", "Errors"],
-                lambda row: (self.sentence(row), row.get("batch_id"), row.get("scene_id"), row.get("analysis_branch"),
-                    self.anchor(row), self.speaker(row), row.get("semantic_resolution"), value(row.get("semantic_errors", []))), base)]
+        parts = ["### Scene/event analysis", "",
+            table(["Scene", "Tên ngắn", "Mô tả", "Các câu"],
+                  ((s["scene_id"], s.get("title"), s.get("description", s.get("summary")), value(s.get("target_ids", [])))
+                   for s in data.get("scenes", []))),
+            table(["Event", "Scene", "Tên ngắn", "Trạng thái", "Event trước", "Confidence"],
+                  ((e["event_id"], s["scene_id"], e.get("title"), e.get("status"),
+                    (e.get("previous_event") or {}).get("event_id"), e.get("description_confidence"))
+                   for s in data.get("scenes", []) for e in s.get("events", []))),
+            self.page_tables(rows, ["Câu", "Event", "Scene", "Anchor", "Người nói", "Confidence", "Resolution", "Errors"],
+                lambda row: (self.sentence(row), row.get("event_id", row.get("batch_id")), row.get("scene_id"),
+                    self.anchor(row), self.speaker(row), value(row.get("confidence", {})),
+                    row.get("semantic_resolution"), value(row.get("semantic_errors", []))), base)]
         return "\n".join(parts)
 
     def source(self, number):
@@ -267,7 +269,7 @@ class V6Review:
                 self.row(r).get("text"), value(r.get("reasons", []))) for r in data.get("excluded", []))),
                 "### Text chỉ dành cho dịch / effects", "", table(["ID", "Text", "Loại"], ((r.get("id"), r.get("text"), r.get("content_type"))
                     for r in [*data.get("translation_only", []), *data.get("effects", [])]))])
-        elif step == "scan":
+        elif step == "graph":
             parts.append(self.page_tables(data.get("candidates", []), ["Câu", "Tên / surface", "Span", "Nguồn", "Person ứng viên", "Nguyên câu"],
                 lambda r: (self.ref(r), r.get("raw_surface", r.get("name")), value([r.get("start"), r.get("end")]), r.get("source"),
                            value([self.person(p) for p in r.get("candidate_person_ids", [])]), self.row(r).get("text")), base))

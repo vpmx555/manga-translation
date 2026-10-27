@@ -1,0 +1,107 @@
+{
+  "event_id": "scene:30:event:1",
+  "scene_id": "scene:30",
+  "title": "Phản ứng trước hoa",
+  "initial_description": "Toru nói cô không tin.",
+  "description": "Một học sinh cảm thấy khó tin về tình huống, trong khi Koyuki thừa nhận cô không để ý. Học sinh đó sau đó hỏi lại với vẻ bối rối.",
+  "description_confidence": 9,
+  "target_ids": [
+    "b68ed9e490d577e6:p36:g6:anchor-segment-1:u",
+    "b68ed9e490d577e6:p36:g6:anchor-segment-2:u",
+    "b68ed9e490d577e6:p36:g8:u"
+  ],
+  "status": "completed",
+  "memory_input": {
+    "description": "",
+    "facts": [],
+    "characters": [],
+    "unresolved": []
+  },
+  "previous_event": null,
+  "input_incomplete_events": [],
+  "memory_output": {
+    "description": "Koyuki đặt một bông hoa lên đầu Toru. Một học sinh (person:bbd1cdc5e54921165151) cảm thấy sốc và không tin. Koyuki thừa nhận cô không để ý. Học sinh đó hỏi lại với vẻ bối rối.",
+    "facts": [
+      {
+        "description": "Koyuki đặt hoa lên đầu Toru mà Toru không biết.",
+        "source_ids": [
+          "b68ed9e490d577e6:p36:g6:anchor-segment-2:u"
+        ],
+        "confidence": 9
+      },
+      {
+        "description": "Một học sinh (person:bbd1cdc5e54921165151) cảm thấy sốc trước sự việc.",
+        "source_ids": [
+          "b68ed9e490d577e6:p36:g6:anchor-segment-1:u"
+        ],
+        "confidence": 9
+      }
+    ],
+    "characters": [
+      {
+        "person_id": "person:11b8722b696eaedd795d",
+        "description": "Toru Mizushima, người được đặt hoa lên đầu.",
+        "confidence": 10
+      },
+      {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "description": "Koyuki Sasamori, người đặt hoa lên đầu Toru.",
+        "confidence": 10
+      },
+      {
+        "person_id": "person:bbd1cdc5e54921165151",
+        "description": "Học sinh nam, người phản ứng sốc và hỏi lại.",
+        "confidence": 10
+      }
+    ],
+    "unresolved": []
+  },
+  "image_packets": [
+    {
+      "page_id": "b68ed9e490d577e6:p36",
+      "page_index": 35,
+      "bbox": [
+        296,
+        0,
+        913,
+        847
+      ],
+      "panel_indices": [
+        0,
+        1
+      ],
+      "panels": [
+        {
+          "panel_index": 0,
+          "reading_order": 1,
+          "bbox": [
+            641.0,
+            36.0,
+            913.0,
+            847.0
+          ]
+        },
+        {
+          "panel_index": 1,
+          "reading_order": 2,
+          "bbox": [
+            296.0,
+            0.0,
+            694.0,
+            829.0
+          ]
+        }
+      ],
+      "context_ids": [
+        "b68ed9e490d577e6:p36:g5:u"
+      ],
+      "render_size": [
+        617,
+        847
+      ],
+      "scale": 1.0,
+      "file": "06_analyze/images/a3448cd4018da96c7e0c82864b7704640b418eebef21b04d61fbc7ca17566803.jpg",
+      "retained_sha256": "b9b0bd12ae48196a4cf669c17b3f37f714e3cfc591bb15ea25d8baa7879faea1"
+    }
+  ]
+}

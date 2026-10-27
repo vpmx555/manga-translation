@@ -61,7 +61,7 @@ def generate_identity_reviews(reviewer, output):
             'supplied_evidence_refs': claim.get('supplied_evidence_refs', []),
             'model_evidence_refs': claim.get('model_evidence_refs', claim['evidence_refs']),
             'images': [crops[r] for r in claim.get('supplied_evidence_refs', claim['evidence_refs']) if r in crops]})
-    rows = {r['utterance_id']: r for r in reviewer.data.get('analyze', {}).get('utterances', [])}
+    rows = {r['utterance_id']: r for r in reviewer.data.get('reanalyze', {}).get('analysis', reviewer.data.get('analyze', {})).get('utterances', [])}
     if binding.get('policy') == 'analyze-authoritative-v3':
         for selection in binding.get('selections', []):
             if not selection['eligible']:

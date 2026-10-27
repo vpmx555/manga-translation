@@ -12,7 +12,9 @@ DEFAULT_CONFIG = {
     "min_confirmed_call_events": 3, "analyze_batch_size": 8,
     "context_image_max_side": 384,
     "typeset_mode": "ocr-box",
-    "analyze_engine": "independent-batches-v6.1", "caption_max_distance": 7,
+    "analyze_engine": "chapter-story-graph-v7",
+    "scene_concurrency": 8, "event_output_tokens": 8192,
+    "reanalyze_output_tokens": 8192, "event_image_max_side": 1600,
     "speaker_merge_policy": "inference-first-v1",
     "translation_concurrency": 64, "relationship_concurrency": 8,
     "relationship_min_appearances": 8, "relationship_crops_per_magi": 3,
@@ -21,8 +23,7 @@ DEFAULT_CONFIG = {
     "profile_concurrency": 8, "profile_output_tokens": 4096,
     "relationship_output_tokens": 4096,
     "identity_name_binding_policy": "analyze-authoritative-v3",
-    "identity_binding_concurrency": 8, "identity_binding_output_tokens": 4096,
-    "scan_policy": "canonical-scan-v4", "scan_output_tokens": 8192,
+    "graph_policy": "chapter-story-graph-v7", "graph_output_tokens": 16384,
     "identity_min_chapter_crops": 8,
 }
 
@@ -33,16 +34,16 @@ def validate_config(config):
         raise ValueError("Invalid v6 configuration fields")
     if config.get("typeset_mode") != "ocr-box":
         raise ValueError("v6.typeset_mode must be ocr-box")
-    if config.get("analyze_engine") != "independent-batches-v6.1":
+    if config.get("analyze_engine") != "chapter-story-graph-v7":
         raise ValueError("Invalid v6.analyze_engine")
     if config.get('speaker_merge_policy') != 'inference-first-v1':
         raise ValueError('Invalid v6.speaker_merge_policy')
     if config['identity_relationship_policy'] != 'identity-relationship-v2':
         raise ValueError('Invalid identity/relationship policy')
-    if config['identity_name_binding_policy'] not in {None, 'chapter-multimodal-name-binding-v1', 'chapter-name-binding-simple-v2', 'analyze-authoritative-v3'}:
+    if config['identity_name_binding_policy'] != 'analyze-authoritative-v3':
         raise ValueError('Invalid identity name-binding policy')
-    if config['scan_policy'] not in {None, 'canonical-scan-v3', 'canonical-scan-v4'}:
-        raise ValueError('Invalid scan policy')
+    if config['graph_policy'] != 'chapter-story-graph-v7':
+        raise ValueError('Invalid graph policy')
     if (type(config['identity_visual_min_crop']) not in {float, int}
             or not math.isfinite(config['identity_visual_min_crop'])
             or not 0 < config['identity_visual_min_crop'] < 2):
@@ -51,13 +52,10 @@ def validate_config(config):
                          ("relationship_min_appearances", 100000), ("relationship_crops_per_magi", 3),
                          ("profile_concurrency", 8), ("profile_crops", 10),
                          ("profile_output_tokens", 8192), ("relationship_output_tokens", 8192),
-                         ("identity_binding_concurrency", 8), ("identity_binding_output_tokens", 8192),
-                         ("scan_output_tokens", 16384), ("identity_min_chapter_crops", 100000)):
+                         ("graph_output_tokens", 16384), ("identity_min_chapter_crops", 100000),
+                         ("scene_concurrency", 64), ("event_output_tokens", 16384),
+                         ("reanalyze_output_tokens", 16384), ("event_image_max_side", 4096)):
         if type(config[key]) is not int or not 1 <= config[key] <= maximum:
-            raise ValueError(f"Invalid v6.{key}")
-    for key, default, maximum in (("caption_max_distance", 7, 64),):
-        value = config.get(key, default)
-        if type(value) is not int or not 1 <= value <= maximum:
             raise ValueError(f"Invalid v6.{key}")
     if type(config["enabled"]) is not bool:
         raise ValueError("v6.enabled must be boolean")

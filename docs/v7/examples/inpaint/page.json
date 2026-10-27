@@ -1,0 +1,65 @@
+{
+  "page_id": "b68ed9e490d577e6:p11",
+  "page": 11,
+  "source": {
+    "path": "/opt/manga-work/runtime/data/input/iris-zero-chapter-001-v6/11.webp",
+    "sha256": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d"
+  },
+  "files": {
+    "09_inpaint/pages/page-11/clean.png": "accabc00bf27247f269b349605b0ca252a4ebd915f181d0c668c6c7080150d5b",
+    "09_inpaint/pages/page-11/white_mask.png": "9d1505e1f9821fb6c12553011a375991e948571f731e40e2a5be4801748f238b",
+    "09_inpaint/pages/page-11/aot_mask.png": "3e232ab1bdf7e4ec44b45cc38b5bfc0f14d0e780a5a7e1f40c35b22dacee614f"
+  },
+  "clean_path": "09_inpaint/pages/page-11/clean.png",
+  "model_asset_sha256": "1b4fea17a84a228c2097a42ab2f403357f07bb56ae022dc243b40817b7aa87d1",
+  "decisions": [
+    {
+      "source_text_id": "b68ed9e490d577e6:p11:t0",
+      "bubble_id": "b68ed9e490d577e6:p11:g1:part1",
+      "method": "white_fill",
+      "background": {
+        "reason": "confident_white",
+        "samples": 876,
+        "white_fraction": 1.0,
+        "std": 0.1541
+      },
+      "requires_review": false,
+      "reason": null
+    },
+    {
+      "source_text_id": "b68ed9e490d577e6:p11:t1",
+      "bubble_id": "b68ed9e490d577e6:p11:g1:part1",
+      "method": "white_fill",
+      "background": {
+        "reason": "confident_white",
+        "samples": 924,
+        "white_fraction": 1.0,
+        "std": 0.1178
+      },
+      "requires_review": false,
+      "reason": null
+    },
+    {
+      "source_text_id": "b68ed9e490d577e6:p11:t2",
+      "bubble_id": null,
+      "method": "aot",
+      "background": {
+        "reason": "unmatched_bubble"
+      },
+      "requires_review": false,
+      "reason": null
+    },
+    {
+      "source_text_id": "b68ed9e490d577e6:p11:t3",
+      "bubble_id": null,
+      "method": "aot",
+      "background": {
+        "reason": "unmatched_bubble"
+      },
+      "requires_review": false,
+      "reason": null
+    }
+  ],
+  "aot_calls": 1,
+  "runtime_seconds": 0.436733
+}

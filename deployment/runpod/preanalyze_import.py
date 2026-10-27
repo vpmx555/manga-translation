@@ -10,17 +10,17 @@ import zipfile
 
 import manage
 
-STAGES = ('layout', 'extract', 'bubble_geometry', 'normalize', 'scan',
-          'analyze', 'build_identity', 'relationship', 'export', 'inpaint')
-LEGACY_STAGES = ('layout', 'extract', 'bubble_geometry', 'normalize', 'scan',
+STAGES = ('layout', 'extract', 'bubble_geometry', 'normalize', 'graph',
+          'analyze', 'reanalyze', 'build_identity', 'relationship', 'export', 'inpaint')
+LEGACY_STAGES = ('layout', 'extract', 'bubble_geometry', 'normalize', 'graph',
                  'analyze', 'identity', 'export', 'inpaint')
 PARENTS = {'layout': (), 'extract': ('layout',),
            'bubble_geometry': ('layout', 'extract'), 'normalize': ('bubble_geometry',),
-           'scan': ('normalize',), 'analyze': ('scan', 'normalize', 'extract'),
+           'graph': ('normalize', 'extract'), 'analyze': ('graph', 'normalize', 'extract'), 'reanalyze': ('analyze', 'graph', 'normalize'),
            'identity': ('analyze', 'normalize', 'extract'),
            'build_identity': ('analyze', 'normalize', 'extract'),
-           'relationship': ('build_identity', 'analyze', 'normalize'),
-           'export': ('build_identity', 'relationship', 'analyze', 'normalize'),
+           'relationship': ('build_identity', 'reanalyze', 'normalize'),
+           'export': ('build_identity', 'relationship', 'reanalyze', 'normalize'),
            'inpaint': ('export', 'bubble_geometry')}
 
 
@@ -29,20 +29,20 @@ def import_parents(config):
     if config.get('v6', {}).get('identity_relationship_policy') != 'identity-relationship-v2':
         parents['export'] = ('identity', 'analyze', 'normalize')
     if config.get('v6', {}).get('identity_name_binding_policy'):
-        parents['build_identity'] = ('analyze', 'normalize', 'extract', 'scan')
+        parents['build_identity'] = ('reanalyze', 'normalize', 'extract', 'graph')
     return parents
 
 
 def binding_contract(config):
     cfg = config.get('v6', {})
     return (tuple(cfg.get(k) for k in ('identity_name_binding_policy',
-            'identity_binding_concurrency', 'identity_binding_output_tokens', 'identity_min_chapter_crops'))
+            'identity_min_chapter_crops'))
             if cfg.get('identity_name_binding_policy') else None)
 
 
 def scan_contract(config):
     cfg = config.get('v6', {})
-    return (cfg.get('scan_policy'), cfg.get('scan_output_tokens')) if cfg.get('scan_policy') else None
+    return (config.get('analysis_contract'), cfg.get('graph_policy'), cfg.get('graph_output_tokens'))
 
 
 def analysis_contract(config):
@@ -50,7 +50,7 @@ def analysis_contract(config):
     return {**{k: config.get(k) for k in ('analysis_contract', 'dialogue_analysis', 'speaker_policy', 'llm', 'vllm')},
             'runtime': {k: config.get('runtime', {}).get(k) for k in ('context_fraction', 'analyze_max_batch', 'adaptive_batches')},
             'v6': {k: config.get('v6', {}).get(k) for k in
-                   ('analyze_engine', 'speaker_merge_policy', 'analyze_batch_size', 'caption_max_distance', 'context_image_max_side')}}
+                   ('analyze_engine', 'speaker_merge_policy', 'analyze_batch_size', 'scene_concurrency', 'event_output_tokens', 'event_image_max_side')}}
 
 
 def prepare_identity_base(source, banks, selected):
@@ -74,14 +74,14 @@ def prepare_identity_base(source, banks, selected):
         identity = manage.read_json(file)
         if (identity.get('profiles') or identity.get('proposals') or
                 any(p.get('primary_name') for p in identity.get('person_state', {}).get('persons', {}).values())):
-            raise ValueError('Analyze-only reuse cannot rewind named identity/profile publications; import through scan')
+            raise ValueError('Analyze-only reuse cannot rewind named identity/profile publications; import through graph')
     if manifest.get('steps', {}).get('relationship', {}).get('status') == 'completed':
         file = stage_directory(source, 'relationship') / 'result.json'
         if manage.file_hash(file) != manifest['steps']['relationship']['artifact_hash']:
             raise ValueError('Source relationship publication changed')
         graph = manage.read_json(file)
         if graph.get('identities') or graph.get('pairs'):
-            raise ValueError('Analyze-only reuse cannot rewind a nonempty graph; import through scan')
+            raise ValueError('Analyze-only reuse cannot rewind a nonempty graph; import through graph')
     if fingerprint(current) != expected:
         if not identity_step:
             raise ValueError('No authenticated identity journal for reused analyze')
@@ -204,13 +204,13 @@ def verify_existing_archive(archive, destination):
 
 
 def selected_stages(through, config=None):
-    if through not in {'normalize', 'scan', 'analyze', 'inpaint'}:
+    if through not in {'normalize', 'graph', 'analyze', 'inpaint'}:
         raise ValueError('Import boundary must be normalize, scan, analyze or inpaint')
     stages = LEGACY_STAGES if config is not None and config.get('v6', {}).get('identity_relationship_policy') != 'identity-relationship-v2' else STAGES
     return stages[:stages.index(through) + 1]
 
 
-def prepare_import(backup, directory, plan, *, through='scan'):
+def prepare_import(backup, directory, plan, *, through='graph'):
     """Package only committed source stages; preserve the original backup."""
     sys.path.insert(0, str(manage.PROJECT / 'src'))
     from manga_pipeline.storage.checkpoints import restore_archive, archive_files, files_under
@@ -256,17 +256,17 @@ def prepare_import(backup, directory, plan, *, through='scan'):
                 manifest = manage.read_json(source / 'manifest.json')
                 if manifest.get('pipeline_version') != 6:
                     raise ValueError('Only explicit v6 pre-analysis import is supported')
-                if through in {'scan', 'analyze', 'inpaint'} and scan_contract(manifest['config']) != scan_contract(target_config):
-                    raise ValueError('Scan contract changed; import through normalize and rerun scan')
+                if through in {'graph', 'analyze', 'inpaint'} and scan_contract(manifest['config']) != scan_contract(target_config):
+                    raise ValueError('Scan contract changed; import through normalize and rerun graph')
                 if through == 'inpaint' and selected_stages(through, manifest['config']) != stages:
-                    raise ValueError('Identity/relationship stage contract changed; import through scan or normalize instead')
+                    raise ValueError('Identity/relationship stage contract changed; import through graph or normalize instead')
                 if through == 'inpaint' and binding_contract(manifest['config']) != binding_contract(target_config):
-                    raise ValueError('Name-binding contract changed; import through scan or normalize instead')
+                    raise ValueError('Name-binding contract changed; import through graph or normalize instead')
                 if through == 'analyze':
                     from manga_pipeline.pipeline import load_config
                     requested = load_config(directory / 'pipeline-v6.json')
                     if analysis_contract(manifest['config']) != analysis_contract(requested):
-                        raise ValueError('Analyze inference contract changed; import through scan')
+                        raise ValueError('Analyze inference contract changed; import through graph')
                 parents = import_parents(manifest['config'])
                 selected = root / 'selected' / story / chapter / run_id
                 selected.mkdir(parents=True)
@@ -332,7 +332,7 @@ def prepare_import(backup, directory, plan, *, through='scan'):
                                 'analyze_cache': False, 'source_backup': str(backup)}
 
 
-def import_run(source, config, *, through='scan'):
+def import_run(source, config, *, through='graph'):
     """Never instantiate an old RunStore or relax its resume guard."""
     sys.path.insert(0, str(manage.PROJECT / 'src'))
     from manga_pipeline.pipeline import prepare_bank
@@ -350,21 +350,21 @@ def import_run(source, config, *, through='scan'):
     if old.get('pipeline_version') != 6:
         raise ValueError('Import requires a v6 source')
     previous = old['config']
-    if through in {'scan', 'analyze', 'inpaint'} and scan_contract(previous) != scan_contract(config):
-        raise ValueError('Scan contract changed; import through normalize and rerun scan')
+    if through in {'graph', 'analyze', 'inpaint'} and scan_contract(previous) != scan_contract(config):
+        raise ValueError('Scan contract changed; import through normalize and rerun graph')
     if through == 'analyze' and analysis_contract(previous) != analysis_contract(config):
-        raise ValueError('Analyze inference contract changed; import through scan')
+        raise ValueError('Analyze inference contract changed; import through graph')
     if through == 'inpaint' and selected_stages(through, previous) != stages:
-        raise ValueError('Identity/relationship contract changed; import through scan or normalize')
+        raise ValueError('Identity/relationship contract changed; import through graph or normalize')
     if through == 'inpaint' and binding_contract(previous) != binding_contract(config):
-        raise ValueError('Name-binding contract changed; import through scan or normalize')
+        raise ValueError('Name-binding contract changed; import through graph or normalize')
     parents = import_parents(previous)
     for name, value in (('config', previous), ('source', old['source'])):
         if fingerprint(read_json(source / 'snapshots' / (name + '.json'))) != fingerprint(value):
             raise ValueError('Import snapshot changed: ' + name)
     upstream = [('layout', {'python', 'model_root', 'device'}),
                 ('ocr', {'python'}), ('noise_filter', set()), ('character_bank', set())]
-    if through in {'scan', 'analyze', 'inpaint'}:
+    if through in {'graph', 'analyze', 'inpaint'}:
         upstream.append(('ner', {'device'}))
     if through == 'inpaint' and previous != config:
         raise ValueError('Post-analysis import requires the exact effective configuration')
@@ -400,10 +400,10 @@ def import_run(source, config, *, through='scan'):
                 verify_files(source, page)
         outputs[stage], hashes[stage] = result, receipt['artifact_hash']
     validate_raw(outputs['extract'])
-    old_snapshot = read_json(source / 'snapshots/persons-v6.json') if through in {'scan', 'analyze', 'inpaint'} else None
-    if through in {'scan', 'analyze', 'inpaint'} and outputs['scan']['person_snapshot_hash'] != fingerprint(old_snapshot):
+    old_snapshot = read_json(source / 'snapshots/persons-v6.json') if through in {'graph', 'analyze', 'inpaint'} else None
+    if through in {'graph', 'analyze', 'inpaint'} and outputs['graph']['person_snapshot_hash'] != fingerprint(old_snapshot):
         raise ValueError('Source scan snapshot changed')
-    if ((through in {'scan', 'analyze', 'inpaint'} and outputs['scan'].get('policy') != 'name-index-v6.1')
+    if ((through in {'graph', 'analyze', 'inpaint'} and outputs['graph'].get('policy') != 'chapter-story-graph-v7')
             or outputs['normalize'].get('analysis_policy') != 'essential-v3'):
         raise ValueError('Unsupported pre-analysis artifact policy')
     bank = prepare_bank(manage.RUNTIME / 'data/banks', info['story'], visual=True)
@@ -418,22 +418,27 @@ def import_run(source, config, *, through='scan'):
     for stage in STAGES[:4]:
         shutil.copytree(source / target.directories[stage], target.artifact_path(stage).parent,
                         ignore=shutil.ignore_patterns('commit.json', 'targets', '*.lock'))
+        if stage == 'normalize':
+            from manga_pipeline.v6.normalize import normalize
+            refreshed = normalize(outputs['bubble_geometry'], config['v6'], read_json(bank))
+            if through != 'normalize' and fingerprint(refreshed) != fingerprint(outputs[stage]):
+                raise ValueError('Normalization changed; import through normalize and rebuild graph')
+            outputs[stage] = refreshed
         target.finish(stage, outputs[stage])
-    if through in {'scan', 'analyze', 'inpaint'}:
-        scanned = copy.deepcopy(outputs['scan'])
-        if through in {'analyze', 'inpaint'}:
-            # Analyze and every downstream artifact are bound to the original
-            # frozen person snapshot.  The restored bank may legitimately be
-            # newer because identity/export update it after analyze; replacing
-            # the snapshot with that bank state invalidates the reused plan.
-            shutil.copyfile(source / 'snapshots/persons-v6.json',
-                            target.directory / 'snapshots/persons-v6.json')
-        else:
-            fresh = snapshot(target, outputs['extract'])
-            if fresh['state']['name_index'] != old_snapshot['state']['name_index']:
-                raise ValueError('Source scan name index differs; cannot reuse scan')
-            scanned['person_snapshot_hash'] = fingerprint(fresh)
-        target.finish('scan', scanned)
+    if through in {'graph', 'analyze', 'inpaint'}:
+        scanned = copy.deepcopy(outputs['graph'])
+        # Graph hypotheses and every event bind exact source person IDs.
+        shutil.copyfile(source / 'snapshots/persons-v6.json',
+                        target.directory / 'snapshots/persons-v6.json')
+        if through == 'graph':
+            from manga_pipeline.v6.persons import registry_path
+            registry = registry_path(target)
+            current = read_json(registry) if registry.exists() else None
+            if fingerprint(current) != old_snapshot['state']['base_registry_hash']:
+                raise ValueError('Graph registry base changed; import through normalize and rebuild graph')
+        shutil.copytree(stage_directory(source, 'graph'), target.artifact_path('graph').parent,
+                        ignore=shutil.ignore_patterns('commit.json', '*.lock'))
+        target.finish('graph', scanned)
     if through == 'analyze':
         restore_identity_base(source, target)
         shutil.copytree(source / target.directories['analyze'], target.artifact_path('analyze').parent,
@@ -473,6 +478,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--config', type=Path, required=True)
-    parser.add_argument('--through', choices=['normalize', 'scan', 'analyze', 'inpaint'], default='scan')
+    parser.add_argument('--through', choices=['normalize', 'graph', 'analyze', 'inpaint'], default='graph')
     args = parser.parse_args()
     import_run(args.source.resolve(), manage.configuration(args.config), through=args.through)

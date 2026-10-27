@@ -1,0 +1,17 @@
+{
+  "kind": "historical-inpaint-example",
+  "source_artifact": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-glm-translate-resume-l40s-20261023-r15\\live\\imports\\iris-zero-ch1-glm-translate-resume-l40s-20261023-r15\\iris-zero\\chapter-001\\20261022T160100Z-07381866\\09_inpaint\\result.json",
+  "artifact_sha256": "66694163c6bf7aa3f2678a5c9460d6ef0b41bac6d7427dd3926e743e35849634",
+  "page": 11,
+  "model": "mayocream/aot-inpainting",
+  "revision": "cffe2346ac2b5ebe1f2d61335d602d12cc144c6f",
+  "generator_sha256": "32a721ab572df5ee2d8e2484ffaeca63568f169509344bb4d16dc9b30d54a7e9",
+  "model_requests": 0,
+  "assets": {
+    "aot_mask.png": "3e232ab1bdf7e4ec44b45cc38b5bfc0f14d0e780a5a7e1f40c35b22dacee614f",
+    "clean.png": "accabc00bf27247f269b349605b0ca252a4ebd915f181d0c668c6c7080150d5b",
+    "input.webp": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d",
+    "page.json": "a8dacf32921d32220b42839bbd235b673a3af420b978820f2ca128bf440a0bfb",
+    "white_mask.png": "9d1505e1f9821fb6c12553011a375991e948571f731e40e2a5be4801748f238b"
+  }
+}

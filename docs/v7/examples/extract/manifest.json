@@ -1,0 +1,277 @@
+{
+  "kind": "historical-extract-and-bank-evidence",
+  "source_run": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e",
+  "bank_directory": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero",
+  "pages": [
+    8,
+    11,
+    12,
+    13,
+    14
+  ],
+  "model_requests": 0,
+  "note": "Read saved artifacts only. OCR and assignments are historical predictions, not accuracy claims.",
+  "source_artifacts": [
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-014cebe709ca.png",
+      "sha256": "041c5bf55d4ad5cdcdfd4cab1db7a3ffecb8d33fca0fd354634c1e71aa15a3ef"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-08cd429c5605.png",
+      "sha256": "d0962542e923f292f9dbca8bc43f9d33ebbb2afad90b777b8e465d5eab58b960"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-36852d512fc4.png",
+      "sha256": "2059185f2db8cec7054735c488627dc92f2c4bb61438abac8bc28be8c83f48f1"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-36d6fa571900.png",
+      "sha256": "dcc0695c39fa901ed21ecb339401862e02b02f5206fff459722740a1667134e7"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-40287a1ba8f5.png",
+      "sha256": "8d108d1a1c80e19fd0e61ab86e7d30e2f97315fccf3d086d1ec307fb7a5032c6"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-4de0539e6036.png",
+      "sha256": "5da8145d385b9cd89011277ed62d54ca3c5f8bff48ec5e0b1ad958c759d44acc"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-63bc116f5dcd.png",
+      "sha256": "154caa0b1775fae736eeb377250a37d4173020c3de0a14cad292f3283f8d02c7"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-7b2f67dd8462.png",
+      "sha256": "259fc569165feaaa1cd03eed8b6d928441ff7270587cfa6d20b870ee99a1f857"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-7bdd20f51328.png",
+      "sha256": "872643c6498c6ef47081b00781bd343f9076ac61430bfe9ce60ca7dcdec1d103"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-93b8db28e41b.png",
+      "sha256": "314cef2ad4d2a295ae0f9dec3cb1401f6ab052c579e5ecf41c93214ea48bea5d"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-9616de09a258.png",
+      "sha256": "03533102d006897c7eaa88d146ace86292e246ac054eb77ff73c11eb57f1c678"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-9a710b0ae1d8.png",
+      "sha256": "d1a0592c2384fd449a08ccd593e92a92dba6492171ee0135f75bf1259753e7be"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-b2f47c604484.png",
+      "sha256": "0163797ef334f42a28caa293b6d1a98d36251e37555e12be4604272c529a33df"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-c1732c58da84.png",
+      "sha256": "1b02afbbd59de0fd6fff06fef542fa1f6afda7d953408d474be3b97e29c4dd9e"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-d6844504879e.png",
+      "sha256": "01f08e2d0b46eb0b845c84dab754cf986c1477dd84fc3acf6398025efbd57eb0"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-2-ea2b83fca4ab.png",
+      "sha256": "bb5177c63f0450c32cb4d161a3a4d68486a8bf7042c69dca85ff11094b88cc34"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-18aa046a989e.png",
+      "sha256": "fc7193aba7f0b49f988427b13c4457c443488715de89c4dd50be16069673b28e"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-3b93cacc72ac.png",
+      "sha256": "a31abf7910559792affd7b066e77b632d1d3ea2f00cc6686d270f494030b0228"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-4391098d9d03.png",
+      "sha256": "1a462332d94e4a5f207691f6803a14102f16e1391be6d96ef73c59fe4d3d2e2d"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-519a4bc0409d.png",
+      "sha256": "2107ddd6a15cd49b9ef1b1c7ed7b476587503c39067dd2afd6f914248db9096d"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-687457f6dce9.png",
+      "sha256": "9d18e97d05a151d1580841591d197a9f1ad2644010e1036b984117f4f8ea51d4"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-8f4f704ad801.png",
+      "sha256": "bc969fd67f341d49f8cbe75841a525c175f17f2f9c9e60f83fbc79728bc56091"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-94fcc20e0484.png",
+      "sha256": "98e2b0d3480139129d1a8e3a96b929d1b82d6bb019d3f69e1d46e6b4ecfc4324"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-95dcf06ee9e6.png",
+      "sha256": "9723ef690a77eb6cf27c8a31da04de5c840c4dcf7c5ab69aade35705f8d3f92e"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-9ebb1d7944f4.png",
+      "sha256": "eef00f5a8c35e7c738f70d88b0dbff4e47c908f0279dc8f1b28b2da53f6e7ab9"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-a65fd84deda1.png",
+      "sha256": "c1c003d56fbb1fd7ad869e5e17af7211e1d9643e63edba33f9c91e9faf56349c"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-af3e53993313.png",
+      "sha256": "15714210f1ad385629965f35faf37a19e527a95a648ca1c238a91f57fc413a56"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-bbfc4b84cf81.png",
+      "sha256": "ea51a761e37cf846ffa5a6c46ee153c6b61f888eeb5e3ba0193f4492c2882bdb"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-df00a7406065.png",
+      "sha256": "ef8c436ee44055dbd903cbb7bb07556de3a3e8e30e18b0095d1a1f2461366976"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-e317b900fdfa.png",
+      "sha256": "66b33fb5cb6d7c520e157f9ebdca01665dad2ac4730d730b179cd714d3af3372"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-ed97dddd1379.png",
+      "sha256": "26e7348ac3d1448e657a1e26b453f71471019d757121ff4ddf7849f72d7eb350"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\character-5-f17686a97075.png",
+      "sha256": "28afa8335282088bd90c56718cde14363c4cdaf21f9704a9b122f6dcf1a79a9b"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\new-1bf84d1d-a4efc7055083.png",
+      "sha256": "b84d1a303fd0b6a881f5e0abc0994b11de20a717381e49180563b127836fb1a9"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\new-222a9650-91f92d280458.png",
+      "sha256": "4ae6a35fb7bbe6484bcaabafb26422d900979c03951451a0405675a360942351"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\new-2fd15df7-e5baa4e51a94.png",
+      "sha256": "f9c641fb4fbed7b14d2712ec6f9807722b7408c4efb3ed2db30dbb2c427dcb1a"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\new-84a01fd7-a6ca1771ba25.png",
+      "sha256": "5e8421304f42302ca62976ba7785f53ad4407ddd020cdb89bca0256d6ae0b919"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\new-e318612d-f8be63ca2ace.png",
+      "sha256": "3219e542d4c0105ce4f83744208b636cb0b1e8cd25106c693cf217b9d9ee9e2a"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\new-ea4100a7-5b7df8342c6f.png",
+      "sha256": "c830327772f74f27e321a449ae4e7fe5d641c574470d0ccff03778fd5161cb53"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-1e4f3672-7bd376b87e73.png",
+      "sha256": "911f801a4ac842c8e43165efdf29a309572ae74fc706be3cc76761d37853d0a9"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-38d2a4bb-5b071e557b1b.png",
+      "sha256": "2a3f7d5643984a47f617d8d74d12a817f21cf82c62591e79312012940746a8e7"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-3aaa287c-e14796a69b3e.png",
+      "sha256": "fe12bbc8d925b7139af8683414bcfb7d92b28f04a0aea3b73703651da9de93c2"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-726c3ff2-c86ddfd0394d.png",
+      "sha256": "835ad40d556175969ab7e7a6ce1324510b454d00f920fbc3d30a9c11ffcbce0b"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-807a723a-1312c4202007.png",
+      "sha256": "cee0ffca80c5019c4c1077ebe661d12e482e75fc1da9128daff50ac04ac5dfbb"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-855539b1-1c174832a3ec.png",
+      "sha256": "9c151971fb4c971dd71c8d550286e7340b42e97a24f70dc6d4a0d1fba6067f3c"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-9135fe69-187b673f90c9.png",
+      "sha256": "e1d2dd45f9237096d052cd7e5d551fc5ec45737025f7d49702c0b8f44193557f"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-9295eb3c-5ba9d215d9b7.png",
+      "sha256": "06a659e4ff2333f0c797381f0c9802f68c1a94d29e7bce2fb603642b1547f1ee"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-94840705-961c5d3bfe86.png",
+      "sha256": "5979400efdc65c3295b1283d253646b2c6500e3110f8a199865c9f5f17d15caa"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-a9a06b35-7bdf0d596392.png",
+      "sha256": "1814af86cd4a04d0c5d1d92701d1dd53978f4d320b30861dffe12ac8542212ae"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-ea492b12-15a44180e6ea.png",
+      "sha256": "28f2bbc577bc6e3ae5a2d59be974b07e9e58cc4100c54eb02b76d6b1d295b387"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-f2c167ed-e2df79442a23.png",
+      "sha256": "e693678c717bc048763426a47cefc7b291b1bbef628b078565c946b79a755e9b"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\crops\\pending-fe53e1e8-6645dee6f083.png",
+      "sha256": "63f5910d9d0e48b3f0fe7e43513b038d76fbf7b2b3a68883d0f0df62182372eb"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\embeddings\\vectors.npz",
+      "sha256": "17613dc7997a03eeb648efda2c0aa6281d07127534befee07f21e00c7cf265b0"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\banks\\iris-zero\\metadata.json",
+      "sha256": "e5ff4fff546fdaac7db37c92a1aadde42248a3a130ba78766fb80c7a8a32bedc"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\02_extract\\result.json",
+      "sha256": "bf013e6add869488fd45d112ab60c2b090e1f50fb432e085e058018757e2b2c9"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\manifest.json",
+      "sha256": "95ebf182ae2f678fd00309feb12d126fbef9977846fa5ebfad958a49fe6c0ef7"
+    },
+    {
+      "file": "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\08.webp",
+      "sha256": "28756570a45f6f2555b5765155e1467a419f99122106e701c2a800acbaff0f75"
+    },
+    {
+      "file": "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\11.webp",
+      "sha256": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d"
+    },
+    {
+      "file": "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\12.webp",
+      "sha256": "d4dc5fc50917fddc3d5266e69768290ec6cd4912707dd23c473a1aa58fbf6724"
+    },
+    {
+      "file": "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\13.webp",
+      "sha256": "a9d095e5f36ad4eba2f0259899aeef7e51b4b48deaf0e98ee073e74900b524fc"
+    },
+    {
+      "file": "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\14.webp",
+      "sha256": "1a2b5ed6ea74db43f0c520a0a7e2cfd8a60a7f6b632f804011a8a6eb3634a7ec"
+    }
+  ],
+  "generator_sha256": "fb2db910ae1d0299a6a54acab202d8f4a4e9ea59ac0e0cf01691123fcd33002c",
+  "assets": {
+    "bank-cross-page.png": "a9246b5021952ff4f1322b346e9b6f7cc128bbecc0fcb6b207d05c468f28fd2e",
+    "bank-example.json": "c245ef300e375ff691a9ee4876c99875ca2bc068d18ecb0e218fec5e5d488dd3",
+    "bank-output.png": "1be4a5cc608ffe6b780d79a1c1b866a7ba89a6179b1850fd283615292e5963a5",
+    "bank-pending.png": "180df598096ed0da73d7f6e28a91e022682b4bed89502af56158c437efcb99ee",
+    "bank-prototypes.png": "49b3fc9a7e9df9aabe64c64325011aec59a368e8e9091b1697eea6c5cad70e54",
+    "bank.png": "120757dc5029d98a1047ca9eb3bf760fe5fb085a1d3727d08b734fd8fbbcbac5",
+    "character-links.png": "f999151c267e6d36342c3b95152a111fe947a508751eceea6d43f1bc97286eb0",
+    "characters.png": "2060cdc589afaec581f114ffea5b730560ec06a115fe07359f26b827ec967e92",
+    "cluster-crops.png": "5d2915cf8a9f5549b30e6d2f8a59752fe8a9f78a3ff9e2c43c787f38058e626c",
+    "input-12.webp": "d4dc5fc50917fddc3d5266e69768290ec6cd4912707dd23c473a1aa58fbf6724",
+    "magiv-output.png": "4f753f0f263443040f08daafd941d4763f9aa1288e6af1c6b0e702878efa2218",
+    "magiv-pages.json": "66df24df5bbf2927ab8e646a25098a4a9628173d07014fa38a1bb21d85337964",
+    "ocr-cases.json": "5b6149d70cc3bf21873e1ef5de827f0038d12c6faef95f3a5d95b5330ab4e0da",
+    "ocr-cases.png": "3339fab6f1be6f9be7f916a1df1169a058f7bfd6ec55fa9c56650fb3cb0d8b05",
+    "panels.png": "4952b323b8e646e31923685be2b760f03817fe2cfb80e96d69ecad6eb3261f92",
+    "tail-links.png": "d29095be08588f04be3bc26f7d22dc8ddf5a135f6e3e95ac5b9a253ef22fd2e7",
+    "tail-zoom.png": "6534b424767b59c8905d8de890249f37485430fd432565a8a0142967b2e42972",
+    "texts.png": "0a8c142004132dedc1078ca8573f7b0748fffb7bc462e2da5140d8d69cc7c393"
+  }
+}

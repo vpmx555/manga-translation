@@ -2,6 +2,6 @@
 def stage_group(step):
     if step in {"layout", "extract", "bubble_geometry"}:
         return "Extraction"
-    if step in {"normalize", "scan", "analyze", "classify", "link"}:
+    if step in {"normalize", "graph", "analyze", "reanalyze"}:
         return "Analysis"
     return "Output"

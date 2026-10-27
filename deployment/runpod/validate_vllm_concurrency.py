@@ -30,11 +30,11 @@ def sample_count(config, *, short=False):
 
 def phase_policy(config, *, short=False):
     base = SHORT_POLICY if short else PROBE_POLICY
-    return base + '-stage-thinking-v2' if config['llm'].get('analyze_thinking') else base
+    return base + '-story-graph-v7'
 
 
 def mixed_policy(config):
-    return MIXED_POLICY + '-stage-thinking-v2' if config['llm'].get('analyze_thinking') else MIXED_POLICY
+    return MIXED_POLICY + '-story-graph-v7'
 
 
 def engine_profile(config):
@@ -78,14 +78,13 @@ def validate_receipt(config, receipt, *, short=False):
             raise RuntimeError('Qualification phases used different servers')
         return
     responses = receipt.get('responses', [])
-    if config['llm'].get('analyze_thinking'):
-        expected_context = config['llm']['num_ctx'] if short else config['llm']['analyze_num_ctx']
-        sampler = request_policy(config, 'qualification_short' if short else 'analyze_qualification')
-        if (receipt.get('enable_thinking') != (not short) or receipt.get('num_ctx') != expected_context
-                or receipt.get('output_reserve') != (8192 if short else config['llm']['analyze_num_predict'])
-                or receipt.get('temperature') != sampler['temperature']
-                or receipt.get('presence_penalty') != sampler['presence_penalty']):
-            raise RuntimeError('Qualification does not prove the stage thinking/context/output profile')
+    expected_context = config['llm']['num_ctx'] if short else config['llm']['analyze_num_ctx']
+    sampler = request_policy(config, 'qualification_short' if short else 'analyze_qualification')
+    if (receipt.get('enable_thinking') is not False or receipt.get('num_ctx') != expected_context
+            or receipt.get('output_reserve') != (8192 if short else config['llm']['analyze_num_predict'])
+            or receipt.get('temperature') != sampler['temperature']
+            or receipt.get('presence_penalty') != sampler['presence_penalty']):
+        raise RuntimeError('Qualification does not prove the no-thinking/context/output profile')
     if (receipt.get('status') != 'passed' or receipt.get('slots') != slots
             or receipt.get('probe_policy') != phase_policy(config, short=short)
             or receipt.get('sample_count') != sample_count(config, short=short)
@@ -143,7 +142,7 @@ def verify(config, receipt_path, *, short=False):
 
     def messages(repeats):
         instruction = f'Return only JSON with ok=true and samples containing exactly {samples} zero integers. Write every array item; do not abbreviate.'
-        if config['llm'].get('analyze_thinking') and not short:
+        if not short:
             instruction += (' This is a mechanical serving probe, not an arithmetic task. '
                             'The schema-constrained decoder enforces the array size automatically. '
                             'Keep reasoning brief. Do not count, enumerate, simulate, or verify '
@@ -160,7 +159,7 @@ def verify(config, receipt_path, *, short=False):
         repeats = (low + high) // 2
         value = http('/tokenize', {'model': model, 'messages': messages(repeats),
                      'add_generation_prompt': True, 'chat_template_kwargs': {
-                         'enable_thinking': bool(config['llm'].get('analyze_thinking')) and not short}})
+                         'enable_thinking': False}})
         count = value['count']
         if not isinstance(count, int):
             raise RuntimeError('Invalid tokenizer response')
@@ -178,7 +177,7 @@ def verify(config, receipt_path, *, short=False):
     payload = {'model': model, 'messages': prompt, 'stream': False, 'max_tokens': reserve,
                'temperature': sampler['temperature'], 'presence_penalty': sampler['presence_penalty'],
                'top_k': config['llm'].get('top_k', 20), 'top_p': config['llm'].get('top_p', .95),
-               'chat_template_kwargs': {'enable_thinking': bool(config['llm'].get('analyze_thinking')) and not short},
+               'chat_template_kwargs': {'enable_thinking': False},
                'response_format': {'type': 'json_schema', 'json_schema': {
                    'name': 'concurrency_probe', 'strict': True, 'schema': schema}}}
     barrier = threading.Barrier(slots)
@@ -203,7 +202,7 @@ def verify(config, receipt_path, *, short=False):
               'engine_profile_fingerprint': engine_profile(config),
               'signature': vllm_runtime.signature(config), 'config_fingerprint': manage.config_fingerprint(config),
               'num_ctx': context, 'slots': slots, 'input_tokens_each': input_tokens,
-              'enable_thinking': bool(config['llm'].get('analyze_thinking')) and not short, 'output_reserve': reserve,
+              'enable_thinking': False, 'output_reserve': reserve,
               'temperature': sampler['temperature'], 'presence_penalty': sampler['presence_penalty'],
               'cpu_offload_gb': 0, 'peak_running_requests': 0, 'peak_gpu_memory_mib': 0}
     manage.atomic_json(receipt_path, result)

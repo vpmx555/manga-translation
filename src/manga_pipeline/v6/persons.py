@@ -58,10 +58,20 @@ def add_name(state, person_id, surface, *, source, components=()):
     elif source not in existing["source_refs"]:
         existing["source_refs"].append(source)
     keys = {form["surface"], form["base_name"]}
+    reviews = []
     for component in components:
-        if component.get("kind") not in {"given_name", "middle_name", "surname", "nickname", "full_name"}:
-            raise ValueError("Unknown name-component kind")
-        value = name_form(component["value"])["base_name"]
+        try:
+            if component.get("kind") not in {"given_name", "middle_name", "surname", "nickname", "full_name"}:
+                raise ValueError("Unknown name-component kind")
+            value = name_form(component["value"])["base_name"]
+        except (ValueError, KeyError, TypeError) as exc:
+            issue = {"component": copy.deepcopy(component), "source_ref": source,
+                     "status": "needs_review", "reason": str(exc)}
+            reviews.append(issue)
+            saved = person.setdefault("name_component_reviews", [])
+            if issue not in saved:
+                saved.append(issue)
+            continue
         record = {"kind": component["kind"], "value": value, "source_ref": source}
         if record not in person.setdefault("components", []):
             person["components"].append(record)
@@ -71,6 +81,7 @@ def add_name(state, person_id, surface, *, source, components=()):
         if person_id not in entries:
             entries.append(person_id)
     person["primary_name"] = person.get("primary_name") or form["base_name"]
+    return reviews
 
 
 def bootstrap(raw, source_bank, persisted=None, *, run_scope=None):

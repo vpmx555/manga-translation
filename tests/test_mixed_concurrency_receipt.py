@@ -33,9 +33,6 @@ class MixedTests(unittest.TestCase):
 
     def fixture(self, slots=32, thinking=False):
         cfg = load_config()
-        if not thinking:
-            cfg['llm'].update(analyze_thinking=False, analyze_num_ctx=32768,
-                              analyze_timeout=600, analyze_num_predict=8192)
         cfg['runtime']['llm_slots'] = slots
         cfg['vllm']['max_num_seqs'] = slots
         def phase(slots, short):
@@ -46,9 +43,9 @@ class MixedTests(unittest.TestCase):
                 'sample_count': gate.sample_count(c, short=short), 'signature': vllm_runtime.signature(c),
                 'config_fingerprint': manage.config_fingerprint(c), 'engine_profile_fingerprint': gate.engine_profile(c),
                 'cpu_offload_gb': 0, 'input_tokens_each': count, 'peak_running_requests': slots,
-                'enable_thinking': thinking and not short,
-                'temperature': c['llm']['analyze_temperature'] if thinking and not short else c['llm']['temperature'],
-                'presence_penalty': c['llm']['analyze_presence_penalty'] if thinking and not short else c['llm']['presence_penalty'],
+                'enable_thinking': False,
+                'temperature': c['llm']['temperature'],
+                'presence_penalty': c['llm']['presence_penalty'],
                 'num_ctx': c['llm']['num_ctx'] if short else c['llm']['analyze_num_ctx'],
                 'output_reserve': 8192 if short else c['llm']['analyze_num_predict'],
                 'server_identity': {'fixture': 'not-real'},
@@ -58,15 +55,15 @@ class MixedTests(unittest.TestCase):
             'cpu_offload_gb': 0, 'long_context': phase(8, False), 'short_context': phase(slots, True)}
         return cfg, result
 
-    def test_stage_thinking_receipt_requires_new_context_and_output_proof(self):
+    def test_no_thinking_receipt_requires_current_context_and_output_proof(self):
         cfg, result = self.fixture(64, thinking=True)
         gate.validate_receipt(cfg, result)
-        for phase, field, value in [('long_context', 'enable_thinking', False),
+        for phase, field, value in [('long_context', 'enable_thinking', True),
                                     ('long_context', 'num_ctx', 32768),
                                     ('long_context', 'output_reserve', 8192),
                                     ('short_context', 'enable_thinking', True),
-                                    ('long_context', 'temperature', 0),
-                                    ('long_context', 'presence_penalty', 0)]:
+                                    ('long_context', 'temperature', 1.0),
+                                    ('long_context', 'presence_penalty', 1.5)]:
             wrong = copy.deepcopy(result)
             wrong[phase][field] = value
             with self.assertRaises(RuntimeError):
@@ -152,8 +149,8 @@ class MixedTests(unittest.TestCase):
         self.assertIn(f'exactly {gate.SAMPLE_COUNT} zero integers', seen[0]['messages'][0]['content'])
         self.assertIn(f'exactly {gate.SAMPLE_COUNT} zero integers', seen[0]['messages'][1]['content'])
         self.assertIn('Do not count, enumerate, simulate, or verify', seen[0]['messages'][0]['content'])
-        self.assertTrue(seen[0]['chat_template_kwargs']['enable_thinking'])
-        self.assertEqual(seen[0]['temperature'], 1.0)
+        self.assertFalse(seen[0]['chat_template_kwargs']['enable_thinking'])
+        self.assertEqual(seen[0]['temperature'], cfg['llm']['temperature'])
 
     def test_verified_mixed_proof_reuse_allows_only_the_same_engine_profile(self):
         from preanalyze_import import prepare_qualification

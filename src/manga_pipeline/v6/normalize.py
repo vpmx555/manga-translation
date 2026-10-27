@@ -6,6 +6,24 @@ from ..extraction.document import validate_raw
 from ..storage.io import fingerprint
 
 
+def panel_mapping(sources, page):
+    """First-source panel, except a <10% intersection uses all text coverage."""
+    panels = page.get('panels', [])
+    def box(panel):
+        return panel.get('bbox') if isinstance(panel, dict) else panel
+    def overlap(a, b):
+        return max(0, min(a[2], b[2])-max(a[0], b[0])) * max(0, min(a[3], b[3])-max(a[1], b[1]))
+    first = sources[0]
+    bounds = first['bbox']
+    area = max(1, (bounds[2]-bounds[0])*(bounds[3]-bounds[1]))
+    coverage = [sum(overlap(s['bbox'], box(panel)) for s in sources) for panel in panels]
+    selected = first.get('panel_index')
+    primary = (selected if type(selected) is int and 0 <= selected < len(panels)
+               and overlap(bounds, box(panels[selected])) / area >= .1 else
+               max(range(len(panels)), key=lambda i: coverage[i]) if any(coverage) else None)
+    return primary, [i for i, value in enumerate(coverage) if value > 0]
+
+
 def normalize(raw, config=None, bank=None):
     validate_raw(raw)
     pages = {p["id"]: p for p in raw["pages"]}
@@ -57,6 +75,7 @@ def normalize(raw, config=None, bank=None):
     for key, physical_key, pairs, anchor_split in collections:
         sources = [s for s, _ in pairs]
         first = sources[0]
+        primary_panel, related_panels = panel_mapping(sources, pages[first['page_id']])
         group = groups.get(physical_key)
         raw_links = [{"source_text_id": s["id"], "speaker_cluster_id": s.get("speaker_cluster_id"),
                       "source_speaker_id": s.get("speaker_id"),
@@ -64,8 +83,8 @@ def normalize(raw, config=None, bank=None):
                       "association_source": s.get("association_source")} for s in sources]
         row = {"id": key+":u", "group_id": physical_key if group else None,
                "page": first.get("page"), "page_id": first.get("page_id"),
-               "panel_index": first.get("panel_index"),
-               "panel_indices": copy.deepcopy(group.get("panel_indices", [])) if group else [first.get("panel_index")],
+               "panel_index": primary_panel,
+               "panel_indices": sorted(set(related_panels + [p for p in (group or {}).get('panel_indices', []) if type(p) is int])),
                "bbox": copy.deepcopy(group["bbox"] if group else first.get("bbox")),
                "text": " ".join(t for _, t in pairs),
                "text_original": [s["text"] for s in sources],

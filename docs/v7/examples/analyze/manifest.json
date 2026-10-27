@@ -1,0 +1,30 @@
+{
+  "event_id": "scene:30:event:1",
+  "page": 36,
+  "source_files": [
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-reanalyze-v7-l40s-20261026-r6\\live\\outputs\\iris-zero\\chapter-001\\20261026T112950Z-5ad58a72\\06_analyze\\targets\\02f6cbccfd6e38b41c2fdc2c4f1e4bac40adae78bc4aad100f6c8d6729af91ff.json",
+      "sha256": "aacefc2478adf2dbfc0c522aa041e2e061be016f0c84778785bc0e167b4ae25c"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-reanalyze-v7-l40s-20261026-r6\\live\\outputs\\iris-zero\\chapter-001\\20261026T112950Z-5ad58a72\\06_analyze\\packets\\02f6cbccfd6e38b41c2fdc2c4f1e4bac40adae78bc4aad100f6c8d6729af91ff.json",
+      "sha256": "85c9225672180984d5fa8ff867d94094de8471f88332826cc1e1a0923bc4656e"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-reanalyze-v7-l40s-20261026-r6\\live\\outputs\\iris-zero\\chapter-001\\20261026T112950Z-5ad58a72\\06_analyze\\events\\02f6cbccfd6e38b41c2fdc2c4f1e4bac40adae78bc4aad100f6c8d6729af91ff.json",
+      "sha256": "270b1d96d87ccb5e55dbc55f56d7b60fc3bb96f30f80418bc9317c92c1bfb310"
+    },
+    {
+      "file": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-reanalyze-v7-l40s-20261026-r6\\live\\outputs\\iris-zero\\chapter-001\\20261026T112950Z-5ad58a72\\06_analyze\\images\\a3448cd4018da96c7e0c82864b7704640b418eebef21b04d61fbc7ca17566803.jpg",
+      "sha256": "b9b0bd12ae48196a4cf669c17b3f37f714e3cfc591bb15ea25d8baa7879faea1"
+    }
+  ],
+  "generator_sha256": "95500a52d48de2aa6d4748c9a669a699cd1772f8316971e60328a309ec191126",
+  "model_requests": 0,
+  "assets": {
+    "decision.json": "d4cb04b5ff8097ba9cbe4eb464ef6bcb235272bc9aa2a1c5f14286c6307639ec",
+    "event-1.jpg": "b9b0bd12ae48196a4cf669c17b3f37f714e3cfc591bb15ea25d8baa7879faea1",
+    "event.json": "201dcf41fbcfa6a981804554fa14b6db2eb6e1ff225d66976aa2096ddbb1d3aa",
+    "packet-summary.json": "cd376081878645f3ca756f0715f976d948d176d926ade2c058778d2231768880"
+  }
+}

@@ -4,7 +4,7 @@ from collections import Counter, defaultdict
 
 from ..storage.io import atomic_json, fingerprint, read_json
 from . import persons
-from .identity_binding_simple import chapter_counts, replace_names
+from .identity_registration import chapter_counts, replace_names
 from .identity_v2 import confirmed, main_member
 
 POLICY = 'analyze-authoritative-v3'
@@ -161,7 +161,7 @@ def build(store, provider, analyzed):
     snapshot = store.directory / 'snapshots/persons-v6.json'
     prior = read_json(snapshot)['state'] if snapshot.exists() else {'persons': {}}
     metadata = read_json(store.manifest['bank_path'])
-    state, data = register(analyzed, store.read('scan'), store.read('extract'), metadata, prior,
+    state, data = register(analyzed, store.read('graph'), store.read('extract'), metadata, prior,
                            store.manifest['config']['v6']['identity_min_chapter_crops'],
                            minimum_events=store.manifest['config']['v6']['min_confirmed_call_events'])
     named = {persons.canonical(state, p) for p in state['persons'] if confirmed(state, p)}
