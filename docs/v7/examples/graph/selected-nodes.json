@@ -1,0 +1,628 @@
+{
+  "chapter": {
+    "chapter_id": "b68ed9e490d577e6",
+    "story_id": "iris-zero",
+    "chapter_label": "chapter-001",
+    "scene_ids": [
+      "scene:1",
+      "scene:2",
+      "scene:3",
+      "scene:4",
+      "scene:5",
+      "scene:6",
+      "scene:7",
+      "scene:8",
+      "scene:9",
+      "scene:10",
+      "scene:11",
+      "scene:12",
+      "scene:13",
+      "scene:14",
+      "scene:15",
+      "scene:16",
+      "scene:17",
+      "scene:18",
+      "scene:19",
+      "scene:20",
+      "scene:21",
+      "scene:22"
+    ]
+  },
+  "counts": {
+    "scenes": 22,
+    "events": 42,
+    "utterances": 260,
+    "name_groups": 4
+  },
+  "editorial_descriptions": {
+    "story": "Toàn bộ truyện Iris Zero; các chapter cùng story_id được tổ chức dưới node này.",
+    "chapter": "chapter-001 trong lượt graph này chứa 22 scene, 42 event và 260 utterance."
+  },
+  "scene": {
+    "scene_id": "scene:10",
+    "title": "Rumors Spread",
+    "summary": "The next morning, Toru's friends discuss the rumors of Koyuki's confession, while Toru tries to ignore it.",
+    "initial_description": "The next morning, Toru's friends discuss the rumors of Koyuki's confession, while Toru tries to ignore it.",
+    "description": "The next morning, Toru's friends discuss the rumors of Koyuki's confession, while Toru tries to ignore it.",
+    "description_confidence": 10,
+    "target_ids": [
+      "b68ed9e490d577e6:p17:g3:u",
+      "b68ed9e490d577e6:p17:g2:u",
+      "b68ed9e490d577e6:p17:g7:u",
+      "b68ed9e490d577e6:p17:g8:u",
+      "b68ed9e490d577e6:p17:g5:u",
+      "b68ed9e490d577e6:p17:g1:u",
+      "b68ed9e490d577e6:p17:g6:u",
+      "b68ed9e490d577e6:p17:g4:u",
+      "b68ed9e490d577e6:p17:t9:u",
+      "b68ed9e490d577e6:p18:g4:u",
+      "b68ed9e490d577e6:p18:t1:u",
+      "b68ed9e490d577e6:p18:g3:u",
+      "b68ed9e490d577e6:p18:t3:u",
+      "b68ed9e490d577e6:p18:g2:u",
+      "b68ed9e490d577e6:p18:g1:u",
+      "b68ed9e490d577e6:p18:g7:u",
+      "b68ed9e490d577e6:p18:g6:u",
+      "b68ed9e490d577e6:p18:g5:u"
+    ],
+    "events": [
+      {
+        "event_id": "scene:10:event:1",
+        "scene_id": "scene:10",
+        "title": "Morning Gossip 1",
+        "initial_description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+        "description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+        "description_confidence": 10,
+        "target_ids": [
+          "b68ed9e490d577e6:p17:g3:u",
+          "b68ed9e490d577e6:p17:g2:u",
+          "b68ed9e490d577e6:p17:g7:u",
+          "b68ed9e490d577e6:p17:g8:u",
+          "b68ed9e490d577e6:p17:g5:u",
+          "b68ed9e490d577e6:p17:g1:u",
+          "b68ed9e490d577e6:p17:g6:u",
+          "b68ed9e490d577e6:p17:g4:u"
+        ],
+        "status": "pending"
+      },
+      {
+        "event_id": "scene:10:event:2",
+        "scene_id": "scene:10",
+        "title": "Morning Gossip 2",
+        "initial_description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+        "description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+        "description_confidence": 10,
+        "target_ids": [
+          "b68ed9e490d577e6:p17:t9:u",
+          "b68ed9e490d577e6:p18:g4:u",
+          "b68ed9e490d577e6:p18:t1:u",
+          "b68ed9e490d577e6:p18:g3:u",
+          "b68ed9e490d577e6:p18:t3:u",
+          "b68ed9e490d577e6:p18:g2:u",
+          "b68ed9e490d577e6:p18:g1:u",
+          "b68ed9e490d577e6:p18:g7:u"
+        ],
+        "status": "pending",
+        "continuation_of": "scene:10:event:1"
+      },
+      {
+        "event_id": "scene:10:event:3",
+        "scene_id": "scene:10",
+        "title": "Morning Gossip 3",
+        "initial_description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+        "description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+        "description_confidence": 10,
+        "target_ids": [
+          "b68ed9e490d577e6:p18:g6:u",
+          "b68ed9e490d577e6:p18:g5:u"
+        ],
+        "status": "pending",
+        "continuation_of": "scene:10:event:2"
+      }
+    ],
+    "hypotheses": [],
+    "resolution": "model"
+  },
+  "event": {
+    "event_id": "scene:10:event:1",
+    "scene_id": "scene:10",
+    "title": "Morning Gossip 1",
+    "initial_description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+    "description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile.",
+    "description_confidence": 10,
+    "target_ids": [
+      "b68ed9e490d577e6:p17:g3:u",
+      "b68ed9e490d577e6:p17:g2:u",
+      "b68ed9e490d577e6:p17:g7:u",
+      "b68ed9e490d577e6:p17:g8:u",
+      "b68ed9e490d577e6:p17:g5:u",
+      "b68ed9e490d577e6:p17:g1:u",
+      "b68ed9e490d577e6:p17:g6:u",
+      "b68ed9e490d577e6:p17:g4:u"
+    ],
+    "status": "pending"
+  },
+  "utterance": {
+    "id": "b68ed9e490d577e6:p17:g7:u",
+    "group_id": "b68ed9e490d577e6:p17:g7",
+    "page": 17,
+    "page_id": "b68ed9e490d577e6:p17",
+    "panel_index": 2,
+    "panel_indices": [
+      0,
+      2,
+      3
+    ],
+    "bbox": [
+      329,
+      303,
+      480,
+      682
+    ],
+    "text": "YOU'RE ALL OVER THE RUMOURS! THE SAY SASAMORI- CHAN CONFESSED TO YOU.",
+    "text_original": [
+      "YOU'RE ALL OVER THE RUMOURS!",
+      "THE SAY SASAMORI- CHAN CONFESSED TO YOU."
+    ],
+    "source_text_ids": [
+      "b68ed9e490d577e6:p17:t2",
+      "b68ed9e490d577e6:p17:t4"
+    ],
+    "source_boxes": [
+      {
+        "id": "b68ed9e490d577e6:p17:t2",
+        "page_id": "b68ed9e490d577e6:p17",
+        "page": 17,
+        "text_index": 2,
+        "reading_order": 92,
+        "text": "YOU'RE ALL OVER THE RUMOURS!",
+        "bbox": [
+          345.7197265625,
+          349.36700439453125,
+          434.55621337890625,
+          397.50531005859375
+        ],
+        "panel_index": 2,
+        "character_detection_index": 7,
+        "speaker_cluster_id": "b68ed9e490d577e6:p17:c0",
+        "speaker_id": 2,
+        "speaker_display_label": "2",
+        "speaker_status": "resolved",
+        "tail_index": 1,
+        "is_essential_text": true,
+        "speaker_affinity": null,
+        "speaker_affinity_source": "not_exposed_by_magi_prediction",
+        "association_source": "magi_text_character_associations",
+        "ocr_detail": {
+          "raw_text": "YOU'RE ALL\nOVER THE\nRUMOURS!",
+          "text": "YOU'RE ALL OVER THE RUMOURS!",
+          "output_tokens": 15,
+          "truncated": false,
+          "empty": false
+        },
+        "group_id": "b68ed9e490d577e6:p17:g7",
+        "part_ids": [
+          "b68ed9e490d577e6:p17:g7:part1"
+        ],
+        "mapping_status": "matched",
+        "coverage": 1.0,
+        "role_evidence": {
+          "koharu_class_1": [],
+          "final_role": false
+        },
+        "source_text_id": "b68ed9e490d577e6:p17:t2"
+      },
+      {
+        "id": "b68ed9e490d577e6:p17:t4",
+        "page_id": "b68ed9e490d577e6:p17",
+        "page": 17,
+        "text_index": 4,
+        "reading_order": 94,
+        "text": "THE SAY SASAMORI- CHAN CONFESSED TO YOU.",
+        "bbox": [
+          363.0343017578125,
+          515.2824096679688,
+          470.5187683105469,
+          602.3588256835938
+        ],
+        "panel_index": 3,
+        "character_detection_index": 6,
+        "speaker_cluster_id": "b68ed9e490d577e6:p17:c2",
+        "speaker_id": 12,
+        "speaker_display_label": "12",
+        "speaker_status": "resolved",
+        "tail_index": null,
+        "is_essential_text": true,
+        "speaker_affinity": null,
+        "speaker_affinity_source": "not_exposed_by_magi_prediction",
+        "association_source": "magi_text_character_associations",
+        "ocr_detail": {
+          "raw_text": "THE SAY\nSASAMORI-\nCHAN\nCONFESSED\nTO YOU.",
+          "text": "THE SAY SASAMORI- CHAN CONFESSED TO YOU.",
+          "output_tokens": 21,
+          "truncated": false,
+          "empty": false
+        },
+        "group_id": "b68ed9e490d577e6:p17:g7",
+        "part_ids": [
+          "b68ed9e490d577e6:p17:g7:part1"
+        ],
+        "mapping_status": "matched",
+        "coverage": 1.0,
+        "role_evidence": {
+          "koharu_class_1": [],
+          "final_role": false
+        },
+        "source_text_id": "b68ed9e490d577e6:p17:t4"
+      }
+    ],
+    "raw_character_candidates": [
+      {
+        "source_text_id": "b68ed9e490d577e6:p17:t2",
+        "speaker_cluster_id": "b68ed9e490d577e6:p17:c0",
+        "source_speaker_id": 2,
+        "character_detection_index": 7,
+        "association_source": "magi_text_character_associations"
+      },
+      {
+        "source_text_id": "b68ed9e490d577e6:p17:t4",
+        "speaker_cluster_id": "b68ed9e490d577e6:p17:c2",
+        "source_speaker_id": 12,
+        "character_detection_index": 6,
+        "association_source": "magi_text_character_associations"
+      }
+    ],
+    "part_ids": [
+      "b68ed9e490d577e6:p17:g7:part1"
+    ],
+    "visual_evidence": [
+      {
+        "bubble_shape": "spiky",
+        "border_style": "solid",
+        "bubble_style": "unknown",
+        "confidence": 0.75,
+        "confidence_kind": "heuristic_not_calibrated",
+        "source": "geometry_rules_v1",
+        "style_hints": [],
+        "evidence": {
+          "solidity": 0.9117,
+          "rectangularity": 0.791,
+          "circularity": 0.5467,
+          "acute_corners": 3,
+          "border_dark_support": 0.9014,
+          "border_transitions": 2
+        },
+        "text_used": false,
+        "feature_sources": [
+          "image_pixels",
+          "geometry_masks"
+        ],
+        "observed_boundary_fraction": 0.90678,
+        "rejection_reasons": [
+          "visual_support_below_acceptance"
+        ],
+        "policy": "visual-hints-v6.1",
+        "part_id": "b68ed9e490d577e6:p17:g7:part1"
+      }
+    ],
+    "role_evidence": [
+      {
+        "koharu_class_1": [],
+        "final_role": false
+      },
+      {
+        "koharu_class_1": [],
+        "final_role": false
+      }
+    ],
+    "content_type": "unknown",
+    "content_review_status": "provisional",
+    "speaker_id": null,
+    "speaker_person_id": null,
+    "speaker_display_label": "Other",
+    "addressee_ids": [],
+    "is_essential_text": true,
+    "reading_order": 85,
+    "normalization_reasons": [
+      "physical_group_v6"
+    ]
+  },
+  "single_event": {
+    "event_id": "scene:12:event:1",
+    "scene_id": "scene:12",
+    "title": "Whispers About the Iris",
+    "initial_description": "Students speculate on why Koyuki is hanging out with Toru, suggesting he should be left alone.",
+    "description": "Students speculate on why Koyuki is hanging out with Toru, suggesting he should be left alone.",
+    "description_confidence": 10,
+    "target_ids": [
+      "b68ed9e490d577e6:p21:g4:u",
+      "b68ed9e490d577e6:p21:g1:u",
+      "b68ed9e490d577e6:p21:g5:u",
+      "b68ed9e490d577e6:p21:g3:u",
+      "b68ed9e490d577e6:p21:g6:u",
+      "b68ed9e490d577e6:p21:g2:u"
+    ],
+    "status": "pending"
+  },
+  "packet_rows": [
+    {
+      "id": "u83",
+      "text": "MORNING~",
+      "page": 17,
+      "primary_panel": 0,
+      "panels": [
+        0,
+        1
+      ],
+      "bbox": [
+        861,
+        196,
+        959,
+        378
+      ]
+    },
+    {
+      "id": "u84",
+      "text": "TORU-KUN!",
+      "page": 17,
+      "primary_panel": 0,
+      "panels": [
+        0,
+        2
+      ],
+      "bbox": [
+        414,
+        41,
+        510,
+        177
+      ]
+    },
+    {
+      "id": "u85",
+      "text": "YOU'RE ALL OVER THE RUMOURS! THE SAY SASAMORI- CHAN CONFESSED TO YOU.",
+      "page": 17,
+      "primary_panel": 2,
+      "panels": [
+        0,
+        2,
+        3
+      ],
+      "bbox": [
+        329,
+        303,
+        480,
+        682
+      ]
+    },
+    {
+      "id": "u86",
+      "text": "HJIJIRI... YOU SURE ARE HAPPY EVEN THOUGH IT'S SO EARLY IN THE MORNING...",
+      "page": 17,
+      "primary_panel": 2,
+      "panels": [
+        2
+      ],
+      "bbox": [
+        73,
+        210,
+        204,
+        378
+      ]
+    },
+    {
+      "id": "u87",
+      "text": "HUH?",
+      "page": 17,
+      "primary_panel": 3,
+      "panels": [
+        3
+      ],
+      "bbox": [
+        72,
+        587,
+        144,
+        689
+      ]
+    },
+    {
+      "id": "u88",
+      "text": "YOU KNOW? SASAMORI KOYUKI? SHE'S SWEET, CUTE, AND HAS SUCH A MODEST PERSONALITY.",
+      "page": 17,
+      "primary_panel": 4,
+      "panels": [
+        4
+      ],
+      "bbox": [
+        770,
+        740,
+        964,
+        1012
+      ]
+    },
+    {
+      "id": "u89",
+      "text": "SHE'S POPULAR ENOUGH TO RANK IN THE TOP 5 OF THE MOST POPULAR GIRLS, AND TO THINK SHE CONFESSED TO YOU.",
+      "page": 17,
+      "primary_panel": 4,
+      "panels": [
+        4
+      ],
+      "bbox": [
+        289,
+        919,
+        470,
+        1138
+      ]
+    },
+    {
+      "id": "u90",
+      "text": "HMMM. SO THAT GIRL YESTERDAY WAS SASA- MORI, HUH?",
+      "page": 17,
+      "primary_panel": 4,
+      "panels": [
+        4,
+        5
+      ],
+      "bbox": [
+        120,
+        1077,
+        336,
+        1353
+      ]
+    },
+    {
+      "id": "u91",
+      "text": "---",
+      "page": 17,
+      "primary_panel": 5,
+      "panels": [
+        5
+      ],
+      "bbox": [
+        115,
+        1067,
+        182,
+        1101
+      ]
+    },
+    {
+      "id": "u92",
+      "text": "TORU, YOU DIDN'T KNOW THAT!?",
+      "page": 18,
+      "primary_panel": 0,
+      "panels": [
+        0
+      ],
+      "bbox": [
+        708,
+        120,
+        874,
+        313
+      ]
+    },
+    {
+      "id": "u93",
+      "text": "NO WAY~!",
+      "page": 18,
+      "primary_panel": 0,
+      "panels": [
+        0
+      ],
+      "bbox": [
+        643,
+        221,
+        706,
+        270
+      ]
+    },
+    {
+      "id": "u94",
+      "text": "DOES IT REALLY MATTER? SHE'S GOT NOTHING TO DO WITH ME.",
+      "page": 18,
+      "primary_panel": 0,
+      "panels": [
+        0
+      ],
+      "bbox": [
+        162,
+        111,
+        326,
+        290
+      ]
+    },
+    {
+      "id": "u95",
+      "text": "WHAT'S WRONG WITH THAT?",
+      "page": 18,
+      "primary_panel": 0,
+      "panels": [
+        0
+      ],
+      "bbox": [
+        98,
+        213,
+        162,
+        279
+      ]
+    },
+    {
+      "id": "u96",
+      "text": "SHE CONFESSES AND IT'S GOT NOTHING TO DO WITH YOU...?",
+      "page": 18,
+      "primary_panel": 1,
+      "panels": [
+        1
+      ],
+      "bbox": [
+        763,
+        364,
+        897,
+        561
+      ]
+    },
+    {
+      "id": "u97",
+      "text": "THAT'S NOT WHAT HAPPENED YESTERDAY. AND BE- SIDES... ...I TOLD HER ABOUT MY IRIS...",
+      "page": 18,
+      "primary_panel": 1,
+      "panels": [
+        1,
+        2
+      ],
+      "bbox": [
+        323,
+        395,
+        538,
+        725
+      ]
+    },
+    {
+      "id": "u98",
+      "text": "...I SEE. BUT, YOU WERE AT LEAST A LITTLE BIT HAPPY, RIGHT?",
+      "page": 18,
+      "primary_panel": 3,
+      "panels": [
+        3
+      ],
+      "bbox": [
+        770,
+        856,
+        896,
+        1035
+      ]
+    },
+    {
+      "id": "u99",
+      "text": "...HOW DO YOU EXPECT ME TO ANSWER THAT...?",
+      "page": 18,
+      "primary_panel": 3,
+      "panels": [
+        3
+      ],
+      "bbox": [
+        642,
+        875,
+        769,
+        1046
+      ]
+    },
+    {
+      "id": "u100",
+      "text": "AH! GOOD MORNING, MIZUSHIMA- SAN!",
+      "page": 18,
+      "primary_panel": 3,
+      "panels": [
+        3,
+        4
+      ],
+      "bbox": [
+        348,
+        1122,
+        620,
+        1363
+      ]
+    }
+  ],
+  "maximum_event_utterances": 8,
+  "note": "Story/chapter descriptions are explanatory captions, not generated graph fields."
+}

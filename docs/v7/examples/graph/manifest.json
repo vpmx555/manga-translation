@@ -1,0 +1,40 @@
+{
+  "source_run": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40",
+  "source_artifacts": {
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\05_graph\\result.json": "e85cbb7abfdf52bb97fbbb14f1a8cf1de26507b584d330110684ce455eb91f3e",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\05_graph\\packet.json": "63cdfccfc49d159d1c27d43412fb3484699655717b3f824276acdc83e69ffc17",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\05_graph\\reference-ledger.json": "556c19f83da5adf46ded3ccd95addf330de12d1aa9f8f2409df4a7da0afecc50",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\04_normalize\\result.json": "1a5839615f29dee56d27eb0e9d545dc7094aca3c1e16d4d70d9c1563665c6c38",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\manifest.json": "9cea9bc0d47a7ef875352d483383c0e279afb1edce6027bae56d5f15662f04d2",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\05_graph\\ocr-current.json": "8e7367ef815e61881f0e8f8753357e7fa445fe1485cb77f178c2ad3f702d071e",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\05_graph\\replacement-history.json": "1c415216478383cac3fb2957727e7494a19f42c8e43662ede6f1704b115c27d3"
+  },
+  "current_policy_source": {
+    "path": "D:\\AIP491\\manga-translate-v2\\src\\manga_pipeline\\v6\\graph.py",
+    "sha256": "7eddfebde96d515ddfe12a2dd46c475e3a9bc54ec66815ba2990be3c57ba3e60"
+  },
+  "generator_sha256": "7590adf0bd47164bfcb4b0b3fbdff10e5c75cc26649e492426df1fe357558bf7",
+  "model_requests": 0,
+  "editorial_notes": {
+    "five_level_hierarchy": "Conceptual story/chapter containers plus saved scene/event/utterance nodes.",
+    "muted_nodes": "Illustrative other stories/chapters, not extra processed data.",
+    "descriptions": "Only scene/event descriptions are quoted model descriptions; other captions are editorial."
+  },
+  "assets": {
+    "event-continuations.png": "9d2683d456b084871857173b633607e7cae2ccb29ff6e610b1d66e471f467c88",
+    "five-level-hierarchy.png": "086c42c88af3fdd2dc747bd19943db65aa04afd814c13bf046c8fa6ed7701db3",
+    "ocr-current.json": "8e7367ef815e61881f0e8f8753357e7fa445fe1485cb77f178c2ad3f702d071e",
+    "output-chapter.png": "9c793e6514314205678442dbdf25cfc7e18884584852db79f955a190165eb084",
+    "packet-full.json": "63cdfccfc49d159d1c27d43412fb3484699655717b3f824276acdc83e69ffc17",
+    "reference-ledger.json": "556c19f83da5adf46ded3ccd95addf330de12d1aa9f8f2409df4a7da0afecc50",
+    "replacement-history.json": "1c415216478383cac3fb2957727e7494a19f42c8e43662ede6f1704b115c27d3",
+    "result.json": "e85cbb7abfdf52bb97fbbb14f1a8cf1de26507b584d330110684ce455eb91f3e",
+    "selected-nodes.json": "750d3642f44f2a67016ef3c1b624e47bfa517e93d5ccd09163a92f0a44742ad6",
+    "transcript-normalized.txt": "1070ddeb1d2d651e80c5f695a962fd62b1fa418725c8f287a596fb943f6b9ea9",
+    "zoom-chapter.png": "7b9d9b1bbb4669575b3e171507a163081ce05a8fcef44b54c71faf4fe29e50c2",
+    "zoom-event.png": "fcff609fb3c183a1520572397b598e138c7a7cf3f22dfe2b7a21e0c6be881eb6",
+    "zoom-scene.png": "3fef611313f0a354356d8e43dc1fe2dd88ad0d3f47721ab074a1d50e7545ba9d",
+    "zoom-story.png": "982fb77e806f014a8f25b5586878d685fa32b6d575a8da0d19fe9f37d90d7fe0",
+    "zoom-utterance.png": "09b17eb46c6c793b32fe9bb2c87f995a1d6037ef30a01a5a3d676ded94650847"
+  }
+}

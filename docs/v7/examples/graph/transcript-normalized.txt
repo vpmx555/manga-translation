@@ -1,0 +1,263 @@
+TRANSCRIPT MAGI ĐÃ NORMALIZE — BẢN DỄ ĐỌC
+Giữ nguyên text input; lược metadata, không có nhãn speaker được suy đoán.
+
+[u0 | trang 1 | panel None] ISBN978-4-8401-2927-5 C9979 ¥524E
+[u1 | trang 1 | panel None] 定価:本体524円(税別) 雑誌52648-27 メディアファクトリー
+[u2 | trang 1 | panel None] IN A WORLD WHERE IT'S NORMAL FOR YOUNG BOYS AND GIRLS TO POSSESS A SPECIAL POWER KNOWN AS "IRIS"... TORU, A BOY WHO "DOESN'T HAVE ANY POWER" AND IS THEREFORE THE TARGET OF CONSTANT BULLYING, LIVED BY HIS MOTTO OF 'MINIMAL EXPOSURE' - TO LIVE WITHOUT STANDING OUT. HOWEVER, AFTER RECEIVING A CERTAIN "CONFESSION" FROM KOYUKI, A POPULAR GIRL AT SCHOOL, HIS SUPPOSEDLY PEACEFUL SCHOOL LIFE IS SHATTERED. THUS, HIS MOTTO BEGINS TO SHAKE...! THIS IS AN EXCITING SCHOOL FANTASY STORY THAT STARTS FROM THE MEETING OF A BOY AND GIRL.
+[u3 | trang 1 | panel None] 9784840129275
+[u4 | trang 1 | panel None] 1929979005245
+[u5 | trang 1 | panel None] MFコミックス alive SERIES
+[u6 | trang 1 | panel None] 蛍たかな +ピロ式 Hotarutakana + Piroshiki
+[u7 | trang 1 | panel None] FACTORY
+[u8 | trang 2 | panel None] IN CLASS 2-6 WITH ASAHI AND HIJIRI
+[u9 | trang 2 | panel None] Koyuki Sasamori
+[u10 | trang 2 | panel None] HER IRIS ALLOWS HER TO SEE QUALIFIED PEOPLE. WHETHER A PERSON IS QUALIFIED OR NOT IS INDICATED BY AN O OR X ABOVE THEIR HEAD. AS FOR WHAT A PERSON IS QUALIFIED FOR, THAT IS DETERMINED BY WHAT KOYUKI IS THINKING OF AT THAT MOMENT.
+[u11 | trang 2 | panel None] IN CHAPTER 1, WHILE ELECTING A PRESIDENT, THE REASON SHE ONLY LOOKED AT STUDENTS WAS BECAUSE IN ORDER TO BE QUALIFIED TO BE THE PRESIDENT IN THAT SCHOOL, YOU HAVE TO BE ONE OF THEIR STUDENTS, SO THAT CONDITION WAS ADDED IN AUTOMATICALLY. THAT'S WHY KOYUKI WAS QUITE TROUBLED AFTER HAVING LOOKED AT ALMOST ALL THE STUDENTS.
+[u12 | trang 2 | panel None] HIS PERSONALITY IS PESSIMISTIC AND RUDE, BOTH SEEM TO HAVE BEEN BORN AS A RESULT OF BULLYING. AS ONE WOULD EXPECT, AFTER HIS EXPERIENCES FROM HIS ELEMENTARY SCHOOL YEARS, THE DEBUT OF HIS "MINIMAL EXPOSURE" POLICY WAS IN HIGH SCHOOL, HOWEVER, IN THE FIRST CHAPTER, THE NATURAL ENEMY OF THAT PEACEFUL SCHOOL LIFE APPEARS... BUT BECAUSE OF HIS ABILITY TO ANALYZE, NO MATTER HOW MUCH HE TRIES, HE CAN'T CUT HIMSELF FREE FROM THIS UNLUCKY QUALITY OR HIS UNFORTUNATE PAST (REFERENCE TO CH4).
+[u13 | trang 2 | panel None] HE'S A NEGATIVE CHARACTER WHO YOU WOULDN'T THINK WOULD BE THE PROTAGONIST OF A SHOUNEN MANGA, AND HE WANTS TO CONTINUE DOING THINGS HIS WAY.
+[u14 | trang 2 | panel None] Toru Mizushima
+[u15 | trang 3 | panel None] THANK YOU VERY MUCH FOR PURCHASING THIS BOOK. THIS IS MY FIRST TANKOUBON... IT WOULD MAKE ME HAPPY IF YOU FEEL EVEN THE SLIGHTEST THING AFTER READING THIS MANGA.
+[u16 | trang 3 | panel None] Illustration: 蜜たかみ Design: 清水大輔(designCREST)
+[u17 | trang 4 | panel 0] I WONDER WHEN IT STARTED, WHEN CHILDREN WERE BORN WITH A POWER CALLED "IRIS" IN THEIR EYES.
+[u18 | trang 4 | panel 0] THE TYPE OF POWERS WERE VERY EXTENSIVE, "BEING ABE SEE FORMER LIVES", "BEING ABE SEE WHAT'S FOR DINNER".
+[u19 | trang 4 | panel 1] TORU, IF YOU WHY, THEY THEN WHY, THEY TRY AND "SEE" SOMETHING?
+[u20 | trang 4 | panel 1] IDIOT/ IT'S IMPOSSIBLE FOR THIS GUY.
+[u21 | trang 4 | panel 2] THIS POWER THAT ADULTS DIDN'T HAVE SPLIT THE WORLD INTO TWO: "THOSE WHO HAVE IT" AND "THOSE WHO DON'T".
+[u22 | trang 4 | panel 2] LIAR.
+[u23 | trang 4 | panel 3] AND BEFORE WE KNEW IT, IT BECAME A CERTIFIED WAY OF CHOOSING WHO WAS TO BE ALIENATED.
+[u24 | trang 5 | panel None] YOU'RE JUST AN "IRIS ZERO".
+[u25 | trang 5 | panel None] CHAPTER I: "THINGS THAT CAN'T BE SEEN"
+[u26 | trang 6 | panel 1] NOW THAT YOU MENTION IT, I JUST SAW SOMETHING STRANGE WITH MY IRIS.
+[u27 | trang 6 | panel 3] EHH, REALLY?
+[u28 | trang 6 | panel 3] A HA HA
+[u29 | trang 8 | panel 0] MY FAVORITE MOTTO IS "MINIMAL EXPOSURE"...
+[u30 | trang 8 | panel 0] NEWSPAPER: THE BULLYING PROBLEM: "EXTREMELY SERIOUS"
+[u31 | trang 8 | panel 2] BECAUSE FOOLISHLY ATTRACTING ATTENTION JUST MAKES MORE ENEMIES.
+[u32 | trang 8 | panel 5] ...I FOUND IT...
+[u33 | trang 9 | panel 0] THAT'S WHY I HIDE IN THE SHADOWS.
+[u34 | trang 9 | panel 1] ITS ALREADY BECOME A PART OF ME.
+[u35 | trang 9 | panel 4] GO CUTE!
+[u36 | trang 9 | panel 4] EH? WHY!?
+[u37 | trang 9 | panel 4] IT'S TRUE!
+[u38 | trang 9 | panel 4] IT'S SASA- MORI- SAN!
+[u39 | trang 9 | panel 4] WONDER WHY.
+[u40 | trang 9 | panel 4] WHOAA-
+[u41 | trang 9 | panel 4] KOYUKI- CHAN!? REALLY!?
+[u42 | trang 9 | panel 5] OR IT WAS SUPPOSED TO BE...
+[u43 | trang 9 | panel 6] 4/2 3
+[u44 | trang 9 | panel 6] UMM...
+[u45 | trang 10 | panel 0] UWAH!
+[u46 | trang 10 | panel 0] EH? SASAMORI- SAN?
+[u47 | trang 10 | panel 2] MIZUSHIMA TORU-SAN...
+[u48 | trang 10 | panel 3] !?
+[u49 | trang 10 | panel 4] PLEASE GO OUT WITH ME!
+[u50 | trang 10 | panel 4] !? ? ! ? ? !?
+[u51 | trang 11 | panel 0] ? ??
+[u52 | trang 11 | panel 4] EXPO- SURE RATE:
+[u53 | trang 11 | panel 4] 100%
+[u54 | trang 12 | panel 1] I FEEL LIKE DYING...
+[u55 | trang 12 | panel 1] ?
+[u56 | trang 12 | panel 2] IPANICKED AND RUSHED OUT OF THE CLASSROOM,
+[u57 | trang 12 | panel 2] HERE...
+[u58 | trang 12 | panel 2] AH, THANK YOU.
+[u59 | trang 12 | panel 2] BUT WHAT KIND OF FACE SHOULD I PLUT ON TOMORROW?
+[u60 | trang 12 | panel 2] UMM...
+[u61 | trang 12 | panel 3] COULD I HAVE YOUR REPLY TO WHAT I SAID EARLIER?
+[u62 | trang 12 | panel 4] AND LOOK FOR THE NEXT STUDENT COUNCIL PRESIDENT. YES! PLEASE GO OUT WITH ME...
+[u63 | trang 12 | panel 4] HUH?
+[u64 | trang 12 | panel 5] HUH? YOU WERE SERIOUS?
+[u65 | trang 13 | panel 0] MY IRIS ALLOWS ME TO SEE "QUALIFIED PEOPLE".
+[u66 | trang 13 | panel 1] AND DUE TO THIS, I M'FTEN GIVEN THE JOB OF DECIDING OFFICERS AND OTHER STAFF.
+[u67 | trang 13 | panel 2] BUT THIS YEAR, I COULDN'T FIND A "QUALIFIED PERSON" TO BE THE STUDENT COUNCIL PRESIDENT, NO MATTER HOW MUCH I TRIED... THIS IS THE FIRST TIME THIS HAS EVER HAPPENED... SO I DECIDED I NEEDED TO FIND SOMEONE TO HELP...
+[u68 | trang 13 | panel 2] AND THIS "QUALIFIED PERSON" TO DO THAT IS ME, HUH...?
+[u69 | trang 13 | panel 3] I SEE...
+[u70 | trang 13 | panel 4] OF COURSE I KNOW THAT TELLING YOU THIS ALL OF A SUDDEN IS A BOTHER...
+[u71 | trang 14 | panel 1] BUT, WILL YOU HELP ME?
+[u72 | trang 14 | panel 2] I DON'T HAVE ANYONE ELSE TO RELY ON.
+[u73 | trang 14 | panel 4] N...
+[u74 | trang 14 | panel 4] NO, BUT I... I'M...
+[u75 | trang 14 | panel 6] EH...?
+[u76 | trang 15 | panel 0] !!
+[u77 | trang 15 | panel 1] ...EH ...?
+[u78 | trang 15 | panel 4] ...! TCH!
+[u79 | trang 16 | panel 0] EH? WH- WHY...?
+[u80 | trang 16 | panel 1] ...SORRY, BUT YOUR EXPECTATIONS WERE MISPLACED.
+[u81 | trang 16 | panel 3] BECAUSE I DON'T HAVE AN "IRIS".
+[u82 | trang 16 | panel 4] ...!
+[u83 | trang 17 | panel 0] MORNING~
+[u84 | trang 17 | panel 0] TORU-KUN!
+[u85 | trang 17 | panel 2] YOU'RE ALL OVER THE RUMOURS! THE SAY SASAMORI- CHAN CONFESSED TO YOU.
+[u86 | trang 17 | panel 2] HJIJIRI... YOU SURE ARE HAPPY EVEN THOUGH IT'S SO EARLY IN THE MORNING...
+[u87 | trang 17 | panel 3] HUH?
+[u88 | trang 17 | panel 4] YOU KNOW? SASAMORI KOYUKI? SHE'S SWEET, CUTE, AND HAS SUCH A MODEST PERSONALITY.
+[u89 | trang 17 | panel 4] SHE'S POPULAR ENOUGH TO RANK IN THE TOP 5 OF THE MOST POPULAR GIRLS, AND TO THINK SHE CONFESSED TO YOU.
+[u90 | trang 17 | panel 4] HMMM. SO THAT GIRL YESTERDAY WAS SASA- MORI, HUH?
+[u91 | trang 17 | panel 5] ---
+[u92 | trang 18 | panel 0] TORU, YOU DIDN'T KNOW THAT!?
+[u93 | trang 18 | panel 0] NO WAY~!
+[u94 | trang 18 | panel 0] DOES IT REALLY MATTER? SHE'S GOT NOTHING TO DO WITH ME.
+[u95 | trang 18 | panel 0] WHAT'S WRONG WITH THAT?
+[u96 | trang 18 | panel 1] SHE CONFESSES AND IT'S GOT NOTHING TO DO WITH YOU...?
+[u97 | trang 18 | panel 1] THAT'S NOT WHAT HAPPENED YESTERDAY. AND BE- SIDES... ...I TOLD HER ABOUT MY IRIS...
+[u98 | trang 18 | panel 3] ...I SEE. BUT, YOU WERE AT LEAST A LITTLE BIT HAPPY, RIGHT?
+[u99 | trang 18 | panel 3] ...HOW DO YOU EXPECT ME TO ANSWER THAT...?
+[u100 | trang 18 | panel 3] AH! GOOD MORNING, MIZUSHIMA- SAN!
+[u101 | trang 19 | panel 0] Isn't the weather nice?
+[u102 | trang 19 | panel 1] !?
+[u103 | trang 19 | panel 3] ...WHY IS SHE...?
+[u104 | trang 19 | panel 3] WHOA~
+[u105 | trang 19 | panel 3] ...WHAT ARE YOU DOING?
+[u106 | trang 19 | panel 3] SO MANY PEOPLE~
+[u107 | trang 20 | panel 0] I'M LOOKING AT THE STUDENTS COMING TO SCHOOL.
+[u108 | trang 20 | panel 0] WHAT HAPPENED IS A SHAME, BUT I THOUGHT I'D TRY MY BEST WITH WHAT I CAN DO.
+[u109 | trang 20 | panel 1] EHH- THEY'RE TALKING.
+[u110 | trang 20 | panel 1] WHO'S THAT GUY?
+[u111 | trang 20 | panel 2] ...I SEE. WELL, I HOPE YOU FIND IT.
+[u112 | trang 20 | panel 2] THANK YOU!
+[u113 | trang 21 | panel 0] ...WHAT? ISN'T THAT THE "IRIS ZERO"?
+[u114 | trang 21 | panel 1] WHAT HAPPENED TO SASAMORI- SAN? WHY IS SHE GETTING SO CLOSE TO HIM?
+[u115 | trang 21 | panel 1] THE "IRIS ZERO" SNOUL JUST BE LEFT ALONE.
+[u116 | trang 21 | panel 1] ...EHH, THAT WAS A BIT OF A SHOCK.
+[u117 | trang 21 | panel 1] YEAH.
+[u118 | trang 21 | panel 3] ...THATS RIGHT.
+[u119 | trang 22 | panel 0] Don't get carried away!
+[u120 | trang 22 | panel 0] Stay way from yuki-chan! you're just an Iris Zero
+[u121 | trang 22 | panel 0] away Koyuk You'r
+[u122 | trang 22 | panel 1] RAISING MY EXPOSURE RATE WILL JUST MAKE MORE ENEMIES.
+[u123 | trang 22 | panel 3] I SHOULDN'T HANG AROUND SOMEONE WHO STANDS OUT SO MUCH..
+[u124 | trang 22 | panel 4] I NEED TO PROTECT MY MINIMAL EXPOSURE...
+[u125 | trang 22 | panel 5] BY THE WAY...
+[u126 | trang 23 | panel 0] ISN'T SHE THE FIRST ONE SINCE ME...
+[u127 | trang 23 | panel None] HMPH.
+[u128 | trang 23 | panel None] AND THE DAY AFTER THAT,
+[u129 | trang 23 | panel 2] SHE CONTINUED TO STAND AT THE SCHOOL GATES,
+[u130 | trang 23 | panel 2] GREETING ME AS IF NOTHING CHANGED.
+[u131 | trang 23 | panel 4] WHO STILL TALKS TO YOU DESPIE KNOWING THAT YOU DON'T HAVE AN IRIS?
+[u132 | trang 23 | panel None] THE NEXT DAY,
+[u133 | trang 24 | panel 0] LIBRARY
+[u134 | trang 24 | panel 2] AH...
+[u135 | trang 24 | panel 3] MIZU- SHIMA- SA...
+[u136 | trang 24 | panel 3] YOU SHOULD STOP DOING THAT.
+[u137 | trang 24 | panel 4] EH?
+[u138 | trang 24 | panel 5] I MEAN TALKING TO ME EVERY MORNING.
+[u139 | trang 24 | panel 5] DON'T YOU REALIZE IT'S STARTING TO DRAW ATTENTION?
+[u140 | trang 25 | panel 0] EHH!? I DIDN'T NOTICE!
+[u141 | trang 25 | panel 0] ...THEN ALLOW ME TELL YOU.
+[u142 | trang 25 | panel 1] WE "TRIS ZEROS" BEAT UP IF WE STAND OUT.
+[u143 | trang 25 | panel 2] ...STANDING OUT IS A MATTER OF LIFE AND DEATH.
+[u144 | trang 25 | panel 3] THAT'S WHY MY POLICY IS "MINIMAL EXPOSURE". ...PLEASE DON'T GET IN MY WAY OF THAT...
+[u145 | trang 26 | panel 0] And also...
+[u146 | trang 26 | panel 0] It'll also cause problems for her if too much attention is drawn to her handing around me...
+[u147 | trang 26 | panel 0] ...I'M SORRY... I DIDN'T THINK THAT I WAS TROUBLING YOU...
+[u148 | trang 26 | panel 2] ...BUT,
+[u149 | trang 26 | panel 2] IT'S ONLY UNTIL TODAY, SO PLEASE DON'T WORRY ANYMORE.
+[u150 | trang 26 | panel 3] TODAY?
+[u151 | trang 26 | panel 3] YES, TODAY IS THE TIME LIMIT.
+[u152 | trang 26 | panel 4] AHH...
+[u153 | trang 27 | panel 0] I GUESS SHE DIDN'T FIND ANYONE, HUH...?
+[u154 | trang 27 | panel 0] AFTER THIS, I AM GOING TO REPORT THAT I WAS UNABLE TO FIND A QUALIFIED PERSON. BUT...
+[u155 | trang 27 | panel 2] I TRIED MY BEST WITH WHAT I CAN DO...!
+[u156 | trang 27 | panel 2] WHAT SHE COULD DO...
+[u157 | trang 27 | panel 3] ...I GUESS. IT'S BETTER THAN SOMEONE LIKE ME WHO CAN'T SEE ANYTHING.
+[u158 | trang 27 | panel 4] EH? THAT'S NOT TRUE.
+[u159 | trang 27 | panel 5] HUH?
+[u160 | trang 27 | panel 5] I MEAN...
+[u161 | trang 28 | panel 0] UNLIKE US,
+[u162 | trang 28 | panel 0] YOU CAN SEE THE WORLD AS IT IS, WITHOUT ANY KIND OF FILTER, RIGHT?
+[u163 | trang 28 | panel 2] 1...
+[u164 | trang 28 | panel 2] AH... I'M SORRY, I SAID SOMETHING INSENSITIVE AGAIN, DIDN'T I?
+[u165 | trang 28 | panel 2] NO...
+[u166 | trang 28 | panel 2] CAN SEE...?
+[u167 | trang 29 | panel 0] BUT I REALLY WAS A LITTLE JEALOUS... WELL THEN, I NEED TO GO NOW.
+[u168 | trang 29 | panel 1] . . . .
+[u169 | trang 29 | panel 2] I thought I'd try my best and do what I can do.
+[u170 | trang 29 | panel 4] The things I can do...
+[u171 | trang 30 | panel 0] OKAY THEN, LET'S BEGIN THE STUDENT COUNCIL PRESIDENT ELECTION MEETING.
+[u172 | trang 30 | panel 2] ELECTION MEETING, HUH?
+[u173 | trang 30 | panel 3] IT'S JUST SASAMORI-CHAN BRINGING IN WHOEVER SHE "SAW," THEN WE HAVE AN APPOINTMENT CEREMONY, RIGHT?
+[u174 | trang 30 | panel 3] HEY, HE CAN HEAR YOU.
+[u175 | trang 30 | panel 3] DON'T YOU THINK SO TOO, YUUKI?
+[u176 | trang 30 | panel 3] IT'S STARTING
+[u177 | trang 30 | panel 5] OKAY THEN, PLEASE ANNOUNCE THE "QUALIFIED PERSON".
+[u178 | trang 30 | panel 5] SASAMORI- SAN.
+[u179 | trang 31 | panel 1] ... KOYUKI ...?
+[u180 | trang 31 | panel 3] I'M TERRIBLY SORRY.
+[u181 | trang 31 | panel 5] ...EH? WHAT DOES SHE MEAN?
+[u182 | trang 31 | panel 6] WHY?
+[u183 | trang 31 | panel 7] I TRIED, BUT I COULDN'T FIND ONE...
+[u184 | trang 32 | panel 0] ...EVE THOUGH YOU STOOD AT THE SCHOOL GATES LIKE THAT EVERY DAY?
+[u185 | trang 32 | panel 1] ARE YOU SURE THAT IT'S "YOU COULDN'T FIND ONE," AND NOT "YOU DIDN'T SEE ONE?"
+[u186 | trang 32 | panel 1] !?
+[u187 | trang 32 | panel 2] YOU'VE BEEN GETTING CLOSE TO THAT "TRIS ZERO" RECENTLY, HAVEN'T YOU?
+[u188 | trang 32 | panel 4] AND "SEEING AN O AND X ABOVE PEOPLE'S HEADS" SEEMS RATHER FAR-FETCHED...
+[u189 | trang 32 | panel 4] HEY ...
+[u190 | trang 32 | panel 5] IT'S TRUE THAT I'VE SEEN HER TALKING TO THE "IRIS ZERO"...
+[u191 | trang 32 | panel 5] THAT'S ... ...
+[u192 | trang 32 | panel 5] NO WAY. REALLY?
+[u193 | trang 32 | panel 5] SASAMORI SAN DID THAT?
+[u194 | trang 32 | panel 5] DON'T TELL ME...
+[u195 | trang 33 | panel 0] THE MOOD'S GETTING BAD...
+[u196 | trang 33 | panel 0] ... KOYUKI ... ISN'T SOME- ONE WHO WOULD LIE...
+[u197 | trang 33 | panel 2] BUT ITS ALSO TRUE THAT SASAMORI-SAN COULDN'T FIND A QUALIFIED PERSON.
+[u198 | trang 33 | panel 3] WHATLL YOU DO ...?
+[u199 | trang 33 | panel 3] SASAMORISAN, DON'T TELL ME...
+[u200 | trang 33 | panel 3] YOU GOT CLOSE TO HIM BECAUSE YOU'RE ALSO AN "TRIS ZERO"...?
+[u201 | trang 33 | panel 3] THAT'S ..
+[u202 | trang 33 | panel 4] NO....!!
+[u203 | trang 33 | panel 4] MIZUSHIMA- SAN JUST HELPED ME...
+[u204 | trang 34 | panel 1] EH?
+[u205 | trang 35 | panel 0] "AHH ..."
+[u206 | trang 35 | panel 1] "WRONG ROOM."
+[u207 | trang 35 | panel 1] THERE'S SOMETHING THERE.
+[u208 | trang 35 | panel 1] THE "IRIS ZERO"?
+[u209 | trang 35 | panel 1] WEIRD GUY.
+[u210 | trang 35 | panel 2] MIZU- SHIMA- SAN...
+[u211 | trang 35 | panel 2] WHAT'S WITH HIM?
+[u212 | trang 35 | panel 3] WH-WHAT'S WRONG WITH... UMM... YOUR HEAD...
+[u213 | trang 35 | panel 4] MY HEAD? OH, YEAH...
+[u214 | trang 36 | panel 0] "I CAN'T BELIEVE THIS HAPPENED!"
+[u215 | trang 36 | panel 0] I DIDN'T NOTICE AT ALL...
+[u216 | trang 36 | panel 0] ?
+[u217 | trang 36 | panel 1] I MEAN, I CAN'T SEE WHAT'S ABOVE MY OWN HEAD, RIGHT?
+[u218 | trang 36 | panel 2] EH...
+[u219 | trang 36 | panel 2] ABOVE ... YOUR OWN HEAD ...?
+[u220 | trang 36 | panel 4] EH, DOESN'T THAT MEAN...?
+[u221 | trang 36 | panel 4] AH. NOW THAT I THINK ABOUT IT...
+[u222 | trang 36 | panel 4] SASAMORI- SAN'S "IRIS"...
+[u223 | trang 37 | panel 0] SHOWS AN O OR X...
+[u224 | trang 37 | panel 0] ABOVE A PERSON'S HEAD...
+[u225 | trang 37 | panel 1] EH? THEN,
+[u226 | trang 37 | panel 1] DOESN'T THAT MEAN...
+[u227 | trang 37 | panel 1] THE QUALIFIED PERSON
+[u228 | trang 37 | panel 1] IS SASAMORI- SAN HER- SELF...?
+[u229 | trang 37 | panel 2] EH...?
+[u230 | trang 37 | panel 2] EHHH !?
+[u231 | trang 38 | panel 0] Yeah, that has to be it!
+[u232 | trang 38 | panel 0] Sasamori- san's definitely qualified!
+[u233 | trang 38 | panel 1] Sorry about earlier!
+[u234 | trang 38 | panel 1] AH UMM...
+[u235 | trang 38 | panel 1] I've got no problem with you doing it!
+[u236 | trang 39 | panel None] My policy is "minimal exposure".
+[u237 | trang 39 | panel 1] EH? MIZUSHIMA- SA...
+[u238 | trang 39 | panel 2] TORU...
+[u239 | trang 39 | panel 3] ....! EXCUSE ME FOR A SECOND!
+[u240 | trang 39 | panel 5] MIZUSHIMA- SA...
+[u241 | trang 39 | panel 5] RISKED ALL THAT ATTENTION FOR ME...!
+[u242 | trang 40 | panel 5] ...YOU SHOWED OFF TOO MUCH...
+[u243 | trang 41 | panel 0] AFTER THAT, THE PRESIDENT WAS UNANI- MOUSLY DECIDED UPON.
+[u244 | trang 41 | panel 2] AND SO, MY DAYS OF "MINIMAL EXPOSURE"...
+[u245 | trang 41 | panel 2] Good morning, Mizushima- san!
+[u246 | trang 42 | panel 0] 'NING.
+[u247 | trang 42 | panel 0] !
+[u248 | trang 42 | panel 2] That's the first time you returned my greeting! I'm so happy!
+[u249 | trang 42 | panel 2] BE QUIET. STAY AWAY FROM ME.
+[u250 | trang 42 | panel 2] 左 左
+[u251 | trang 42 | panel 2] ...THAT'S RIGHT. ILL BE HAPPY IF THEY RETURN SOON...
+[u252 | trang 42 | panel 2] 太
+[u253 | trang 42 | panel 3] I MEAN, YOU STAND OUT TOO MUCH.
+[u254 | trang 42 | panel 3] DON'T COME WITHIN 5OM OF ME.
+[u255 | trang 42 | panel 3] Ehehehe, No~
+[u256 | trang 43 | panel 0] WHY!?
+[u257 | trang 43 | panel 1] ...MIZU- SHIMA... TORU...
+[u258 | trang 44 | panel 0] MIZUSHIMA-SAN! MIZUSHIMA-SAN!
+[u259 | trang 44 | panel 0] PAW

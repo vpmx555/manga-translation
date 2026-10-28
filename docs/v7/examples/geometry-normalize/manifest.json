@@ -1,0 +1,72 @@
+{
+  "source_run": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e",
+  "source_artifacts": {
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\manifest.json": "95ebf182ae2f678fd00309feb12d126fbef9977846fa5ebfad958a49fe6c0ef7",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\01_layout\\result.json": "a248012dbe56820d502c897b1bdff5b1cb0d273a8bdf4f5009364057851b04cc",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\02_extract\\result.json": "bf013e6add869488fd45d112ab60c2b090e1f50fb432e085e058018757e2b2c9",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\result.json": "eec0ac77f19338bdb10ce069c6b44586a5398864c8db304a2c047bcf297c2447",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\04_normalize\\result.json": "1a5839615f29dee56d27eb0e9d545dc7094aca3c1e16d4d70d9c1563665c6c38",
+    "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\17.webp": "bd5de0fddc6a5452c64d59d6b5f56a2d3da5dc7c496cf49e1e3991e2662b8e64",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\masks\\b68ed9e490d577e6-p17\\7-refined.png": "b60421b92f4db224c6aadf6fad9d2271e13ae4cb72fd94eb3c9966862ebd036e",
+    "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\11.webp": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-graph-v7-l40s-20261026-r4\\live\\outputs\\iris-zero\\chapter-001\\20261026T101458Z-e586087e\\03_bubble_geometry\\masks\\b68ed9e490d577e6-p11\\2-refined.png": "a2e9f9bc681701db65e869caafd0e7ba86add024e9d362cc587a073702e7d98b"
+  },
+  "generator_sha256": "13910305ef01143ce2ee312c5f53f37a3e49a8534098c38236beb0aa04523efc",
+  "model_requests": 0,
+  "figures": {
+    "geometry-double-bubble.png": {
+      "page": 17,
+      "crop": [
+        260,
+        260,
+        545,
+        725
+      ],
+      "highlighted_candidates": [
+        "p17:b14",
+        "p17:b16"
+      ],
+      "all_candidates": [
+        "p17:b7",
+        "p17:b11",
+        "p17:b12",
+        "p17:b14",
+        "p17:b16"
+      ]
+    },
+    "geometry-multi-panel.png": {
+      "page": 11,
+      "crop": [
+        38,
+        955,
+        395,
+        1305
+      ],
+      "highlighted_candidates": [
+        "p11:b4",
+        "p11:b5"
+      ]
+    },
+    "normalize-before-after.png": {
+      "page": 17,
+      "crop": [
+        260,
+        260,
+        545,
+        725
+      ],
+      "utterance_id": "b68ed9e490d577e6:p17:g7:u"
+    }
+  },
+  "assets": {
+    "examples.json": "f0b7020812bf1622d924792729f1a969f05151ef682f7da7771ce3e1072e46e0",
+    "extract-input-page-17.png": "149745153c494ab888834b35e1d3a4e8f9fdf00103be9ddf8943dba835c8e89c",
+    "geometry-double-bubble.png": "42bcabe39201c5ea267b4c9923aa91e6bc79e1a1ca4a09c63867a447ec09d447",
+    "geometry-multi-panel.png": "bbf162281aa62b87795ee0a0b1100652a6340d5c6e489e61ac2bb28132607d34",
+    "geometry-output-page-17.png": "7aa5f93cc3fa1545c17d19169824006f8b85ead9acb3ef37e65bfc613baa4a49",
+    "input-page-11.webp": "3d975d4d7ca08d600aaaed37d15cf0a0f68f36c10941c05e54f6aba6d2e4550d",
+    "input-page-17.webp": "bd5de0fddc6a5452c64d59d6b5f56a2d3da5dc7c496cf49e1e3991e2662b8e64",
+    "layout-input-page-17.png": "7014d88a252cd70574adce9884f3a9dcf46ec4f633175da72534a08b01310098",
+    "normalize-before-after.png": "574c5d45f3fefc92c1d7daa6939797ebfa1963cde16cf95a41e51a9d5eed4bbb"
+  }
+}

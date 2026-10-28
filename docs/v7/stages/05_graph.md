@@ -1,103 +1,190 @@
-# 5. Graph — thay scan
+# 5. Graph — tổ chức câu chuyện theo 5 tầng
 
-**Input:** toàn bộ text normalize, thứ tự đọc, panel/MAGI metadata, prior name registry. **Không gửi ảnh.** **Output:** graph sơ bộ chapter → scene → event, nhóm tên và OCR hiện hành.
+Graph tổ chức dữ liệu thành **5 tầng: truyện → chapter → scene → event → utterance**. Mỗi tầng có nhiều node: một truyện chứa nhiều chapter, một chapter chứa nhiều scene, mỗi scene chứa các event và mỗi event chứa một nhóm utterance liên quan.
 
-![Input, xử lý và output graph](../examples/flow/05_graph.svg)
+<img src="../examples/graph/five-level-hierarchy.png" width="1200" alt="Sơ đồ năm tầng từ nhiều truyện đến chapter, scene, event và utterance; nhánh Iris Zero được phóng rõ, các truyện và chapter khác được tô mờ để minh họa cấu trúc" />
 
-## Thành phần đầu vào
+Trong một lượt chạy, pipeline xử lý **một chapter** của một truyện. Truyện/chapter lấy từ metadata, utterance đã có từ normalize; model graph tạo cách chia **scene/event** và mô tả cho hai tầng này. Các node mờ trong hình minh họa cấu trúc mở rộng, không phải dữ liệu đã xử lý thêm.
 
-| Thành phần | Model nhận để làm gì |
-|---|---|
-| Toàn bộ utterance theo thứ tự | Đọc xuyên batch/scene, kể cả bìa, lời tác giả và giới thiệu nhân vật. |
-| Page/panel/bbox | Biết vị trí và sự tiếp nối hình học của câu. |
-| Quan sát MAGI và prior registry | Metadata nguồn và tên đã biết; không đề xuất người nói hoặc ánh xạ tên sang MAGI. |
-| Hợp đồng phủ nguồn | Scene đầu bắt đầu tại target đầu, mỗi event đầu bắt đầu đúng scene của nó. |
+## Input
 
-Wire dùng bảng gọn với cột được khai báo và ID tạm `uN`, `pN`; `reference-ledger.json` ánh xạ lại ID thật. Đây là cách giảm metadata lặp, không bỏ text hay quan sát.
+Input chính là **transcript MAGI đã normalize**, gồm toàn bộ utterance của chapter theo thứ tự nguồn. Bản dưới trình bày như transcript để dễ đọc, **đã giản lược metadata**, không phải nguyên dạng packet gửi model:
 
-## Ví dụ output thật
+```text
+TRANG 17 — trích transcript đã normalize
 
-Lượt Iris Zero r4 hoàn tất với 39 scene, 78 event, 260 utterance và 4 nhóm tên. Ví dụ scene thứ ba có nhánh sau; tên/mô tả là kết quả model được lưu, cần review chất lượng phân cảnh:
-
-```mermaid
-flowchart TD
-  C["Iris Zero · chapter 1"] --> S["scene:3 · Bối cảnh thế giới"]
-  S --> E1["event:1 · Nguồn gốc Iris · 4 câu"]
-  S --> E2["event:2 · Sự phân chia · 8 câu"]
-  E1 --> E2
+[u83 | panel 0] MORNING~
+[u84 | panel 0] TORU-KUN!
+[u85 | panel 2] YOU'RE ALL OVER THE RUMOURS! THE SAY SASAMORI- CHAN CONFESSED TO YOU.
+[u86 | panel 2] HJIJIRI... YOU SURE ARE HAPPY EVEN THOUGH IT'S SO EARLY IN THE MORNING...
 ```
 
-Trích các trường của event đầu tiên:
+`u85` chính là utterance ghép từ hai box trong bubble đôi ở [normalize](04_normalize.md). Text vẫn giữ nguyên OCR, kể cả lỗi chữ; không thêm nhãn người nói vào transcript. “Transcript MAGI” ở đây là cách gọi gọn dữ liệu extract: MAGIv2 cung cấp text box/thứ tự/liên kết, GLM-OCR cung cấp chữ, rồi normalize ghép box thành utterance.
+
+| Input | Model sử dụng để làm gì |
+|---|---|
+| Toàn bộ transcript đã normalize | Đọc liên tục để nhận ra phân cảnh và các cụm trao đổi; gồm cả bìa, giới thiệu, credit và lời tác giả. |
+| Page, panel và bbox | Đối chiếu vị trí, thứ tự và sự tiếp nối của text. |
+| Quan sát MAGI và name registry đã có | Nhận metadata nguồn và các dạng tên đã biết; chưa gán speaker hay tên vào nhân vật thị giác. |
+
+Graph nhận **text và metadata, không nhận ảnh**. Một request đọc toàn chapter với context 64K, thinking tắt. [Xem transcript dễ đọc đầy đủ](../examples/graph/transcript-normalized.txt).
+
+<details>
+<summary><strong>Xem chi tiết input gửi model và giải thích từng field</strong></summary>
+
+Packet dùng bảng gọn để tránh lặp tên field. Dưới đây là `target_columns` cùng ba dòng thật từ `targets`; chỉ đoạn trích này được rút ngắn. [Packet đầy đủ gửi model](../examples/graph/packet-full.json) giữ toàn bộ **260 target**, không bỏ text hay quan sát để tạo bảng.
 
 ```json
 {
-  "event_id": "scene:3:event:1",
-  "scene_id": "scene:3",
-  "title": "Nguồn gốc Iris",
-  "description": "Trẻ em sinh ra với năng lực Iris.",
-  "description_confidence": 10,
-  "target_ids": [
-    "b68ed9e490d577e6:p4:g7:u",
-    "b68ed9e490d577e6:p4:g4:u",
-    "b68ed9e490d577e6:p4:g5:u",
-    "b68ed9e490d577e6:p4:g1:u"
-  ],
-  "status": "pending"
+  "target_columns": ["id", "text", "page", "primary_panel", "panels", "bbox"],
+  "targets": [
+    ["u83", "MORNING~", 17, 0, [0, 1], [861, 196, 959, 378]],
+    ["u84", "TORU-KUN!", 17, 0, [0, 2], [414, 41, 510, 177]],
+    ["u85", "YOU'RE ALL OVER THE RUMOURS! THE SAY SASAMORI- CHAN CONFESSED TO YOU.", 17, 2, [0, 2, 3], [329, 303, 480, 682]]
+  ]
 }
 ```
 
-| Trường | Cách hiểu |
+**Các field cấp packet:**
+
+| Field | Ý nghĩa |
 |---|---|
-| `scene_id`, `event_id` | Node do code cấp sau khi đóng băng phạm vi. |
-| `title` | Tên ngắn tối đa 4 từ, dùng trên visual. |
-| `description`, `initial_description` | Mô tả hiện hành và mô tả ban đầu để giữ lịch sử. |
-| `description_confidence` | Model tự chấm 0–10; không phải xác suất đã hiệu chuẩn. |
-| `target_ids` | Các utterance liên tiếp thuộc event; tối đa 8. |
-| `status: pending` | Event đang chờ analyze, không phải lỗi của graph. |
+| `policy` | Hợp đồng đang dùng: `chapter-story-graph-v7`. |
+| `coverage_contract` | Các điều kiện để model phủ đủ chapter, giải thích bên dưới. |
+| `target_columns` | Tên và thứ tự các cột của mỗi dòng `targets`. |
+| `targets` | Toàn bộ utterance đầu vào theo thứ tự nguồn. |
+| `name_registry` | Tên đã biết trước lượt graph; ví dụ r11 là `[]`. Mỗi mục có `person_id` dạng `pN`, `primary_name` là tên chính đã biết, `aliases` là các dạng tên đã lưu. |
+| `person_columns` | Cột cho từng giá trị trong `people`: `["name", "observations"]`. |
+| `observation_columns` | Cột cho mỗi quan sát: `["page", "magi_id", "bbox"]`. |
+| `people` | Bảng metadata nhân vật với khóa tạm `pN`; giá trị theo `person_columns`. Đây chưa phải bảng người nói. |
+| `panels` | Bố cục từng trang: `page` là số trang từ 1, `panels` là danh sách bbox panel theo chỉ số từ 0. |
 
-Nhóm tên có `group_id`, `canonical_name`, `aliases`, `members` và `evidence_refs`. `members` trỏ tới occurrence cụ thể; tên chuẩn là metadata, không phải text dùng thay cho mọi alias trong câu.
+**Các field trong `coverage_contract`:**
 
-Một request toàn chapter, context 64K, thinking off. Model trả scene/event start markers theo thứ tự nguồn, tên ngắn tối đa 4 từ, mô tả và confidence. Code đóng băng phạm vi; một event dài được tách thành các phần đánh số, mỗi phần tối đa 8 utterance và không vượt scene.
+| Field | Ý nghĩa trong ví dụ |
+|---|---|
+| `first_target_id`, `last_target_id` | `u0`, `u259`: hai đầu phạm vi cần phủ. |
+| `target_count` | `260` utterance, không phải số text box trước normalize. |
+| `include_non_narrative_targets` | `true`: không bỏ bìa, credit, giới thiệu hoặc lời tác giả. |
+| `description_language` | `en`: title/summary/evidence do model sinh dùng tiếng Anh; text OCR được trích giữ nguyên. |
 
-Mọi title, summary, evidence và reason do graph tạo phải bằng **tiếng Anh**; giữ nguyên surface OCR/tên được trích dẫn. `description_language=en`, `output_language=en`. Artifact của các run lịch sử không bị dịch hoặc sửa lại.
+**Các cột của một target:**
 
-Scene là tình huống rộng; event là cụm liên tiếp cùng trao đổi/giải thích/diễn biến. Graph giữ liên kết chứa, thứ tự/tiếp nối và liên hệ/nhắc lại; chưa có cạnh suy luận động cơ/nhân quả.
+| Cột | Ý nghĩa |
+|---|---|
+| `id` | ID tạm `uN`, dùng khi model trả start marker hoặc tham chiếu text. |
+| `text` | Nội dung utterance sau normalize, trước lượt sửa tên của graph. |
+| `page` | Số trang từ 1. |
+| `primary_panel` | Panel chính, chỉ số từ 0; có thể `null` khi chưa gán. |
+| `panels` | Tất cả panel liên quan; một utterance có thể trải qua nhiều panel. |
+| `bbox` | `[x1, y1, x2, y2]` trên ảnh gốc, làm tròn pixel khi đóng packet. |
 
-Nhóm tên là metadata về alias, không phải MAGI identity. Sửa OCR chỉ sửa spelling/spacing/hyphenation, giữ cách dùng tên và honorific; không đổi `Toru` thành `Toru Mizushima`. Find-all/replace-all vẫn lưu lịch sử trước/sau và current OCR snapshot.
+**Metadata quan sát nhân vật:** `name` là tên đã biết hoặc `null`; `observations` giữ các lần xuất hiện. Mỗi quan sát có `page`, `magi_id` là ID bank nguồn, và `bbox` của nhân vật trên ảnh gốc. Tên trong metadata không chứng minh ai nói một utterance.
 
-Graph không tạo giả thuyết nhân vật, người nói hoặc ánh xạ tên–MAGI. Schema response không còn `hypotheses`; trường tương thích trong artifact mới luôn rỗng. Mô tả chỉ nêu chủ đề/diễn biến, không phân công câu thoại cho nhân vật. Analyze xác định người nói bằng dữ liệu nguồn và ảnh.
+[Reference ledger](../examples/graph/reference-ledger.json) ánh xạ `uN` về utterance ID thật và `pN` về person ID thật. Ví dụ `u85` → `b68ed9e490d577e6:p17:g7:u`. Việc mã hóa ID và bảng cột chỉ làm gọn packet, không viết lại OCR.
 
-Artifact: `result.json`, `ocr-current.json`, `replacement-history.json`, `reference-ledger.json`, `review.md`, `review.html`. Nhóm tên chỉ tổ chức các surface trong text, không phải bằng chứng nhận diện người nói.
+</details>
 
-## Sửa tên, kiểm tra và chuyển dữ liệu
+## Output
 
-`ocr-current.json` trở thành text hiện hành cho analyze; OCR trước sửa vẫn xem được qua lịch sử. Việc sửa chỉ chuẩn hóa spelling/spacing/hyphen của surface, giữ độ đầy đủ và honorific. Các nhóm tên/hypothesis không tự ghi vào character bank.
+<img src="../examples/graph/output-chapter.png" width="1200" alt="Output graph r11 của chapter 1: truyện chứa chapter, chapter có 22 ô scene, mỗi scene chứa các event và từng chấm là một utterance, tổng cộng 42 event và 260 utterance" />
 
-Code kiểm tra các start marker có thật, đúng thứ tự và phủ từ câu đầu. Scene/event dài được chia theo giới hạn trước khi analyze. Nếu context vượt budget trước POST hoặc response sai cấu trúc, receipt và packet vẫn giữ để review; không tạo một graph giả thành công.
+Ví dụ **Iris Zero chapter 1, lượt r11** tạo **22 scene, 42 event, phủ đủ 260 utterance**, cùng 4 nhóm tên. Hình giữ title model đã lưu; ô tím là scene, ô cam là event, mỗi chấm là một utterance. Đây là cách phân nhóm của lượt graph này, chưa phải kết quả phân tích speaker hay xác nhận chất lượng phân cảnh.
 
-Analyze nhận hierarchy, text sau sửa và nhóm tên; không nhận giả thuyết nhân vật. Khi đọc graph cũ, analyze bỏ giả thuyết khỏi packet và kết quả mới, giữ nguyên artifact graph gốc. Các phạm vi event đã đóng băng trở thành batch analyze; model analyze bổ sung speaker/listener/mention và mô tả chi tiết.
+| Output | Nội dung |
+|---|---|
+| [`05_graph/result.json`](../examples/graph/result.json) | Hierarchy scene/event, mô tả, phạm vi utterance và các liên kết trong chapter. |
+| [`ocr-current.json`](../examples/graph/ocr-current.json) | Text hiện hành sau sửa spelling/spacing/hyphen của tên, dùng cho analyze. |
+| [`replacement-history.json`](../examples/graph/replacement-history.json) và nhóm tên | Lịch sử sửa trước/sau và các dạng tên liên quan. Nhóm tên chưa phải ánh xạ tên–MAGI hay speaker. |
 
-| Config | Giá trị mặc định | Tác dụng |
+Model trả **start marker** của scene/event. Code kiểm tra thứ tự, phủ từ utterance đầu tới cuối, cấp ID và đóng băng phạm vi. `status: pending` ở event nghĩa là đang chờ analyze.
+
+## Tóm tắt 5 tầng
+
+| Tầng | Đại diện cho | Node con |
 |---|---|---|
-| `llm.num_ctx` | `65536` | Context chung. |
-| `llm.graph_timeout` | `1200` giây | Timeout riêng của request toàn chapter. |
-| `v6.graph_output_tokens` | `16384` | Dự phòng output graph. |
-| `v6.analyze_batch_size` | `8` | Giới hạn câu của một event. |
+| **Truyện** | Toàn bộ một bộ truyện, xuyên nhiều chapter. | Chapter. |
+| **Chapter** | Một chapter và toàn bộ text thuộc chapter đó. | Scene theo thứ tự nguồn. |
+| **Scene** | Một phân cảnh hoặc tình huống rộng, liên tục. | Các event trong cùng phân cảnh. |
+| **Event** | Một chuỗi utterance liên tiếp cùng trao đổi/chủ đề/diễn biến. | Tối đa 8 utterance. |
+| **Utterance** | Một đơn vị text sau normalize, có thể gồm nhiều box hoặc nhiều câu văn. | Không có tầng narrative con; chỉ giữ tham chiếu nguồn. |
 
-Config: `v6.graph_policy`, `graph_output_tokens`, `analyze_batch_size`. Code: [graph.py](../../../src/manga_pipeline/v6/graph.py), [graph_names.py](../../../src/manga_pipeline/v6/graph_names.py).
+Các hình dưới phóng riêng từng node. `description` của scene/event được trích nguyên văn output tiếng Anh. Mô tả truyện/chapter và dòng diễn giải utterance là chú thích của tài liệu; artifact hiện tại chưa có field `description` riêng ở các tầng đó.
 
-## Visual local có thể tái lập
+## 1. Tầng truyện
 
-Giao diện hiện tại là [Storylens review workspace](../review-workspace.md): cây chapter → scene → event → utterance, bản đồ nối nhánh, reading room, ảnh bằng chứng, bộ lọc và tiến độ kiểm tra cá nhân. Graph/analyze/reanalyze dùng chung template; có thể dựng một website offline cho cả ba stage bằng `scripts/preview_story_review.py`.
+Truyện là phạm vi lớn nhất, ví dụ `story_id: iris-zero`. Nhiều chapter cùng thuộc truyện này; xử lý xong chapter 1 không có nghĩa đã phân tích toàn bộ truyện.
 
-Chạy từ thư mục gốc dự án, dùng artifact đã tải về; không cần pod hoặc model:
+**Mô tả minh họa:** “Toàn bộ truyện Iris Zero; các chapter cùng story_id được tổ chức dưới node này.” Trong artifact một chapter, mối liên hệ này được giữ bằng `story_graph.chapter.story_id`.
 
-```powershell
-venv/Scripts/python.exe -B scripts/review_story_graph.py --run-dir "<run-directory>" --output "<review-directory>" --source-folder "D:/download/EN-data/Iris Zero/EN/Chapter 1"
-```
+<img src="../examples/graph/zoom-story.png" width="1200" alt="Phóng node truyện Iris Zero với mô tả phạm vi và các node chapter liên kết; chapter khác được ghi rõ là minh họa" />
 
-`run-directory` là thư mục có `manifest.json` và `05_graph/result.json`, không phải thư mục batch. Có thể thay `--run-dir` bằng `--artifact "<path>/result.json"`. Bỏ `--source-folder` nếu chỉ cần graph/text. Source folder phải chứa đúng ảnh gốc; code kiểm tra SHA-256 khi có receipt.
+## 2. Tầng chapter
 
-Mở `index.html` trong output bằng trình duyệt: cây chapter → scene → event, tìm kiếm, bấm node xem mô tả, confidence, câu nguồn, nhóm tên và giả thuyết. Ảnh event dùng cùng thuật toán envelope/panel/MAGI với analyze, bao gồm panel im lặng nằm giữa hai đầu event. Đây là preview được dựng từ graph, không phải kết quả analyze.
+Chapter gom toàn bộ scene của lượt xử lý. `chapter_label: chapter-001` là nhãn dễ đọc; `chapter_id` là ID document nội bộ. Danh sách `scene_ids` giữ các scene theo thứ tự, gồm cả những phần không phải diễn biến truyện như bìa hoặc lời tác giả.
 
-`review-data.json` giữ dữ liệu visual; `report.json` ghi checksum input, renderer/template, thống kê và cảnh báo. Cùng artifact, ảnh nguồn, phiên bản code và môi trường font/Pillow tạo cùng output khi chạy lại. Không sửa artifact đầu vào, không gọi model (`model_requests=0`). Giữ cả thư mục output để ảnh tương đối vẫn hoạt động; HTML không tải thư viện từ mạng.
+**Mô tả từ số liệu ví dụ:** “chapter-001 trong lượt graph này chứa 22 scene, 42 event và 260 utterance.”
+
+<img src="../examples/graph/zoom-chapter.png" width="1200" alt="Phóng node chapter-001: ID document, mô tả số liệu và ba scene tiêu biểu được liên kết ở bên phải" />
+
+## 3. Tầng scene — một phân cảnh
+
+Scene đại diện cho **một phân cảnh hoặc tình huống rộng đang diễn ra liên tục**. Các góc nhìn hoặc panel thay đổi vẫn có thể thuộc cùng scene; một scene cũng có thể đi qua nhiều trang. Graph nhận ra sự chuyển tình huống từ transcript và metadata, chưa nhìn ảnh để xác nhận.
+
+Trích prompt hiện hành:
+
+> A scene is a broad continuous situation, not every panel or camera cut.
+
+Ví dụ `scene:10`, **Rumors Spread**, có `description`:
+
+> The next morning, Toru's friends discuss the rumors of Koyuki's confession, while Toru tries to ignore it.
+
+Mô tả nêu tình huống “sáng hôm sau, bạn bè bàn tán về lời tỏ tình”, bao quát cả chuỗi trao đổi. Nó chưa gán từng câu cho một nhân vật MAGI.
+
+<img src="../examples/graph/zoom-scene.png" width="1200" alt="Phóng scene:10 Rumors Spread với description nguyên văn và ba event Morning Gossip 1, 2, 3 trong cùng phân cảnh" />
+
+## 4. Tầng event — một chuỗi utterance liên quan
+
+Event là **cụm utterance liên tiếp cùng trao đổi, giải thích hoặc diễn biến**, thường cùng chủ đề hay cùng mạch hỏi–đáp. Event nằm trọn trong một scene; không đồng nhất một event với một panel, một bubble hoặc một người nói.
+
+Trích prompt hiện hành:
+
+> Each event is a coherent consecutive exchange/explanation/action and contains at most EIGHT utterance IDs, including narration/thought/caption. Events cannot cross scenes.
+
+Ví dụ `scene:10:event:1`, **Morning Gossip 1**, có `description`:
+
+> Hijiri and others talk about the confession, while Toru tries to maintain his low profile.
+
+<img src="../examples/graph/zoom-event.png" width="1200" alt="Phóng event Morning Gossip 1: description, tám target liên tiếp và một số node utterance nguồn u83, u84, u85" />
+
+### Event đơn và event nối tiếp
+
+<img src="../examples/graph/event-continuations.png" width="1200" alt="So sánh một event đơn sáu utterance ở scene 12 với chuỗi Morning Gossip 18 utterance được chia thành các phần 8, 8, 2 có continuation_of" />
+
+**Event đơn:** cụm trao đổi vừa giới hạn xử lý, không cần phần tiếp theo. Ví dụ `scene:12:event:1` chứa 6 utterance về lời bàn tán của bạn học. Một scene có thể có một hoặc nhiều event đơn, tùy mạch nội dung.
+
+**Event nối tiếp:** một cụm trao đổi dài phải chia thành nhiều phần xử lý nhưng vẫn giữ mạch. Ví dụ Morning Gossip có 18 utterance, được chia **8 + 8 + 2**. Phần sau có `continuation_of` trỏ về phần trước, giữ cùng description ban đầu và nằm trong cùng scene.
+
+`next` chỉ biểu thị thứ tự, không tự chứng minh hai event cùng chủ đề. `continuation_of` ghi rõ các phần do code chia từ một phạm vi event dài; ngoài ra model được đề xuất liên kết `continues`, `related`, `references` khi có căn cứ.
+
+### Vì sao giới hạn 8 utterance/event?
+
+Mỗi event là một batch cho **analyze ở bước sau**. Giữ tối đa 8 utterance giúp giới hạn lượng text, bằng chứng ảnh/metadata và output cần xử lý trong một lần gọi, qua đó giữ tải tính toán và tiến độ xử lý ổn định hơn. Giới hạn tính cả dialogue, thought, narration và caption; không phải 8 câu văn hay 8 bubble.
+
+Prompt yêu cầu giới hạn này; code vẫn kiểm tra và tách phạm vi dài thành các phần đánh số nếu cần. Event không vượt ranh giới scene. Analyze chạy scene song song, còn các event trong một scene chạy tuần tự và truyền memory để tiếp nối ngữ cảnh. Context 64K của request toàn chapter không thay thế giới hạn batch này.
+
+## 5. Tầng utterance — đơn vị text nhỏ nhất
+
+Utterance kế thừa từ normalize, giữ ID và nguồn xuyên graph/analyze; graph chỉ được sửa dạng tên theo quy tắc OCR đã nêu. Ví dụ **`u85` ↔ `p17:g7:u`** chứa:
+
+> YOU'RE ALL OVER THE RUMOURS! THE SAY SASAMORI- CHAN CONFESSED TO YOU.
+
+Đây là text đã ghép từ hai box `p17:t2`, `p17:t4` trong bubble đôi. Description ở các tầng trên giúp đặt nó vào mạch truyện; bản thân node vẫn giữ text, ID và nguồn để analyze xác định speaker/addressee/semantic sau đó.
+
+<img src="../examples/graph/zoom-utterance.png" width="1200" alt="Phóng node utterance u85 với text nguyên văn, ID thật p17:g7:u và hai box nguồn t2, t4; các box là provenance chứ không phải tầng graph mới" />
+
+## Kết luận
+
+Graph đặt **text có nguồn gốc rõ ràng vào một cấu trúc truyện có thứ bậc**, vừa giữ tình huống rộng ở scene, vừa chia các cụm trao đổi thành event đủ nhỏ để analyze. [Analyze](06_analyze.md) dùng hierarchy đã freeze và OCR hiện hành để bổ sung speaker, addressee, mention và semantic; mô tả graph hay tên được nhắc trong text chưa phải bằng chứng nhận diện người nói.
+
+[Dữ liệu các node minh họa](../examples/graph/selected-nodes.json) · [Nguồn/checksum hình và packet](../examples/graph/manifest.json) · [Script dựng hình từ artifact, không gọi model](../../../scripts/build_v7_graph_examples.py). Code/prompt: [graph.py](../../../src/manga_pipeline/v6/graph.py), [graph_wire.py](../../../src/manga_pipeline/v6/graph_wire.py), [story_graph.py](../../../src/manga_pipeline/v6/story_graph.py). Xem thêm [workspace review](../review-workspace.md) để mở graph tương tác.

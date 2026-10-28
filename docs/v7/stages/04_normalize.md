@@ -1,78 +1,46 @@
 # 4. Normalize — tạo utterance có nguồn gốc rõ ràng
 
-Normalize gom các box OCR thành đơn vị utterance để graph/analyze sử dụng. Một utterance giữ text, nguồn box, thứ tự đọc, group/part, bbox và panel mapping; đây chưa phải bước quyết định người nói hay danh tính.
+Normalize chuyển **các text box OCR và mapping bubble thành utterance** — đơn vị văn bản để graph/analyze xử lý. Geometry trả lời “những box này thuộc vùng bubble nào”; normalize dùng kết quả đó để ghép chữ theo thứ tự, đồng thời giữ từng nguồn gốc.
 
 ![Luồng normalize](../examples/flow/04_normalize.svg)
 
-## Input và output
+## Input
 
-**Input:** raw text cùng group/part/mapping từ bubble_geometry. **Output:** `04_normalize/result.json`, chứa `utterances`, source boxes, thông tin geometry, các phần bị loại hoặc cần xử lý riêng và failures.
-
-Ví dụ trang 11: hai box OCR `t0` và `t1` có text `?`, `??` thuộc cùng group. Output tạo một utterance `? ??`, đồng thời giữ nguyên hai ID nguồn.
-
-<img src="../examples/upstream/normalize-zoom.png" width="330" alt="Hai source box đỏ và bbox utterance xanh" />
-
-Khung đỏ là box OCR nguồn; khung xanh là bbox của utterance. [JSON utterance đầy đủ](../examples/upstream/normalized-utterance.json).
-
-## Utterance và provenance
-
-Đoạn trích thực tế:
-
-```json
-{
-  "id": "b68ed9e490d577e6:p11:g1:u",
-  "group_id": "b68ed9e490d577e6:p11:g1",
-  "page": 11,
-  "panel_index": 0,
-  "panel_indices": [0],
-  "bbox": [766, 66, 903, 242],
-  "text": "? ??",
-  "text_original": ["?", "??"],
-  "source_text_ids": ["b68ed9e490d577e6:p11:t0", "b68ed9e490d577e6:p11:t1"],
-  "part_ids": ["b68ed9e490d577e6:p11:g1:part1"],
-  "content_type": "unknown",
-  "content_review_status": "provisional",
-  "reading_order": 51,
-  "normalization_reasons": ["physical_group_v6"]
-}
-```
-
-| Trường | Ý nghĩa |
+| Text box từ extract | Group và mapping từ bubble geometry |
 |---|---|
-| `id` | ID utterance dùng xuyên graph/analyze/translation. |
-| `group_id`, `part_ids` | Nhóm và phần bubble đóng góp vào utterance. |
-| `text`, `text_original` | Text đã ghép và các text OCR ban đầu. |
-| `source_text_ids`, `source_boxes` | ID và bản ghi nguồn, dùng truy ngược tới từng vị trí OCR. |
-| `bbox`, `page` | Vùng bao utterance và trang. |
-| `panel_index`, `panel_indices` | Panel chính và toàn bộ panel liên quan. |
-| `reading_order` | Thứ tự utterance theo nguồn. |
-| `content_type`, `content_review_status` | Nhãn sơ bộ chưa chốt semantic. |
-| `normalization_reasons` | Vì sao các box được normalize theo cách này. |
+| <img src="../examples/geometry-normalize/extract-input-page-17.png" width="410" alt="Trang 17: text box t2 màu tím ở phần trên và t4 màu xanh lam ở phần dưới bubble đôi" /> | <img src="../examples/geometry-normalize/geometry-output-page-17.png" width="410" alt="Cùng trang 17: mask group g7 màu xanh lá chứa cả hai text box t2 và t4" /> |
 
-## Chọn panel chính và nhiều panel
+Tiếp tục ví dụ **bubble đôi trang 17 Iris Zero chapter 1** ở [bước 03](03_bubble_geometry.md). Hai ảnh chỉ đánh dấu group và text của ví dụ; chúng vẫn là hai record OCR riêng trong input. **Tím là `t2`, xanh lam là `t4`, xanh lá là group `g7`.**
 
-Một utterance được phép liên quan nhiều panel. `panel_index` là panel chính, không phải một giới hạn cứng cho người nói/người nghe.
+| Input | Dữ liệu sử dụng |
+|---|---|
+| Text từ extract | Nội dung OCR, ID và bbox từng box, thứ tự đọc và liên kết nhân vật nguồn. |
+| Bubble geometry | Group/part và mapping text vào vùng bubble. |
+| Trang và panel | Vị trí panel để gắn utterance vào bố cục trang. |
 
-1. Ưu tiên panel của box đầu tiên theo reading order.
-2. Nếu phần diện tích box đầu tiên nằm trong panel đó **nhỏ hơn 10% diện tích chính box**, chọn panel phủ nhiều diện tích text của toàn utterance nhất.
-3. Không có giao hợp lệ thì giữ chưa gán; không tạo panel giả.
+## Output
 
-Code tính trên các source text box thật, không thay chúng bằng một bbox bao ngoài rộng để quyết định coverage. Renderer dùng `panel_indices` để giữ đủ các phần liên quan và các panel im lặng trong khoảng event.
+<img src="../examples/geometry-normalize/normalize-before-after.png" width="1200" alt="Text box t2 và t4 riêng biệt, mapping chung vào group g7, và output utterance g7:u giữ text đã ghép cùng hai source IDs" />
 
-## Dữ kiện hình học chưa phải semantic
+Normalize tạo **một utterance `p17:g7:u` từ hai box `p17:t2` và `p17:t4`**, theo thứ tự nguồn. Chữ được nối thành một record, nhưng text gốc, hai source ID và bbox vẫn được giữ. `THE SAY` trong hình là OCR nguyên văn của artifact, không được sửa ở bước này. ID hiển thị trong hình được rút gọn.
 
-`raw_character_candidates` giữ gợi ý association từ MAGI. `visual_evidence` giữ đặc tính bubble và lý do còn chưa chắc. Các dữ kiện này hỗ trợ analyze; normalize không chuyển một gợi ý thành identity hoặc tự xác định tên của speaker.
+| Output | Nội dung |
+|---|---|
+| `04_normalize/result.json` | Danh sách `utterances` theo thứ tự, source boxes, geometry và các mục bị loại/lỗi. |
+| Mỗi utterance | ID, text đã ghép, text gốc, source IDs/boxes, group/part, bbox và panel liên quan. Ví dụ giữ panel chính `2` và `panel_indices = [0, 2, 3]`. |
+| Bằng chứng chuyển tiếp | Gợi ý nhân vật và dữ kiện thị giác để graph/analyze sử dụng. |
 
-Caption là hình thức trình bày, không tự quyết định narration hay thought. Analyze có thể xác định một caption là thought. Bản OCR hiện hành sau sửa tên sẽ do graph tạo, còn nguồn cũ được giữ cho review.
+## Vấn đề và giải pháp
 
-## Config và artifact để review
+| Vấn đề | Cách xử lý |
+|---|---|
+| Một bubble chứa nhiều text box, như hai phần của bubble đôi trong hình. | Dùng group/mapping từ geometry để ghép theo thứ tự nguồn; khi source anchor MAGI hợp lệ xung đột, có thể tách thành các utterance riêng. |
+| Bubble liên quan nhiều panel hoặc text không được map vào group. | Giữ panel chính và các panel liên quan; box không có group được giữ riêng, không ép vào bubble lân cận. |
+| Ghép chữ làm mất dấu vết nguồn hoặc lẫn với sửa OCR. | Giữ text/box nguồn và lý do normalize; box OCR rỗng được ghi riêng. Ghép box không đồng nghĩa sửa nội dung OCR. |
+| Association nhân vật hoặc hình dạng bubble chưa đủ để chốt semantic. | Chuyển tiếp bằng chứng cho analyze; chưa quyết định speaker, danh tính hay dialogue/thought/narration. |
 
-Quy tắc panel 10% nằm trong [normalize.py](../../../src/manga_pipeline/v6/normalize.py), hiện không có key cấu hình riêng để đổi ngưỡng đó. Các threshold mapping text–bubble thuộc stage trước, không phải threshold speaker của normalize.
+## Kết luận
 
-Khi review, đối chiếu `source_text_ids`, `source_boxes`, `normalization_reasons`, `excluded`, `translation_only` và `failures` của artifact. Một utterance ghép đúng vật lý vẫn có thể có OCR sai; hai vấn đề được giữ riêng để sửa ở đúng bước.
+Normalize tạo **utterance có thứ tự và giữ nguồn gốc**. [Graph](05_graph.md) nhận các utterance để xử lý tên và tổ chức scene/event; [analyze](06_analyze.md) tiếp tục dùng cùng ID và bằng chứng nguồn để phân tích nội dung.
 
-## Chuyển sang bước sau
-
-Graph nhận toàn bộ utterance theo thứ tự để sửa spelling tên, tạo nhóm tên và scene/event. Analyze tiếp tục sử dụng cùng utterance IDs và các source box/panel để dựng ảnh. Translation/typeset về sau vẫn có thể quay về box gốc qua provenance này.
-
-Code: [normalize.py](../../../src/manga_pipeline/v6/normalize.py). [Nguồn/checksum ảnh và JSON](../examples/upstream/manifest.json). [Script dựng ví dụ](../../../scripts/build_v7_upstream_examples.py).
+[Utterance và các record nguồn đầy đủ](../examples/geometry-normalize/examples.json) · [Nguồn/checksum](../examples/geometry-normalize/manifest.json) · [Script dựng hình từ artifact, không gọi model](../../../scripts/build_v7_geometry_normalize_examples.py). Code: [normalize.py](../../../src/manga_pipeline/v6/normalize.py).

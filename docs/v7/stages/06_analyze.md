@@ -81,12 +81,14 @@ Mỗi target nhận `bubble_tail` do code tạo: `source=MAGIv2`, `has_tail`, `p
 
 ## Semantic và confidence
 
+- Analyze ưu tiên nội dung scene và khả năng hiểu text: đọc source dialogue theo thứ tự, đặt event trong scene rồi lập giả thuyết riêng cho speaker và addressee từ lời gọi trực tiếp, hỏi–đáp, đại từ, tự xưng, kiến thức và ý định hội thoại. Graph prose và scene memory chỉ là context có thể sai, phải đối chiếu source text; tên được nhắc và luân phiên lượt nói không tự xác định hai vai trò này.
+- Sau khi có giả thuyết từ text, đối chiếu source anchor, person mapping, đuôi MAGIv2 được liên kết và ảnh có nhãn để xác nhận, phân biệt hoặc sửa ứng viên. Ảnh không phải điểm khởi đầu cho attribution; khoảng cách, tư thế hoặc hướng nhìn mơ hồ không được lấn át bằng chứng hội thoại rõ ràng. Bằng chứng nguồn/thị giác mâu thuẫn rõ ràng có thể bác giả thuyết; không ép ảnh khớp giả thuyết. Khi chưa phân giải được, chọn ứng viên hợp lệ được hỗ trợ tốt nhất, giảm confidence và ghi source ID cùng mâu thuẫn trong evidence hiện có. Giả thuyết không trở thành identity fact hoặc bằng chứng độc lập cho lượt sau.
 - Speaker/addressee dùng contract person/narrator/others và references hiện hành.
 - Chỉ mention `reference` được trỏ đến nhân vật có tên nhưng không có crop/MAGI.
 - Model chọn người hợp lý nhất khi trả kết quả thành công; confidence thấp được giữ là quyết định tạm. Không giữ somebody làm person ID cuối.
 - Chấm độc lập 0–10 cho speaker, addressee, content type, speech style, mention type và name target.
 - Anchor hỗ trợ quyết định liên quan; không suy ra tên từ việc người đó nói một tên.
-- Analyze coi source anchor là bằng chứng quan trọng cho speaker với sức nặng **8/10**. Chỉ quyết định trái anchor khi có bằng chứng thị giác/nguồn rõ ràng cho thấy anchor sai và giải thích cụ thể bằng source ID/MAGI label. Đây là chỉ dẫn cho model, không phải khóa cứng hoặc điểm confidence tối thiểu. Reanalyze không có quy tắc ưu tiên anchor đặc biệt này.
+- Analyze coi source anchor là bằng chứng quan trọng cho speaker với sức nặng **8/10**. Chỉ quyết định trái anchor khi có bằng chứng thị giác/nguồn rõ ràng cho thấy anchor sai và giải thích cụ thể bằng source ID/MAGI label; source dialogue tường minh cũng có thể chứng minh mâu thuẫn. Thứ tự text trước không miễn yêu cầu giải thích khi bác anchor. Đây là chỉ dẫn cho model, không phải khóa cứng hoặc điểm confidence tối thiểu. Reanalyze không có quy tắc ưu tiên anchor đặc biệt này.
 - Tất cả title, description, evidence, memory fact và unresolved note do model tạo phải bằng **tiếng Anh**; giữ nguyên OCR/tên được trích dẫn. Review Markdown/HTML mới dùng nhãn tiếng Anh. Artifact lịch sử giữ nguyên ngôn ngữ đã freeze.
 - Caption được phép là thought; không còn bộ bác kết quả chỉ vì caption-distance hoặc nhãn nguồn.
 

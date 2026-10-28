@@ -1,0 +1,710 @@
+[
+  {
+    "rule_index": 0,
+    "utterance_id": "b68ed9e490d577e6:p1:t2:u",
+    "original": "TORU",
+    "replacement": "Toru",
+    "status": "applied",
+    "matches": [
+      [
+        100,
+        104
+      ]
+    ],
+    "before": "IN A WORLD WHERE IT'S NORMAL FOR YOUNG BOYS AND GIRLS TO POSSESS A SPECIAL POWER KNOWN AS \"IRIS\"... TORU, A BOY WHO \"DOESN'T HAVE ANY POWER\" AND IS THEREFORE THE TARGET OF CONSTANT BULLYING, LIVED BY HIS MOTTO OF 'MINIMAL EXPOSURE' - TO LIVE WITHOUT STANDING OUT. HOWEVER, AFTER RECEIVING A CERTAIN \"CONFESSION\" FROM KOYUKI, A POPULAR GIRL AT SCHOOL, HIS SUPPOSEDLY PEACEFUL SCHOOL LIFE IS SHATTERED. THUS, HIS MOTTO BEGINS TO SHAKE...! THIS IS AN EXCITING SCHOOL FANTASY STORY THAT STARTS FROM THE MEETING OF A BOY AND GIRL.",
+    "after": "IN A WORLD WHERE IT'S NORMAL FOR YOUNG BOYS AND GIRLS TO POSSESS A SPECIAL POWER KNOWN AS \"IRIS\"... Toru, A BOY WHO \"DOESN'T HAVE ANY POWER\" AND IS THEREFORE THE TARGET OF CONSTANT BULLYING, LIVED BY HIS MOTTO OF 'MINIMAL EXPOSURE' - TO LIVE WITHOUT STANDING OUT. HOWEVER, AFTER RECEIVING A CERTAIN \"CONFESSION\" FROM KOYUKI, A POPULAR GIRL AT SCHOOL, HIS SUPPOSEDLY PEACEFUL SCHOOL LIFE IS SHATTERED. THUS, HIS MOTTO BEGINS TO SHAKE...! THIS IS AN EXCITING SCHOOL FANTASY STORY THAT STARTS FROM THE MEETING OF A BOY AND GIRL.",
+    "count": 1
+  },
+  {
+    "rule_index": 0,
+    "utterance_id": "b68ed9e490d577e6:p4:g5:u",
+    "original": "TORU",
+    "replacement": "Toru",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        4
+      ]
+    ],
+    "before": "TORU, IF YOU WHY, THEY THEN WHY, THEY TRY AND \"SEE\" SOMETHING?",
+    "after": "Toru, IF YOU WHY, THEY THEN WHY, THEY TRY AND \"SEE\" SOMETHING?",
+    "count": 1
+  },
+  {
+    "rule_index": 0,
+    "utterance_id": "b68ed9e490d577e6:p18:g4:u",
+    "original": "TORU",
+    "replacement": "Toru",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        4
+      ]
+    ],
+    "before": "TORU, YOU DIDN'T KNOW THAT!?",
+    "after": "Toru, YOU DIDN'T KNOW THAT!?",
+    "count": 1
+  },
+  {
+    "rule_index": 0,
+    "utterance_id": "b68ed9e490d577e6:p39:g2:u",
+    "original": "TORU",
+    "replacement": "Toru",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        4
+      ]
+    ],
+    "before": "TORU...",
+    "after": "Toru...",
+    "count": 1
+  },
+  {
+    "rule_index": 0,
+    "utterance_id": "b68ed9e490d577e6:p43:g1:u",
+    "original": "TORU",
+    "replacement": "Toru",
+    "status": "applied",
+    "matches": [
+      [
+        18,
+        22
+      ]
+    ],
+    "before": "...MIZU- SHIMA... TORU...",
+    "after": "...MIZU- SHIMA... Toru...",
+    "count": 1
+  },
+  {
+    "rule_index": 1,
+    "utterance_id": "b68ed9e490d577e6:p1:t2:u",
+    "original": "KOYUKI",
+    "replacement": "Koyuki",
+    "status": "applied",
+    "matches": [
+      [
+        317,
+        323
+      ]
+    ],
+    "before": "IN A WORLD WHERE IT'S NORMAL FOR YOUNG BOYS AND GIRLS TO POSSESS A SPECIAL POWER KNOWN AS \"IRIS\"... Toru, A BOY WHO \"DOESN'T HAVE ANY POWER\" AND IS THEREFORE THE TARGET OF CONSTANT BULLYING, LIVED BY HIS MOTTO OF 'MINIMAL EXPOSURE' - TO LIVE WITHOUT STANDING OUT. HOWEVER, AFTER RECEIVING A CERTAIN \"CONFESSION\" FROM KOYUKI, A POPULAR GIRL AT SCHOOL, HIS SUPPOSEDLY PEACEFUL SCHOOL LIFE IS SHATTERED. THUS, HIS MOTTO BEGINS TO SHAKE...! THIS IS AN EXCITING SCHOOL FANTASY STORY THAT STARTS FROM THE MEETING OF A BOY AND GIRL.",
+    "after": "IN A WORLD WHERE IT'S NORMAL FOR YOUNG BOYS AND GIRLS TO POSSESS A SPECIAL POWER KNOWN AS \"IRIS\"... Toru, A BOY WHO \"DOESN'T HAVE ANY POWER\" AND IS THEREFORE THE TARGET OF CONSTANT BULLYING, LIVED BY HIS MOTTO OF 'MINIMAL EXPOSURE' - TO LIVE WITHOUT STANDING OUT. HOWEVER, AFTER RECEIVING A CERTAIN \"CONFESSION\" FROM Koyuki, A POPULAR GIRL AT SCHOOL, HIS SUPPOSEDLY PEACEFUL SCHOOL LIFE IS SHATTERED. THUS, HIS MOTTO BEGINS TO SHAKE...! THIS IS AN EXCITING SCHOOL FANTASY STORY THAT STARTS FROM THE MEETING OF A BOY AND GIRL.",
+    "count": 1
+  },
+  {
+    "rule_index": 1,
+    "utterance_id": "b68ed9e490d577e6:p2:t2:u",
+    "original": "KOYUKI",
+    "replacement": "Koyuki",
+    "status": "applied",
+    "matches": [
+      [
+        192,
+        198
+      ]
+    ],
+    "before": "HER IRIS ALLOWS HER TO SEE QUALIFIED PEOPLE. WHETHER A PERSON IS QUALIFIED OR NOT IS INDICATED BY AN O OR X ABOVE THEIR HEAD. AS FOR WHAT A PERSON IS QUALIFIED FOR, THAT IS DETERMINED BY WHAT KOYUKI IS THINKING OF AT THAT MOMENT.",
+    "after": "HER IRIS ALLOWS HER TO SEE QUALIFIED PEOPLE. WHETHER A PERSON IS QUALIFIED OR NOT IS INDICATED BY AN O OR X ABOVE THEIR HEAD. AS FOR WHAT A PERSON IS QUALIFIED FOR, THAT IS DETERMINED BY WHAT Koyuki IS THINKING OF AT THAT MOMENT.",
+    "count": 1
+  },
+  {
+    "rule_index": 1,
+    "utterance_id": "b68ed9e490d577e6:p2:t3:u",
+    "original": "KOYUKI",
+    "replacement": "Koyuki",
+    "status": "applied",
+    "matches": [
+      [
+        249,
+        255
+      ]
+    ],
+    "before": "IN CHAPTER 1, WHILE ELECTING A PRESIDENT, THE REASON SHE ONLY LOOKED AT STUDENTS WAS BECAUSE IN ORDER TO BE QUALIFIED TO BE THE PRESIDENT IN THAT SCHOOL, YOU HAVE TO BE ONE OF THEIR STUDENTS, SO THAT CONDITION WAS ADDED IN AUTOMATICALLY. THAT'S WHY KOYUKI WAS QUITE TROUBLED AFTER HAVING LOOKED AT ALMOST ALL THE STUDENTS.",
+    "after": "IN CHAPTER 1, WHILE ELECTING A PRESIDENT, THE REASON SHE ONLY LOOKED AT STUDENTS WAS BECAUSE IN ORDER TO BE QUALIFIED TO BE THE PRESIDENT IN THAT SCHOOL, YOU HAVE TO BE ONE OF THEIR STUDENTS, SO THAT CONDITION WAS ADDED IN AUTOMATICALLY. THAT'S WHY Koyuki WAS QUITE TROUBLED AFTER HAVING LOOKED AT ALMOST ALL THE STUDENTS.",
+    "count": 1
+  },
+  {
+    "rule_index": 1,
+    "utterance_id": "b68ed9e490d577e6:p31:g3:u",
+    "original": "KOYUKI",
+    "replacement": "Koyuki",
+    "status": "applied",
+    "matches": [
+      [
+        4,
+        10
+      ]
+    ],
+    "before": "... KOYUKI ...?",
+    "after": "... Koyuki ...?",
+    "count": 1
+  },
+  {
+    "rule_index": 1,
+    "utterance_id": "b68ed9e490d577e6:p33:g8:u",
+    "original": "KOYUKI",
+    "replacement": "Koyuki",
+    "status": "applied",
+    "matches": [
+      [
+        4,
+        10
+      ]
+    ],
+    "before": "... KOYUKI ... ISN'T SOME- ONE WHO WOULD LIE...",
+    "after": "... Koyuki ... ISN'T SOME- ONE WHO WOULD LIE...",
+    "count": 1
+  },
+  {
+    "rule_index": 2,
+    "utterance_id": "b68ed9e490d577e6:p2:t0:u",
+    "original": "ASAHI",
+    "replacement": "Asahi",
+    "status": "applied",
+    "matches": [
+      [
+        18,
+        23
+      ]
+    ],
+    "before": "IN CLASS 2-6 WITH ASAHI AND HIJIRI",
+    "after": "IN CLASS 2-6 WITH Asahi AND HIJIRI",
+    "count": 1
+  },
+  {
+    "rule_index": 3,
+    "utterance_id": "b68ed9e490d577e6:p2:t0:u",
+    "original": "HIJIRI",
+    "replacement": "Hijiri",
+    "status": "applied",
+    "matches": [
+      [
+        28,
+        34
+      ]
+    ],
+    "before": "IN CLASS 2-6 WITH Asahi AND HIJIRI",
+    "after": "IN CLASS 2-6 WITH Asahi AND Hijiri",
+    "count": 1
+  },
+  {
+    "rule_index": 4,
+    "utterance_id": "b68ed9e490d577e6:p2:t1:u",
+    "original": "Koyuki Sasamori",
+    "replacement": "Koyuki Sasamori",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        15
+      ]
+    ],
+    "before": "Koyuki Sasamori",
+    "after": "Koyuki Sasamori",
+    "count": 1
+  },
+  {
+    "rule_index": 5,
+    "utterance_id": "b68ed9e490d577e6:p2:t6:u",
+    "original": "Toru Mizushima",
+    "replacement": "Toru Mizushima",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        14
+      ]
+    ],
+    "before": "Toru Mizushima",
+    "after": "Toru Mizushima",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p9:g3:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        5,
+        20
+      ]
+    ],
+    "before": "IT'S SASA- MORI- SAN!",
+    "after": "IT'S Sasamori-san!",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p10:g2:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        4,
+        17
+      ]
+    ],
+    "before": "EH? SASAMORI- SAN?",
+    "after": "EH? Sasamori-san?",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p21:g1:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        17,
+        30
+      ]
+    ],
+    "before": "WHAT HAPPENED TO SASAMORI- SAN? WHY IS SHE GETTING SO CLOSE TO HIM?",
+    "after": "WHAT HAPPENED TO Sasamori-san? WHY IS SHE GETTING SO CLOSE TO HIM?",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p30:g6:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        13
+      ]
+    ],
+    "before": "SASAMORI- SAN.",
+    "after": "Sasamori-san.",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p32:g6:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        12
+      ]
+    ],
+    "before": "SASAMORI SAN DID THAT?",
+    "after": "Sasamori-san DID THAT?",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p33:g3:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        23,
+        35
+      ]
+    ],
+    "before": "BUT ITS ALSO TRUE THAT SASAMORI-SAN COULDN'T FIND A QUALIFIED PERSON.",
+    "after": "BUT ITS ALSO TRUE THAT Sasamori-san COULDN'T FIND A QUALIFIED PERSON.",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p33:g7:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        11
+      ]
+    ],
+    "before": "SASAMORISAN, DON'T TELL ME...",
+    "after": "Sasamori-san, DON'T TELL ME...",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p36:g4:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        13
+      ]
+    ],
+    "before": "SASAMORI- SAN'S \"IRIS\"...",
+    "after": "Sasamori-san'S \"IRIS\"...",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p37:g2:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        3,
+        16
+      ]
+    ],
+    "before": "IS SASAMORI- SAN HER- SELF...?",
+    "after": "IS Sasamori-san HER- SELF...?",
+    "count": 1
+  },
+  {
+    "rule_index": 6,
+    "utterance_id": "b68ed9e490d577e6:p38:g3:u",
+    "original": "SASA- MORI- SAN",
+    "replacement": "Sasamori-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        13
+      ]
+    ],
+    "before": "Sasamori- san's definitely qualified!",
+    "after": "Sasamori-san's definitely qualified!",
+    "count": 1
+  },
+  {
+    "rule_index": 7,
+    "utterance_id": "b68ed9e490d577e6:p9:g6:u",
+    "original": "KOYUKI- CHAN",
+    "replacement": "Koyuki-chan",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        12
+      ]
+    ],
+    "before": "KOYUKI- CHAN!? REALLY!?",
+    "after": "Koyuki-chan!? REALLY!?",
+    "count": 1
+  },
+  {
+    "rule_index": 8,
+    "utterance_id": "b68ed9e490d577e6:p10:g3:u",
+    "original": "MIZUSHIMA TORU-SAN",
+    "replacement": "Mizushima Toru-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        18
+      ]
+    ],
+    "before": "MIZUSHIMA TORU-SAN...",
+    "after": "Mizushima Toru-san...",
+    "count": 1
+  },
+  {
+    "rule_index": 9,
+    "utterance_id": "b68ed9e490d577e6:p17:g2:u",
+    "original": "TORU-KUN",
+    "replacement": "Toru-kun",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        8
+      ]
+    ],
+    "before": "TORU-KUN!",
+    "after": "Toru-kun!",
+    "count": 1
+  },
+  {
+    "rule_index": 10,
+    "utterance_id": "b68ed9e490d577e6:p17:g7:u",
+    "original": "SASAMORI- CHAN",
+    "replacement": "Sasamori-chan",
+    "status": "applied",
+    "matches": [
+      [
+        37,
+        51
+      ]
+    ],
+    "before": "YOU'RE ALL OVER THE RUMOURS! THE SAY SASAMORI- CHAN CONFESSED TO YOU.",
+    "after": "YOU'RE ALL OVER THE RUMOURS! THE SAY Sasamori-chan CONFESSED TO YOU.",
+    "count": 1
+  },
+  {
+    "rule_index": 10,
+    "utterance_id": "b68ed9e490d577e6:p30:g1:u",
+    "original": "SASAMORI- CHAN",
+    "replacement": "Sasamori-chan",
+    "status": "applied",
+    "matches": [
+      [
+        10,
+        23
+      ]
+    ],
+    "before": "IT'S JUST SASAMORI-CHAN BRINGING IN WHOEVER SHE \"SAW,\" THEN WE HAVE AN APPOINTMENT CEREMONY, RIGHT?",
+    "after": "IT'S JUST Sasamori-chan BRINGING IN WHOEVER SHE \"SAW,\" THEN WE HAVE AN APPOINTMENT CEREMONY, RIGHT?",
+    "count": 1
+  },
+  {
+    "rule_index": 11,
+    "utterance_id": "b68ed9e490d577e6:p17:g8:u",
+    "original": "HJIJIRI",
+    "replacement": "Hijiri",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        7
+      ]
+    ],
+    "before": "HJIJIRI... YOU SURE ARE HAPPY EVEN THOUGH IT'S SO EARLY IN THE MORNING...",
+    "after": "Hijiri... YOU SURE ARE HAPPY EVEN THOUGH IT'S SO EARLY IN THE MORNING...",
+    "count": 1
+  },
+  {
+    "rule_index": 12,
+    "utterance_id": "b68ed9e490d577e6:p17:g1:u",
+    "original": "SASAMORI KOYUKI",
+    "replacement": "Sasamori Koyuki",
+    "status": "applied",
+    "matches": [
+      [
+        10,
+        25
+      ]
+    ],
+    "before": "YOU KNOW? SASAMORI KOYUKI? SHE'S SWEET, CUTE, AND HAS SUCH A MODEST PERSONALITY.",
+    "after": "YOU KNOW? Sasamori Koyuki? SHE'S SWEET, CUTE, AND HAS SUCH A MODEST PERSONALITY.",
+    "count": 1
+  },
+  {
+    "rule_index": 13,
+    "utterance_id": "b68ed9e490d577e6:p17:g4:u",
+    "original": "SASA- MORI",
+    "replacement": "Sasamori",
+    "status": "applied",
+    "matches": [
+      [
+        33,
+        43
+      ]
+    ],
+    "before": "HMMM. SO THAT GIRL YESTERDAY WAS SASA- MORI, HUH?",
+    "after": "HMMM. SO THAT GIRL YESTERDAY WAS Sasamori, HUH?",
+    "count": 1
+  },
+  {
+    "rule_index": 14,
+    "utterance_id": "b68ed9e490d577e6:p18:g5:u",
+    "original": "MIZUSHIMA- SAN",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        18,
+        32
+      ]
+    ],
+    "before": "AH! GOOD MORNING, MIZUSHIMA- SAN!",
+    "after": "AH! GOOD MORNING, Mizushima-san!",
+    "count": 1
+  },
+  {
+    "rule_index": 14,
+    "utterance_id": "b68ed9e490d577e6:p33:g9:u",
+    "original": "MIZUSHIMA- SAN",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        14
+      ]
+    ],
+    "before": "MIZUSHIMA- SAN JUST HELPED ME...",
+    "after": "Mizushima-san JUST HELPED ME...",
+    "count": 1
+  },
+  {
+    "rule_index": 14,
+    "utterance_id": "b68ed9e490d577e6:p35:g6:u",
+    "original": "MIZUSHIMA- SAN",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        16
+      ]
+    ],
+    "before": "MIZU- SHIMA- SAN...",
+    "after": "Mizushima-san...",
+    "count": 1
+  },
+  {
+    "rule_index": 14,
+    "utterance_id": "b68ed9e490d577e6:p41:g3:u",
+    "original": "MIZUSHIMA- SAN",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        14,
+        28
+      ]
+    ],
+    "before": "Good morning, Mizushima- san!",
+    "after": "Good morning, Mizushima-san!",
+    "count": 1
+  },
+  {
+    "rule_index": 14,
+    "utterance_id": "b68ed9e490d577e6:p44:t0:u",
+    "original": "MIZUSHIMA- SAN",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        13
+      ],
+      [
+        15,
+        28
+      ]
+    ],
+    "before": "MIZUSHIMA-SAN! MIZUSHIMA-SAN!",
+    "after": "Mizushima-san! Mizushima-san!",
+    "count": 2
+  },
+  {
+    "rule_index": 15,
+    "utterance_id": "b68ed9e490d577e6:p22:t1:u",
+    "original": "yuki-chan",
+    "replacement": "yuki-chan",
+    "status": "applied",
+    "matches": [
+      [
+        14,
+        23
+      ]
+    ],
+    "before": "Stay way from yuki-chan! you're just an Iris Zero",
+    "after": "Stay way from yuki-chan! you're just an Iris Zero",
+    "count": 1
+  },
+  {
+    "rule_index": 16,
+    "utterance_id": "b68ed9e490d577e6:p22:t2:u",
+    "original": "Koyuk",
+    "replacement": "Koyuki",
+    "status": "applied",
+    "matches": [
+      [
+        5,
+        10
+      ]
+    ],
+    "before": "away Koyuk You'r",
+    "after": "away Koyuki You'r",
+    "count": 1
+  },
+  {
+    "rule_index": 17,
+    "utterance_id": "b68ed9e490d577e6:p24:g4:u",
+    "original": "MIZU- SHIMA- SA",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        15
+      ]
+    ],
+    "before": "MIZU- SHIMA- SA...",
+    "after": "Mizushima-san...",
+    "count": 1
+  },
+  {
+    "rule_index": 17,
+    "utterance_id": "b68ed9e490d577e6:p39:g1:u",
+    "original": "MIZU- SHIMA- SA",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        4,
+        17
+      ]
+    ],
+    "before": "EH? MIZUSHIMA- SA...",
+    "after": "EH? Mizushima-san...",
+    "count": 1
+  },
+  {
+    "rule_index": 17,
+    "utterance_id": "b68ed9e490d577e6:p39:t5:u",
+    "original": "MIZU- SHIMA- SA",
+    "replacement": "Mizushima-san",
+    "status": "applied",
+    "matches": [
+      [
+        0,
+        13
+      ]
+    ],
+    "before": "MIZUSHIMA- SA...",
+    "after": "Mizushima-san...",
+    "count": 1
+  },
+  {
+    "rule_index": 18,
+    "utterance_id": "b68ed9e490d577e6:p30:g2:u",
+    "original": "YUUKI",
+    "replacement": "Yuuki",
+    "status": "applied",
+    "matches": [
+      [
+        24,
+        29
+      ]
+    ],
+    "before": "DON'T YOU THINK SO TOO, YUUKI?",
+    "after": "DON'T YOU THINK SO TOO, Yuuki?",
+    "count": 1
+  },
+  {
+    "rule_index": 19,
+    "utterance_id": "b68ed9e490d577e6:p43:g1:u",
+    "original": "MIZU- SHIMA",
+    "replacement": "Mizushima",
+    "status": "applied",
+    "matches": [
+      [
+        3,
+        14
+      ]
+    ],
+    "before": "...MIZU- SHIMA... Toru...",
+    "after": "...Mizushima... Toru...",
+    "count": 1
+  }
+]

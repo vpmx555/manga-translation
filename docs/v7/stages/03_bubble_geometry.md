@@ -1,92 +1,53 @@
 # 3. Bubble geometry — nhóm bubble và đối chiếu text
 
-Stage này kết hợp các ứng viên bubble từ layout với các box text từ extract. Output mô tả nhóm vật lý, các part/body/bridge, mask và liên kết text → group/part. Hình dạng là dữ kiện thị giác; nội dung lời nói được analyze quyết định sau.
+Bubble geometry xác định **những phát hiện nào thực ra thuộc cùng một bubble**. Layout chạy trên cả trang và từng panel nên một bubble đôi hoặc bubble vắt qua ranh giới panel có thể xuất hiện dưới dạng nhiều vùng rời rạc. Bước này gom chúng thành group vật lý, giữ hình dạng và gắn các text box vào đúng group để normalize sử dụng.
 
 ![Luồng bubble geometry](../examples/flow/03_bubble_geometry.svg)
 
-## Input và output
+## Input
 
-**Input:** ảnh, mask/contour của layout, bbox text và nhân vật của extract. **Output:** `03_bubble_geometry/result.json`, raw document được bổ sung `bubble_groups`, mapping của text, visual evidence và các mask có checksum.
-
-<img src="../examples/upstream/geometry-overview.png" width="480" alt="Nhóm bubble và part trên trang 11" />
-
-Ảnh trên lấy từ artifact trang 11 Iris Zero. [JSON của group ví dụ và text được map](../examples/upstream/geometry-group.json).
-
-## Group và part
-
-Hai ứng viên layout `p11:b1`, `p11:b3` được ghép vào cùng nhóm. Trích các trường nguồn:
-
-```json
-{
-  "id": "b68ed9e490d577e6:p11:g1",
-  "bbox": [766, 66, 903, 242],
-  "candidate_ids": ["p11:b1", "p11:b3"],
-  "panel_indices": [0]
-}
-```
-
-| Thành phần | Ý nghĩa |
+| Ảnh trang gốc | Input layout: panel và các vùng bubble phát hiện được |
 |---|---|
-| `id`, `bbox` | ID group và tọa độ bbox bao nhóm. |
-| `candidate_ids` | Các phát hiện layout đã đóng góp vào nhóm; giữ được dấu vết trước khi gộp. |
-| `panel_indices` | Các panel liên quan, chỉ số từ 0. |
-| `parts[]` | Các phần thân bubble trong một group. |
-| `outer_rings`, `body_rings` | Đường bao nhóm/phần thân. |
-| `body_mask` | Mask của phần thân từng part, kèm đường dẫn và SHA-256. |
+| <img src="../examples/geometry-normalize/input-page-17.webp" width="410" alt="Trang 17 Iris Zero nguyên bản, có bubble đôi nối liền ở giữa trang" /> | <img src="../examples/geometry-normalize/layout-input-page-17.png" width="410" alt="Cùng trang 17: panel xanh dương, hai vùng bubble b14 đỏ và b16 cam, các phát hiện nguồn còn lại màu xám" /> |
 
-Group không đồng nghĩa một text box hay một người nói. Các phát hiện chồng lấp có thể là nhiều candidate của cùng vùng; nhóm có thể có nhiều part và nhiều box OCR.
+Ví dụ chính là **trang 17 Iris Zero chapter 1**. Bên phải vẽ lại tọa độ đã lưu: **xanh dương là panel, đỏ/cam là hai mảnh bubble cần đối chiếu**, xám là các phát hiện khác của cùng bubble. Các hình chi tiết bên dưới phóng to đúng vùng này. ID trong hình bỏ tiền tố document để dễ đọc; JSON vẫn giữ ID đầy đủ.
 
-## Các mask
-
-| Mask quan sát | Mask hoàn thiện | Bridge |
-|---|---|---|
-| <img src="../examples/upstream/observed_mask.png" width="190" alt="Observed mask" /> | <img src="../examples/upstream/refined_mask.png" width="190" alt="Refined mask" /> | <img src="../examples/upstream/bridge_mask.png" width="190" alt="Bridge mask" /> |
-
-Các ảnh là zoom cùng group. `observed_mask` giữ phần quan sát từ detector; `refined_mask` là vùng sau xử lý hình học; `bridge_mask` biểu diễn phần nối mà thuật toán ghi nhận. Một mask có thể rỗng: ảnh đen trong ví dụ bridge không có nghĩa file bị lỗi.
-
-Mỗi mask được tham chiếu bằng object dạng sau, trích từ body của part 1:
-
-```json
-{
-  "mask_path": "03_bubble_geometry/masks/b68ed9e490d577e6-p11/1-body-1.png",
-  "mask_sha256": "42ebfc5943d26f4a280581c1fdbc451472330235c5e3baf16a3fc244336e993c"
-}
-```
-
-Đường dẫn tương đối từ run; checksum cho phép phát hiện file mask bị đổi hoặc tải chưa đủ.
-
-## Mapping text → group/part
-
-Ví dụ text `t0` được map vào group trên:
-
-```json
-{
-  "id": "b68ed9e490d577e6:p11:t0",
-  "group_id": "b68ed9e490d577e6:p11:g1",
-  "part_ids": ["b68ed9e490d577e6:p11:g1:part1"],
-  "mapping_status": "matched",
-  "coverage": 1,
-  "role_evidence": {"koharu_class_1": [], "final_role": false}
-}
-```
-
-`coverage` đo mức phủ theo hình học, không phải độ tin cậy speaker. `role_evidence` giữ dữ kiện từ detector; `final_role: false` cho biết chưa chốt semantic dialogue/thought/narration/effect.
-
-## Xử lý, cache và config
-
-Checkpoint hình học phụ thuộc ảnh/mask/vị trí, không dùng nội dung OCR để đoán thoại. Mapping text là checkpoint positional riêng. Vì vậy đổi spelling OCR không mặc nhiên buộc tính lại mọi mask.
-
-| Cấu hình | Vai trò |
+| Input | Dữ liệu sử dụng |
 |---|---|
-| `layout.mapping_coverage` (`0.8`) | Mức phủ cần đạt để map text vào vùng. |
-| `layout.mapping_margin` (`0.15`) | Chênh lệch cần có khi nhiều ứng viên cùng phù hợp. |
-| Geometry policy/config trong `v6` | Chính sách group/part/body/bridge của pipeline. |
-| Runtime visual worker | Chọn môi trường/thiết bị xử lý và lưu receipt backend. |
+| Ảnh trang | Hệ tọa độ gốc để đối chiếu các vùng. |
+| Layout | Các ứng viên bubble, contour và mask từ Koharu. |
+| Extract | Text box và vị trí nhân vật trên trang. |
 
-Visual evidence có thể mô tả shape/border/style và confidence heuristic. Ví dụ group này có `bubble_shape: cloud`, nhưng `bubble_style: unknown`; code không vì hình cloud mà tự chốt đó là thought. Analyze còn phải dùng hình ảnh và ngữ cảnh thoại.
+## Output
 
-## Chuyển sang bước sau
+| Output | Nội dung |
+|---|---|
+| Group bubble | `03_bubble_geometry/result.json` bổ sung `bubble_groups`, giữ các candidate nguồn, vùng bao và các panel liên quan. |
+| Hình dạng | Contour, part và mask mô tả vùng bubble sau khi gom; file mask có checksum. |
+| Mapping text | Mỗi text box được liên kết tới group/part phù hợp, kèm trạng thái và bằng chứng hình học. |
 
-Normalize dùng group/part/mapping để gộp các text box có liên quan và giữ source IDs. Analyze dùng geometry để dựng vùng ảnh event. Inpaint/typeset về sau sử dụng hình học và mask phù hợp với nhiệm vụ, không dùng nhãn hình dạng để viết lại speaker.
+Hai trường hợp dưới cho thấy giá trị của output này, thay vì chỉ nhìn các detection độc lập từ layout.
 
-Code: [geometry stage](../../../src/manga_pipeline/v6/stages.py), [grouping và mapping](../../../src/manga_pipeline/v6/visual.py). [Manifest ví dụ](../examples/upstream/manifest.json).
+## Vấn đề và giải pháp
+
+### 1. Bubble đôi bị nhận thành các vùng riêng
+
+<img src="../examples/geometry-normalize/geometry-double-bubble.png" width="1200" alt="Ba ảnh cùng crop: bubble đôi nguyên bản, hai vùng layout b14 đỏ và b16 cam, group g7 xanh lá giữ toàn bộ bubble nối liền" />
+
+**Vấn đề:** hai phần phồng của bubble nối liền nhau, nhưng lượt crop theo panel tạo ra `p17:b14` ở phần trên và `p17:b16` ở phần dưới. Nếu coi mỗi detection là một bubble độc lập, hai vùng text trong cùng cấu trúc sẽ bị tách rời. Lượt toàn trang cũng đã thấy cả bubble (`p17:b7`); ảnh giữa chỉ tô hai mảnh cần minh họa, không phải toàn bộ output layout.
+
+**Giải pháp:** geometry đối chiếu vị trí và hình dạng, gom cả **5 candidate nguồn** vào `p17:g7`. Mask xanh lá bên phải là mask thật đã lưu, giữ bubble nối liền thay vì hai vùng độc lập. Hai text box `p17:t2`, `p17:t4` cùng được map vào group này; bước normalize mới ghép nội dung chữ.
+
+### 2. Một bubble nằm trên nhiều panel
+
+<img src="../examples/geometry-normalize/geometry-multi-panel.png" width="1200" alt="Bubble trên trang 11 đi qua panel 4 và 5: layout tạo mảnh b4 và b5, geometry giữ một group g2 với mask liên tục qua ranh giới panel" />
+
+**Vấn đề:** trên **trang 11**, bubble dài nằm qua cả panel 4 và 5. Crop panel 4 tạo `p11:b4`, crop panel 5 tạo `p11:b5`; các mảnh bị cắt theo phạm vi crop, trong khi bubble trên ảnh gốc vẫn liên tục.
+
+**Giải pháp:** geometry gom `p11:b2` (lượt toàn trang), `p11:b4`, `p11:b5` thành **một group `p11:g2`**, giữ `panel_indices = [4, 5]` và toàn bộ mask. Ranh giới panel không trở thành ranh giới bubble, nên các bước sau còn đủ vùng hình học để dựng ảnh và xử lý bubble.
+
+## Kết luận
+
+Bubble geometry biến **nhiều phát hiện chồng lấp hoặc bị cắt thành một cấu trúc bubble có nguồn gốc rõ ràng**. [Normalize](04_normalize.md) dựa vào group/mapping này để tạo utterance; hình dạng bubble chưa quyết định speaker hay dialogue/thought/narration.
+
+[Dữ liệu đầy đủ của hai ví dụ](../examples/geometry-normalize/examples.json) · [Nguồn/checksum](../examples/geometry-normalize/manifest.json) · [Script dựng hình từ artifact, không gọi model](../../../scripts/build_v7_geometry_normalize_examples.py). Code: [geometry stage](../../../src/manga_pipeline/v6/stages.py), [grouping và mapping](../../../src/manga_pipeline/v6/visual.py).

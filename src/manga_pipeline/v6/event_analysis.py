@@ -20,12 +20,30 @@ from .story_graph import assemble, reference_people
 PROMPT = '''Analyze ONLY the target utterances of this event; other text is context.
 Use the frozen whole-chapter graph, current scene, previous event prose, cumulative
 scene memory, source text and labelled page regions. Silent panels are included.
+Prioritize scene content and textual understanding before interpreting images.
+First read the scene's source dialogue in order and the target event in context.
+Form separate provisional speaker and addressee hypotheses from what is said:
+explicit address, questions and replies, pronouns, self-reference, knowledge and
+conversational intent. Use graph prose and scene memory only as fallible context;
+check their claims against source text. Do not assume a mentioned person is the
+speaker or addressee, or assign turns by automatic alternation.
+Then check those hypotheses against source anchors, supplied person mappings,
+linked MAGIv2 tails and labelled images. Use image evidence to confirm, distinguish
+or revise text-grounded candidates, not as the starting point for attribution.
+Clear contradictory source/visual evidence may overturn a hypothesis; do not force
+images to fit it. Weak proximity, pose or apparent gaze must not outweigh clear
+dialogue evidence. If evidence remains ambiguous or conflicts, select the best
+supported allowed candidate with lower confidence and briefly cite the supporting
+source IDs and unresolved conflict in the existing evidence fields. Hypotheses
+are provisional, not new identity facts or independent evidence for later turns.
 Panel labels show reading order; MAGI labels identify bank characters. Unlabelled
 characters still have supplied detection references. Respect the SOURCE ANCHOR
 for speaker attribution as strong evidence with weight 8/10. Follow its person
 assignment unless CLEAR, specific visual/source evidence demonstrates it is wrong.
 If overriding it, cite the conflicting source IDs/labelled people and explain
-exactly why the anchor is wrong. Graph prose, a mentioned name, alternation,
+exactly why the anchor is wrong. Explicit source dialogue can establish a conflict;
+text-first ordering does not waive the anchor override requirement.
+Graph prose, a mentioned name, alternation,
 narrative plausibility or a higher self-rated confidence is not sufficient.
 Weight 8/10 is evidential strength, not a confidence floor or a code lock.
 If no single anchor person_id exists, consider its sources/conflicts without
