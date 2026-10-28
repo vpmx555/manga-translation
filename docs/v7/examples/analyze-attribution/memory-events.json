@@ -1,0 +1,754 @@
+[
+  {
+    "event_id": "scene:6:event:1",
+    "scene_id": "scene:6",
+    "title": "Koyuki's Confession",
+    "initial_description": "Koyuki calls out to Toru and asks him to go out with her, causing a massive reaction from the students.",
+    "description": "Koyuki Sasamori suddenly confesses to Toru Mizushima in the classroom, causing a massive reaction from the students who are shocked by the popular girl's choice of the 'Iris Zero' Toru.",
+    "description_confidence": 9,
+    "target_ids": [
+      "b68ed9e490d577e6:p9:g4:u",
+      "b68ed9e490d577e6:p9:g2:u",
+      "b68ed9e490d577e6:p9:t2:u",
+      "b68ed9e490d577e6:p9:g7:u",
+      "b68ed9e490d577e6:p9:t4:u",
+      "b68ed9e490d577e6:p9:g3:u",
+      "b68ed9e490d577e6:p9:t6:u",
+      "b68ed9e490d577e6:p9:t7:u"
+    ],
+    "status": "completed",
+    "memory_input": {
+      "description": "",
+      "facts": [],
+      "characters": [],
+      "unresolved": []
+    },
+    "previous_event": null,
+    "input_incomplete_events": [],
+    "memory_output": {
+      "description": "The scene depicts the moment Koyuki Sasamori confesses to Toru Mizushima in the classroom. Toru is initially in his 'hiding' mode, but Koyuki's sudden declaration causes a commotion. The class reacts with shock and disbelief, questioning why she would choose Toru, an 'Iris Zero'.",
+      "facts": [
+        {
+          "description": "Koyuki Sasamori confessed to Toru Mizushima in the classroom.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t2:u",
+            "b68ed9e490d577e6:p9:g3:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "The class is shocked by Koyuki's confession to Toru.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t4:u",
+            "b68ed9e490d577e6:p9:t6:u",
+            "b68ed9e490d577e6:p9:t7:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "Toru is known as an 'Iris Zero' (someone without powers).",
+          "source_ids": [
+            "scene:5",
+            "scene:9"
+          ],
+          "confidence": 10
+        }
+      ],
+      "characters": [
+        {
+          "person_id": "person:a2f1956f505cb644a8e8",
+          "description": "Toru Mizushima, the protagonist who tries to stay hidden.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:cae4225c957b8132e0c8",
+          "description": "Koyuki Sasamori, the popular girl with an Iris power who confesses to Toru.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:80a5420bd659851a965e",
+          "description": "A classmate who identifies Koyuki.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:9ef93c817cbc40fd166d",
+          "description": "A classmate who reacts to the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:86bc163691d459bb08f3",
+          "description": "A classmate who questions the confession.",
+          "confidence": 10
+        }
+      ],
+      "unresolved": []
+    },
+    "image_packets": [
+      {
+        "page_id": "b68ed9e490d577e6:p9",
+        "page_index": 8,
+        "bbox": [
+          47,
+          1,
+          876,
+          960
+        ],
+        "panel_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "panels": [
+          {
+            "panel_index": 0,
+            "reading_order": 1,
+            "bbox": [
+              587.0,
+              2.0,
+              876.0,
+              375.0
+            ]
+          },
+          {
+            "panel_index": 1,
+            "reading_order": 2,
+            "bbox": [
+              318.0,
+              6.0,
+              610.0,
+              408.0
+            ]
+          },
+          {
+            "panel_index": 2,
+            "reading_order": 3,
+            "bbox": [
+              47.0,
+              1.0,
+              317.0,
+              406.0
+            ]
+          },
+          {
+            "panel_index": 3,
+            "reading_order": 4,
+            "bbox": [
+              48.0,
+              429.0,
+              876.0,
+              588.0
+            ]
+          },
+          {
+            "panel_index": 4,
+            "reading_order": 5,
+            "bbox": [
+              48.0,
+              607.0,
+              874.0,
+              830.0
+            ]
+          }
+        ],
+        "tails": [],
+        "context_ids": [
+          "b68ed9e490d577e6:p9:g6:u",
+          "b68ed9e490d577e6:p9:g1:u"
+        ],
+        "render_size": [
+          829,
+          959
+        ],
+        "scale": 1.0,
+        "file": "06_analyze/images/7bfa4656d7018985b041801eb9bee27a6b7bd9f8195352a43acea18faaf3c996.jpg",
+        "retained_sha256": "9474929912950ed76f16fe7b609178ff2b6bd17bd455314e5fb2f4c10654b760"
+      }
+    ]
+  },
+  {
+    "event_id": "scene:6:event:2",
+    "scene_id": "scene:6",
+    "title": "Classroom Shock",
+    "initial_description": "Koyuki calls out to Toru and asks him to go out with her, causing a massive reaction from the students.",
+    "description": "The class reacts with shock and confusion to Koyuki's confession to Toru, with students shouting and questioning the situation.",
+    "description_confidence": 9,
+    "target_ids": [
+      "b68ed9e490d577e6:p9:g6:u",
+      "b68ed9e490d577e6:p9:g1:u",
+      "b68ed9e490d577e6:p9:t10:u",
+      "b68ed9e490d577e6:p9:g5:u",
+      "b68ed9e490d577e6:p10:g6:u",
+      "b68ed9e490d577e6:p10:g2:u",
+      "b68ed9e490d577e6:p10:g3:u",
+      "b68ed9e490d577e6:p10:g5:u"
+    ],
+    "status": "completed",
+    "continuation_of": "scene:6:event:1",
+    "memory_input": {
+      "description": "The scene depicts the moment Koyuki Sasamori confesses to Toru Mizushima in the classroom. Toru is initially in his 'hiding' mode, but Koyuki's sudden declaration causes a commotion. The class reacts with shock and disbelief, questioning why she would choose Toru, an 'Iris Zero'.",
+      "facts": [
+        {
+          "description": "Koyuki Sasamori confessed to Toru Mizushima in the classroom.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t2:u",
+            "b68ed9e490d577e6:p9:g3:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "The class is shocked by Koyuki's confession to Toru.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t4:u",
+            "b68ed9e490d577e6:p9:t6:u",
+            "b68ed9e490d577e6:p9:t7:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "Toru is known as an 'Iris Zero' (someone without powers).",
+          "source_ids": [
+            "scene:5",
+            "scene:9"
+          ],
+          "confidence": 10
+        }
+      ],
+      "characters": [
+        {
+          "person_id": "person:a2f1956f505cb644a8e8",
+          "description": "Toru Mizushima, the protagonist who tries to stay hidden.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:cae4225c957b8132e0c8",
+          "description": "Koyuki Sasamori, the popular girl with an Iris power who confesses to Toru.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:80a5420bd659851a965e",
+          "description": "A classmate who identifies Koyuki.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:9ef93c817cbc40fd166d",
+          "description": "A classmate who reacts to the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:86bc163691d459bb08f3",
+          "description": "A classmate who questions the confession.",
+          "confidence": 10
+        }
+      ],
+      "unresolved": []
+    },
+    "previous_event": {
+      "event_id": "scene:6:event:1",
+      "description": "Koyuki Sasamori suddenly confesses to Toru Mizushima in the classroom, causing a massive reaction from the students who are shocked by the popular girl's choice of the 'Iris Zero' Toru.",
+      "source_ids": [
+        "b68ed9e490d577e6:p9:g4:u",
+        "b68ed9e490d577e6:p9:g2:u",
+        "b68ed9e490d577e6:p9:t2:u",
+        "b68ed9e490d577e6:p9:g7:u",
+        "b68ed9e490d577e6:p9:t4:u",
+        "b68ed9e490d577e6:p9:g3:u",
+        "b68ed9e490d577e6:p9:t6:u",
+        "b68ed9e490d577e6:p9:t7:u"
+      ]
+    },
+    "input_incomplete_events": [],
+    "memory_output": {
+      "description": "The scene depicts the moment Koyuki Sasamori confesses to Toru Mizushima in the classroom. Toru is initially in his 'hiding' mode, but Koyuki's sudden declaration causes a commotion. The class reacts with shock and disbelief, questioning why she would choose Toru, an 'Iris Zero'.",
+      "facts": [
+        {
+          "description": "Koyuki Sasamori confessed to Toru Mizushima in the classroom.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t2:u",
+            "b68ed9e490d577e6:p9:g3:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "The class is shocked by Koyuki's confession to Toru.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t4:u",
+            "b68ed9e490d577e6:p9:t6:u",
+            "b68ed9e490d577e6:p9:t7:u",
+            "b68ed9e490d577e6:p9:g6:u",
+            "b68ed9e490d577e6:p10:g6:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "Toru is known as an 'Iris Zero' (someone without powers).",
+          "source_ids": [
+            "scene:5",
+            "scene:9"
+          ],
+          "confidence": 10
+        }
+      ],
+      "characters": [
+        {
+          "person_id": "person:a2f1956f505cb644a8e8",
+          "description": "Toru Mizushima, the protagonist who tries to stay hidden.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:cae4225c957b8132e0c8",
+          "description": "Koyuki Sasamori, the popular girl with an Iris power who confesses to Toru.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:80a5420bd659851a965e",
+          "description": "A classmate who identifies Koyuki.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:9ef93c817cbc40fd166d",
+          "description": "A classmate who reacts to the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:86bc163691d459bb08f3",
+          "description": "A classmate who questions the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:bbd1cdc5e54921165151",
+          "description": "A classmate who reacts with confusion and speaks multiple times.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:b75ec33ffdaa9c95dced",
+          "description": "A classmate who shouts in surprise.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:10f7c7b229e34163b406",
+          "description": "A classmate who shouts in shock at Koyuki.",
+          "confidence": 10
+        }
+      ],
+      "unresolved": []
+    },
+    "image_packets": [
+      {
+        "page_id": "b68ed9e490d577e6:p9",
+        "page_index": 8,
+        "bbox": [
+          48,
+          532,
+          876,
+          1398
+        ],
+        "panel_indices": [
+          4,
+          5,
+          6
+        ],
+        "panels": [
+          {
+            "panel_index": 4,
+            "reading_order": 5,
+            "bbox": [
+              48.0,
+              607.0,
+              874.0,
+              830.0
+            ]
+          },
+          {
+            "panel_index": 5,
+            "reading_order": 6,
+            "bbox": [
+              617.0,
+              849.0,
+              876.0,
+              1315.0
+            ]
+          },
+          {
+            "panel_index": 6,
+            "reading_order": 7,
+            "bbox": [
+              48.0,
+              850.0,
+              600.0,
+              1398.0
+            ]
+          }
+        ],
+        "tails": [
+          {
+            "tail_index": 0,
+            "label": "TAIL 0",
+            "bbox": [
+              168.34332275390625,
+              1246.1617431640625,
+              194.45956420898438,
+              1270.74609375
+            ],
+            "render_bbox": [
+              120.34332275390625,
+              714.1617431640625,
+              146.45956420898438,
+              738.74609375
+            ]
+          }
+        ],
+        "context_ids": [
+          "b68ed9e490d577e6:p9:t2:u",
+          "b68ed9e490d577e6:p9:g7:u",
+          "b68ed9e490d577e6:p9:t4:u",
+          "b68ed9e490d577e6:p9:g3:u",
+          "b68ed9e490d577e6:p9:t6:u",
+          "b68ed9e490d577e6:p9:t7:u"
+        ],
+        "render_size": [
+          828,
+          866
+        ],
+        "scale": 1.0,
+        "file": "06_analyze/images/067be537636c1403a3570e523a9b1c8b68d0e0622c2a1c99b7018f4cd9cf1c53.jpg",
+        "retained_sha256": "d9e0d139e3de9f0816ab520d8e14c74e830b2ddf93bb334aecd9cf3e116b8528"
+      },
+      {
+        "page_id": "b68ed9e490d577e6:p10",
+        "page_index": 9,
+        "bbox": [
+          0,
+          0,
+          914,
+          644
+        ],
+        "panel_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "panels": [
+          {
+            "panel_index": 0,
+            "reading_order": 1,
+            "bbox": [
+              0.0,
+              0.0,
+              483.0,
+              423.0
+            ]
+          },
+          {
+            "panel_index": 1,
+            "reading_order": 2,
+            "bbox": [
+              492.0,
+              81.0,
+              914.0,
+              411.0
+            ]
+          },
+          {
+            "panel_index": 2,
+            "reading_order": 3,
+            "bbox": [
+              489.0,
+              427.0,
+              914.0,
+              643.0
+            ]
+          },
+          {
+            "panel_index": 3,
+            "reading_order": 4,
+            "bbox": [
+              87.0,
+              441.0,
+              474.0,
+              644.0
+            ]
+          }
+        ],
+        "tails": [
+          {
+            "tail_index": 1,
+            "label": "TAIL 1",
+            "bbox": [
+              419.91259765625,
+              490.33740234375,
+              444.31304931640625,
+              515.0542602539062
+            ],
+            "render_bbox": [
+              419.91259765625,
+              490.33740234375,
+              444.31304931640625,
+              515.0542602539062
+            ]
+          },
+          {
+            "tail_index": 2,
+            "label": "TAIL 2",
+            "bbox": [
+              413.8650817871094,
+              161.05947875976562,
+              440.2992858886719,
+              196.6890869140625
+            ],
+            "render_bbox": [
+              413.8650817871094,
+              161.05947875976562,
+              440.2992858886719,
+              196.6890869140625
+            ]
+          }
+        ],
+        "context_ids": [],
+        "render_size": [
+          914,
+          644
+        ],
+        "scale": 1.0,
+        "file": "06_analyze/images/f16b039d7d0dcc012cd2ea6f260b93497e90aff41f805bfdc5e4f753ebb048cd.jpg",
+        "retained_sha256": "ef6a069756e15aa23c9f778652d561e41df00099dff24814b5413b176aba1657"
+      }
+    ]
+  },
+  {
+    "event_id": "scene:6:event:3",
+    "scene_id": "scene:6",
+    "title": "Koyuki's Confession",
+    "initial_description": "Koyuki calls out to Toru and asks him to go out with her, causing a massive reaction from the students.",
+    "description": "Koyuki Sasamori loudly confesses to Toru Mizushima, causing him to react with extreme shock and confusion.",
+    "description_confidence": 8,
+    "target_ids": [
+      "b68ed9e490d577e6:p10:g1:u",
+      "b68ed9e490d577e6:p10:g4:u"
+    ],
+    "status": "completed",
+    "continuation_of": "scene:6:event:2",
+    "memory_input": {
+      "description": "The scene depicts the moment Koyuki Sasamori confesses to Toru Mizushima in the classroom. Toru is initially in his 'hiding' mode, but Koyuki's sudden declaration causes a commotion. The class reacts with shock and disbelief, questioning why she would choose Toru, an 'Iris Zero'.",
+      "facts": [
+        {
+          "description": "Koyuki Sasamori confessed to Toru Mizushima in the classroom.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t2:u",
+            "b68ed9e490d577e6:p9:g3:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "The class is shocked by Koyuki's confession to Toru.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t4:u",
+            "b68ed9e490d577e6:p9:t6:u",
+            "b68ed9e490d577e6:p9:t7:u",
+            "b68ed9e490d577e6:p9:g6:u",
+            "b68ed9e490d577e6:p10:g6:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "Toru is known as an 'Iris Zero' (someone without powers).",
+          "source_ids": [
+            "scene:5",
+            "scene:9"
+          ],
+          "confidence": 10
+        }
+      ],
+      "characters": [
+        {
+          "person_id": "person:a2f1956f505cb644a8e8",
+          "description": "Toru Mizushima, the protagonist who tries to stay hidden.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:cae4225c957b8132e0c8",
+          "description": "Koyuki Sasamori, the popular girl with an Iris power who confesses to Toru.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:80a5420bd659851a965e",
+          "description": "A classmate who identifies Koyuki.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:9ef93c817cbc40fd166d",
+          "description": "A classmate who reacts to the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:86bc163691d459bb08f3",
+          "description": "A classmate who questions the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:bbd1cdc5e54921165151",
+          "description": "A classmate who reacts with confusion and speaks multiple times.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:b75ec33ffdaa9c95dced",
+          "description": "A classmate who shouts in surprise.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:10f7c7b229e34163b406",
+          "description": "A classmate who shouts in shock at Koyuki.",
+          "confidence": 10
+        }
+      ],
+      "unresolved": []
+    },
+    "previous_event": {
+      "event_id": "scene:6:event:2",
+      "description": "The class reacts with shock and confusion to Koyuki's confession to Toru, with students shouting and questioning the situation.",
+      "source_ids": [
+        "b68ed9e490d577e6:p9:g6:u",
+        "b68ed9e490d577e6:p9:g1:u",
+        "b68ed9e490d577e6:p9:t10:u",
+        "b68ed9e490d577e6:p9:g5:u",
+        "b68ed9e490d577e6:p10:g6:u",
+        "b68ed9e490d577e6:p10:g2:u",
+        "b68ed9e490d577e6:p10:g3:u",
+        "b68ed9e490d577e6:p10:g5:u"
+      ]
+    },
+    "input_incomplete_events": [],
+    "memory_output": {
+      "description": "The scene depicts the moment Koyuki Sasamori confesses to Toru Mizushima in the classroom. Toru is initially in his 'hiding' mode, but Koyuki's sudden declaration causes a commotion. The class reacts with shock and disbelief, questioning why she would choose Toru, an 'Iris Zero'.",
+      "facts": [
+        {
+          "description": "Koyuki Sasamori confessed to Toru Mizushima in the classroom.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t2:u",
+            "b68ed9e490d577e6:p9:g3:u",
+            "b68ed9e490d577e6:p10:g1:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "The class is shocked by Koyuki's confession to Toru.",
+          "source_ids": [
+            "b68ed9e490d577e6:p9:t4:u",
+            "b68ed9e490d577e6:p9:t6:u",
+            "b68ed9e490d577e6:p9:t7:u",
+            "b68ed9e490d577e6:p9:g6:u",
+            "b68ed9e490d577e6:p10:g6:u",
+            "b68ed9e490d577e6:p10:g4:u"
+          ],
+          "confidence": 10
+        },
+        {
+          "description": "Toru is known as an 'Iris Zero' (someone without powers).",
+          "source_ids": [
+            "scene:5",
+            "scene:9"
+          ],
+          "confidence": 10
+        }
+      ],
+      "characters": [
+        {
+          "person_id": "person:a2f1956f505cb644a8e8",
+          "description": "Toru Mizushima, the protagonist who tries to stay hidden.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:cae4225c957b8132e0c8",
+          "description": "Koyuki Sasamori, the popular girl with an Iris power who confesses to Toru.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:80a5420bd659851a965e",
+          "description": "A classmate who identifies Koyuki.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:9ef93c817cbc40fd166d",
+          "description": "A classmate who reacts to the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:86bc163691d459bb08f3",
+          "description": "A classmate who questions the confession.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:bbd1cdc5e54921165151",
+          "description": "A classmate who reacts with confusion and speaks multiple times.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:b75ec33ffdaa9c95dced",
+          "description": "A classmate who shouts in surprise.",
+          "confidence": 10
+        },
+        {
+          "person_id": "person:10f7c7b229e34163b406",
+          "description": "A classmate who shouts in shock at Koyuki.",
+          "confidence": 10
+        }
+      ],
+      "unresolved": []
+    },
+    "image_packets": [
+      {
+        "page_id": "b68ed9e490d577e6:p10",
+        "page_index": 9,
+        "bbox": [
+          62,
+          665,
+          915,
+          1399
+        ],
+        "panel_indices": [
+          4
+        ],
+        "panels": [
+          {
+            "panel_index": 4,
+            "reading_order": 5,
+            "bbox": [
+              86.0,
+              665.0,
+              915.0,
+              1399.0
+            ]
+          }
+        ],
+        "tails": [
+          {
+            "tail_index": 0,
+            "label": "TAIL 0",
+            "bbox": [
+              723.2685546875,
+              853.9871826171875,
+              752.4517211914062,
+              881.0341796875
+            ],
+            "render_bbox": [
+              661.2685546875,
+              188.9871826171875,
+              690.4517211914062,
+              216.0341796875
+            ]
+          }
+        ],
+        "context_ids": [],
+        "render_size": [
+          853,
+          734
+        ],
+        "scale": 1.0,
+        "file": "06_analyze/images/d595363a065d50a2bd648d3d73f97192c198d5a2a700ffbc9311138eea31fb91.jpg",
+        "retained_sha256": "9411a07e1a1e3aefa8a5881cdd8c058476539d0993a1f25c5347fda7f7764c83"
+      }
+    ]
+  }
+]

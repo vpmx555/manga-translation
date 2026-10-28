@@ -78,6 +78,64 @@ class Canvas:
         self.image.save(output / name)
 
 
+def name_figures(output, graph):
+    normalization = graph['name_normalization']
+    group = next(g for g in normalization['groups'] if g['group_id'] == 'g1')
+    reference = graph['story_graph']['characters']['reference:' + group['group_id']]
+    if not reference['reference_only'] or reference['magi_ids']:
+        raise ValueError('Name example is not reference-only')
+    repairs = [next(p for p in normalization['patches'] if p['original'] == name and p['status'] == 'applied')
+               for name in ['TORU', 'MIZU- SHIMA', 'TORU-KUN']]
+    c = Canvas(1500, 660, 'Một luồng tên gọi: sửa OCR → alias → nhân vật giả định',
+               'Cùng request graph đề xuất name records và groups; code áp dụng sửa và tạo thực thể chỉ có tên.')
+    stages = [('Tên trong transcript', 'TORU · MIZU- SHIMA · TORU-KUN', 'utterance'),
+              ('Sửa đúng dạng gọi', 'Toru · Mizushima · Toru-kun', 'utterance'),
+              ('Nhóm tên g1', 'canonical_name: Toru Mizushima', 'scene'),
+              ('reference:g1', 'Nhân vật giả định ở mức tên', 'story')]
+    for i, (title, subtitle, kind) in enumerate(stages):
+        x = 30 + i * 372
+        c.node(x, 185, 328, title, subtitle, kind, height=105)
+        if i:
+            c.arrow([(x - 44, 236), (x - 8, 236)], COLORS['story'])
+    c.box((32, 350, 1468, 592), COLORS['chapter'])
+    c.text(56, 370, 'Hai đầu ra liên quan trong cùng luồng', 25, True)
+    c.wrap(56, 420, 'Text hiện hành: sửa spelling/spacing/hyphen, giữ cách gọi và honorific trong câu.', 1360, 24)
+    c.wrap(56, 480, 'Alias/nhóm: giả định nhiều cách gọi cùng chỉ một người; canonical_name là metadata nhóm.', 1360, 24)
+    c.text(56, 545, 'Chưa nối reference:g1 với bất kỳ nhân vật MAGIv2 nào.', 24, True, COLORS['story'])
+    c.save(output, 'names-flow.png')
+    c = Canvas(1500, 650, 'Sửa tên gọi khác với thay mọi tên bằng tên đầy đủ',
+               'Ba phép sửa đã áp dụng trong r11; alias giữ các dạng nguồn, dạng sửa và tên chuẩn của nhóm.')
+    for x, title in [(45, 'Tên nguồn'), (505, 'Text sau sửa OCR'), (1020, 'Nhóm giả định')]:
+        c.text(x, 134, title, 25, True)
+    for i, patch in enumerate(repairs):
+        y = 195 + i * 125
+        c.node(35, y, 365, patch['original'], patch['utterance_id'].split(':', 1)[1], 'utterance')
+        c.arrow([(402, y + 40), (484, y + 40)], COLORS['chapter'])
+        c.node(488, y, 365, patch['replacement'], 'Giữ dạng gọi, không mở rộng tên', 'chapter')
+        c.arrow([(855, y + 40), (995, y + 40)], COLORS['scene'])
+    c.box((1000, 195, 1465, 525), COLORS['scene'])
+    c.text(1024, 217, group['canonical_name'], 28, True, COLORS['scene'])
+    c.text(1024, 270, 'group_id: g1 · status: proposed', 22)
+    c.wrap(1024, 320, 'Toru / Mizushima / Toru-kun là những dạng gọi được đề xuất cùng nhóm.', 405, 24)
+    c.wrap(1024, 435, 'canonical_name chỉ là tên metadata, không chèn vào mọi câu.', 405, 21, color=MUTED)
+    c.text(35, 595, 'Tên chưa chắc cùng người được giữ riêng hoặc chưa nhóm; chưa suy ra người nói từ một tên được nhắc.', 21, color=MUTED)
+    c.save(output, 'name-corrections-aliases.png')
+    c = Canvas(1500, 660, 'Nhân vật giả định chỉ có tên — chưa gán MAGI',
+               'Node này là một giả định quy chiếu văn bản, bổ sung cho hierarchy truyện; không phải tầng narrative thứ sáu.')
+    c.node(35, 215, 385, 'Nhóm g1 · aliases', 'Toru · Mizushima · Toru-kun', 'scene', height=100)
+    c.arrow([(422, 265), (504, 265)], COLORS['story'])
+    c.box((510, 140, 1465, 545), COLORS['story'], width=3)
+    c.text(540, 166, reference['person_id'], 28, True, COLORS['story'])
+    c.text(540, 215, 'name: ' + reference['name'], 27, True)
+    c.text(540, 275, 'reference_only: true', 26)
+    c.text(540, 321, 'magi_ids: []', 26)
+    c.wrap(540, 390, 'Chưa có crop/MAGI được gán cho thực thể này. Việc ai nói câu nào vẫn cần analyze và bằng chứng độc lập.', 860, 26)
+    c.text(35, 595, 'Không có cạnh từ node giả định sang bất kỳ MAGI ID nào. Các nhóm tên khác được giữ như những thực thể riêng.', 21, color=MUTED)
+    c.save(output, 'name-reference-only.png')
+    (output / 'name-flow.json').write_text(json.dumps({'group': group, 'reference': reference,
+        'applied_corrections': repairs, 'groups': normalization['groups']}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-dir', type=Path, required=True)
@@ -274,6 +332,7 @@ def main():
     c.text(30, 739, '≤ 8 utterance/event giữ batch analyze hữu hạn; các phần chạy nối tiếp trong scene và truyền memory.', 21, color=MUTED)
     c.save(output, 'event-continuations.png')
 
+    name_figures(output, graph)
     source_file = Path(__file__).resolve().parents[1] / 'src/manga_pipeline/v6/graph.py'
     record = {'source_run': str(run), 'source_artifacts': receipts,
               'current_policy_source': {'path': str(source_file), 'sha256': sha(source_file)},

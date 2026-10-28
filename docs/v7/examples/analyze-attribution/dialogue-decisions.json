@@ -1,0 +1,837 @@
+{
+  "event_id": "scene:5:event:1",
+  "targets": [
+    {
+      "id": "b68ed9e490d577e6:p6:g1:u",
+      "text": "NOW THAT YOU MENTION IT, I JUST SAW SOMETHING STRANGE WITH MY IRIS.",
+      "page_id": "b68ed9e490d577e6:p6",
+      "panel_index": 1,
+      "panel_indices": [
+        1,
+        2
+      ],
+      "bbox": [
+        404,
+        539,
+        577,
+        744
+      ],
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:ee78e0e823120ff8ab9e",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t0",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+            "bank_id": 4,
+            "person_id": "person:ee78e0e823120ff8ab9e",
+            "tail_index": 0,
+            "character_index": 6
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t0",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+          "bank_id": 4,
+          "person_id": "person:ee78e0e823120ff8ab9e"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 0,
+            "label": "TAIL 0",
+            "bbox": [
+              391.7149963378906,
+              619.2374877929688,
+              422.6050109863281,
+              647.3875122070312
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t0"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p6:g2:u",
+      "text": "EHH, REALLY?",
+      "page_id": "b68ed9e490d577e6:p6",
+      "panel_index": 3,
+      "panel_indices": [
+        2,
+        3
+      ],
+      "bbox": [
+        84,
+        710,
+        168,
+        874
+      ],
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:e6c6452cb6c395001d3d",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t1",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+            "bank_id": 3,
+            "person_id": "person:e6c6452cb6c395001d3d",
+            "tail_index": 1,
+            "character_index": 3
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t1",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+          "bank_id": 3,
+          "person_id": "person:e6c6452cb6c395001d3d"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 1,
+            "label": "TAIL 1",
+            "bbox": [
+              143.63352966308594,
+              721.1734619140625,
+              168.989501953125,
+              749.6285400390625
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t1"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "utterance_id": "b68ed9e490d577e6:p6:g1:u",
+      "content_type": "dialogue",
+      "speech_style": "normal",
+      "speaker_kind": "person",
+      "speaker_person_id": "person:ee78e0e823120ff8ab9e",
+      "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+      "addressee_type": "individual",
+      "addressee_person_ids": [
+        "person:e6c6452cb6c395001d3d"
+      ],
+      "mentions": [],
+      "confidence": {
+        "speaker": 9,
+        "addressee": 8,
+        "content_type": 10,
+        "speech_style": 9
+      },
+      "evidence": "Bubble tail TAIL 0 points to the character in cluster p6:c3 (person:ee78e0e823120ff8ab9e). The speaker anchor is locked to this person. The text 'NOW THAT YOU MENTION IT' implies a response to the other girl in the pair.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p6:t0",
+        "495c61e29838cca9:b68ed9e490d577e6:p6:c3"
+      ],
+      "semantic_resolution": "resolved",
+      "semantic_response_used": true,
+      "repair_count": 0,
+      "semantic_needs_review": false,
+      "semantic_errors": [],
+      "speaker_merge_policy": "inference-first-v1",
+      "scene_id": "scene:5",
+      "event_id": "scene:5:event:1",
+      "essential_index": 27,
+      "analysis_branch": "dialogue",
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:ee78e0e823120ff8ab9e",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t0",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+            "bank_id": 4,
+            "person_id": "person:ee78e0e823120ff8ab9e",
+            "tail_index": 0,
+            "character_index": 6
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t0",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+          "bank_id": 4,
+          "person_id": "person:ee78e0e823120ff8ab9e"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 0,
+            "label": "TAIL 0",
+            "bbox": [
+              391.7149963378906,
+              619.2374877929688,
+              422.6050109863281,
+              647.3875122070312
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t0"
+            ]
+          }
+        ]
+      },
+      "batch_id": "scene:5:event:1",
+      "inferred_speaker": {
+        "speaker_person_id": "person:ee78e0e823120ff8ab9e",
+        "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+        "speaker_kind": "person"
+      },
+      "speaker_resolution": {
+        "policy": "inference-first-v1",
+        "selected_source": "inference",
+        "source_anchor_person_id": "person:ee78e0e823120ff8ab9e",
+        "conflicts": []
+      }
+    },
+    {
+      "utterance_id": "b68ed9e490d577e6:p6:g2:u",
+      "content_type": "dialogue",
+      "speech_style": "normal",
+      "speaker_kind": "person",
+      "speaker_person_id": "person:e6c6452cb6c395001d3d",
+      "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+      "addressee_type": "individual",
+      "addressee_person_ids": [
+        "person:ee78e0e823120ff8ab9e"
+      ],
+      "mentions": [],
+      "confidence": {
+        "speaker": 9,
+        "addressee": 8,
+        "content_type": 10,
+        "speech_style": 9
+      },
+      "evidence": "Bubble tail TAIL 1 points to the character in cluster p6:c1 (person:e6c6452cb6c395001d3d). The speaker anchor is locked to this person. The text 'EHH, REALLY?' is a reaction to the previous statement.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p6:t1",
+        "495c61e29838cca9:b68ed9e490d577e6:p6:c1"
+      ],
+      "semantic_resolution": "resolved",
+      "semantic_response_used": true,
+      "repair_count": 0,
+      "semantic_needs_review": false,
+      "semantic_errors": [],
+      "speaker_merge_policy": "inference-first-v1",
+      "scene_id": "scene:5",
+      "event_id": "scene:5:event:1",
+      "essential_index": 28,
+      "analysis_branch": "dialogue",
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:e6c6452cb6c395001d3d",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t1",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+            "bank_id": 3,
+            "person_id": "person:e6c6452cb6c395001d3d",
+            "tail_index": 1,
+            "character_index": 3
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t1",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+          "bank_id": 3,
+          "person_id": "person:e6c6452cb6c395001d3d"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 1,
+            "label": "TAIL 1",
+            "bbox": [
+              143.63352966308594,
+              721.1734619140625,
+              168.989501953125,
+              749.6285400390625
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t1"
+            ]
+          }
+        ]
+      },
+      "batch_id": "scene:5:event:1",
+      "inferred_speaker": {
+        "speaker_person_id": "person:e6c6452cb6c395001d3d",
+        "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+        "speaker_kind": "person"
+      },
+      "speaker_resolution": {
+        "policy": "inference-first-v1",
+        "selected_source": "inference",
+        "source_anchor_person_id": "person:e6c6452cb6c395001d3d",
+        "conflicts": []
+      }
+    }
+  ],
+  "visual_people": {
+    "people": {
+      "person:a554f852fae47785f4e6": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "1"
+        ]
+      },
+      "person:a2f1956f505cb644a8e8": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c0",
+          "495c61e29838cca9:b68ed9e490d577e6:p7:c0",
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c4",
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c5"
+        ],
+        "magi_ids": [
+          "2"
+        ]
+      },
+      "person:e6c6452cb6c395001d3d": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c1"
+        ],
+        "magi_ids": [
+          "3"
+        ]
+      },
+      "person:ee78e0e823120ff8ab9e": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c3"
+        ],
+        "magi_ids": [
+          "4"
+        ]
+      },
+      "person:bbd1cdc5e54921165151": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p7:c1",
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c0"
+        ],
+        "magi_ids": [
+          "5"
+        ]
+      },
+      "person:80a5420bd659851a965e": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c7"
+        ],
+        "magi_ids": [
+          "6"
+        ]
+      },
+      "person:b75ec33ffdaa9c95dced": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "7"
+        ]
+      },
+      "person:35106fadb6032b851ff6": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "9"
+        ]
+      },
+      "person:7327ca356519c041fe71": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "8"
+        ]
+      },
+      "person:846b71954d7122ffca51": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "10"
+        ]
+      },
+      "person:d834fc060d50112b74ff": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "11"
+        ]
+      },
+      "person:bd9042c2a391a5d2c213": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "12"
+        ]
+      },
+      "person:35eee23ffacd6598bdc9": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "13"
+        ]
+      },
+      "person:c425ce86f45c62db01ef": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "14"
+        ]
+      },
+      "person:11b8722b696eaedd795d": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "15"
+        ]
+      },
+      "person:6b1ab35ca0dcf66773b1": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "16"
+        ]
+      },
+      "person:4b8b41cea680cb06e73b": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "17"
+        ]
+      },
+      "person:e453dc51682a06c0cd2a": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "18"
+        ]
+      },
+      "person:ccfd6d0ffce9658f41d6": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "19"
+        ]
+      },
+      "person:81128824c04247f39c15": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c2"
+        ],
+        "magi_ids": []
+      },
+      "person:8bc7aecc43ad61047260": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c1"
+        ],
+        "magi_ids": []
+      },
+      "person:36fd5511814f69b6aee2": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c2"
+        ],
+        "magi_ids": []
+      },
+      "person:e5ba6d79cf6a3084e3a2": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c3"
+        ],
+        "magi_ids": []
+      },
+      "person:545781e03fc92146fc48": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c6"
+        ],
+        "magi_ids": []
+      },
+      "reference:g1": {
+        "name": "Toru Mizushima",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      },
+      "reference:g2": {
+        "name": "Koyuki Sasamori",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      },
+      "reference:g3": {
+        "name": "Hijiri",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      },
+      "reference:g4": {
+        "name": "Asahi",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      }
+    },
+    "clusters": {
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c0": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              251.75091552734375,
+              21.216293334960938,
+              771.1380004882812,
+              469.46710205078125
+            ],
+            "character_index": 0,
+            "source_bank_id": 2
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              203.009033203125,
+              836.2789306640625,
+              473.876220703125,
+              1398.122314453125
+            ],
+            "character_index": 1,
+            "source_bank_id": 2
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              687.3160400390625,
+              525.75,
+              975.1154174804688,
+              1317.73828125
+            ],
+            "character_index": 5,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c1": {
+        "person_id": "person:e6c6452cb6c395001d3d",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              503.3237609863281,
+              758.175048828125,
+              625.7492065429688,
+              1322.3272705078125
+            ],
+            "character_index": 2,
+            "source_bank_id": 3
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              97.48128509521484,
+              509.2698669433594,
+              260.93414306640625,
+              782.2921142578125
+            ],
+            "character_index": 3,
+            "source_bank_id": 3
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c2": {
+        "person_id": "person:81128824c04247f39c15",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              500.2949523925781,
+              1054.59326171875,
+              609.4256591796875,
+              1323.6378173828125
+            ],
+            "character_index": 4,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c3": {
+        "person_id": "person:ee78e0e823120ff8ab9e",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              263.3003234863281,
+              542.0048217773438,
+              437.8755798339844,
+              778.1629028320312
+            ],
+            "character_index": 6,
+            "source_bank_id": 4
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              562.9090576171875,
+              787.0154418945312,
+              750.8046264648438,
+              1321.27294921875
+            ],
+            "character_index": 7,
+            "source_bank_id": 4
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p7:c0": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p7",
+            "bbox": [
+              504.6697692871094,
+              -0.9484946727752686,
+              962.4888916015625,
+              1393.1680908203125
+            ],
+            "character_index": 0,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p7:c1": {
+        "person_id": "person:bbd1cdc5e54921165151",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p7",
+            "bbox": [
+              2.713438034057617,
+              91.41693878173828,
+              512.5540771484375,
+              1403.845703125
+            ],
+            "character_index": 1,
+            "source_bank_id": 5
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c0": {
+        "person_id": "person:bbd1cdc5e54921165151",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              788.0537719726562,
+              1104.4107666015625,
+              907.6866455078125,
+              1286.97314453125
+            ],
+            "character_index": 0,
+            "source_bank_id": 5
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              149.68043518066406,
+              902.997314453125,
+              604.3402099609375,
+              1398.581298828125
+            ],
+            "character_index": 3,
+            "source_bank_id": 5
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c1": {
+        "person_id": "person:8bc7aecc43ad61047260",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              622.7570190429688,
+              876.51220703125,
+              905.3978271484375,
+              1308.028564453125
+            ],
+            "character_index": 1,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c2": {
+        "person_id": "person:36fd5511814f69b6aee2",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              325.38043212890625,
+              129.6361083984375,
+              494.0829162597656,
+              400.6549377441406
+            ],
+            "character_index": 2,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c3": {
+        "person_id": "person:e5ba6d79cf6a3084e3a2",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              655.4219970703125,
+              183.37197875976562,
+              804.927001953125,
+              407.11737060546875
+            ],
+            "character_index": 4,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c4": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              621.2452392578125,
+              878.5113525390625,
+              793.1347045898438,
+              1310.410400390625
+            ],
+            "character_index": 5,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c5": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              87.39476776123047,
+              437.1585388183594,
+              388.72540283203125,
+              856.3514404296875
+            ],
+            "character_index": 6,
+            "source_bank_id": 2
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              78.94232940673828,
+              85.91127014160156,
+              275.6936950683594,
+              405.103515625
+            ],
+            "character_index": 8,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c6": {
+        "person_id": "person:545781e03fc92146fc48",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              522.9845581054688,
+              152.52670288085938,
+              665.4649658203125,
+              399.82098388671875
+            ],
+            "character_index": 7,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c7": {
+        "person_id": "person:80a5420bd659851a965e",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              772.84765625,
+              117.84574890136719,
+              909.1361694335938,
+              402.2044982910156
+            ],
+            "character_index": 9,
+            "source_bank_id": 6
+          }
+        ]
+      }
+    }
+  }
+}

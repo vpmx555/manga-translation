@@ -4,7 +4,7 @@ Graph tổ chức dữ liệu thành **5 tầng: truyện → chapter → scene 
 
 <img src="../examples/graph/five-level-hierarchy.png" width="1200" alt="Sơ đồ năm tầng từ nhiều truyện đến chapter, scene, event và utterance; nhánh Iris Zero được phóng rõ, các truyện và chapter khác được tô mờ để minh họa cấu trúc" />
 
-Trong một lượt chạy, pipeline xử lý **một chapter** của một truyện. Truyện/chapter lấy từ metadata, utterance đã có từ normalize; model graph tạo cách chia **scene/event** và mô tả cho hai tầng này. Các node mờ trong hình minh họa cấu trúc mở rộng, không phải dữ liệu đã xử lý thêm.
+Trong một lượt chạy, pipeline xử lý **một chapter** của một truyện. Truyện/chapter lấy từ metadata, utterance đã có từ normalize; model graph tạo cách chia **scene/event** và mô tả cho hai tầng này. Cùng request đó còn đề xuất sửa tên gọi và nhóm các dạng tên để tạo **nhân vật giả định chỉ có tên, chưa gắn MAGI**. Các node mờ trong hình minh họa cấu trúc mở rộng, không phải dữ liệu đã xử lý thêm.
 
 ## Input
 
@@ -95,7 +95,8 @@ Ví dụ **Iris Zero chapter 1, lượt r11** tạo **22 scene, 42 event, phủ 
 |---|---|
 | [`05_graph/result.json`](../examples/graph/result.json) | Hierarchy scene/event, mô tả, phạm vi utterance và các liên kết trong chapter. |
 | [`ocr-current.json`](../examples/graph/ocr-current.json) | Text hiện hành sau sửa spelling/spacing/hyphen của tên, dùng cho analyze. |
-| [`replacement-history.json`](../examples/graph/replacement-history.json) và nhóm tên | Lịch sử sửa trước/sau và các dạng tên liên quan. Nhóm tên chưa phải ánh xạ tên–MAGI hay speaker. |
+| [`replacement-history.json`](../examples/graph/replacement-history.json) và nhóm tên | Lịch sử sửa trước/sau, alias và nhóm tên ở trạng thái đề xuất. |
+| Nhân vật giả định theo tên | Các node `reference:gN`, có tên và `reference_only: true`, chưa gán bất kỳ MAGI ID nào. |
 
 Model trả **start marker** của scene/event. Code kiểm tra thứ tự, phủ từ utterance đầu tới cuối, cấp ID và đóng băng phạm vi. `status: pending` ở event nghĩa là đang chờ analyze.
 
@@ -183,8 +184,47 @@ Utterance kế thừa từ normalize, giữ ID và nguồn xuyên graph/analyze;
 
 <img src="../examples/graph/zoom-utterance.png" width="1200" alt="Phóng node utterance u85 với text nguyên văn, ID thật p17:g7:u và hai box nguồn t2, t4; các box là provenance chứ không phải tầng graph mới" />
 
+## Luồng tên gọi — sửa OCR, alias và nhân vật giả định
+
+Ngoài khung cốt truyện, graph còn đọc **các tên xuất hiện trong transcript**, sửa lỗi OCR ở cách gọi và đề xuất những cách gọi nào cùng chỉ một người. Từ nhóm tên, code tạo thực thể nhân vật giả định **ở mức văn bản**, chưa biết đó là nhân vật MAGIv2 nào trên ảnh.
+
+<img src="../examples/graph/names-flow.png" width="1200" alt="Một luồng từ tên trong transcript qua sửa OCR, nhóm alias và canonical name đến thực thể reference:g1 chỉ có tên, chưa gán MAGI" />
+
+Hình là luồng dữ liệu trong **cùng một lượt graph**, không phải nhiều request model nối tiếp. Model đề xuất các name record `old_name`, `new_name`, `group_id` cùng metadata nhóm; code áp dụng phép sửa, giữ lịch sử và tổng hợp alias từ các dạng tên nguồn/đã sửa.
+
+### 1. Sửa cách gọi, giữ nguyên cách xưng hô
+
+<img src="../examples/graph/name-corrections-aliases.png" width="1200" alt="Ba phép sửa thật TORU thành Toru, MIZU- SHIMA thành Mizushima, TORU-KUN thành Toru-kun; các dạng gọi cùng thuộc nhóm giả định Toru Mizushima nhưng không bị thay hết bằng tên đầy đủ" />
+
+Ví dụ r11: `TORU → Toru`, `MIZU- SHIMA → Mizushima`, `TORU-KUN → Toru-kun`. Sửa spelling/spacing/hyphen giữ đúng dạng tên và honorific được dùng trong câu; không đổi mọi `Toru` thành `Toru Mizushima`.
+
+### 2. Tạo alias và nhóm giả định cùng người
+
+`Toru`, `Mizushima`, `Toru-kun` và các dạng nguồn liên quan được đề xuất vào **nhóm `g1`**, với `canonical_name: Toru Mizushima`. Tên chuẩn là metadata đại diện nhóm; từng occurrence vẫn giữ nguồn và cách gọi của nó. Nhóm có `status: proposed`, evidence và members để kiểm tra. Các trường hợp chưa chắc cùng người phải giữ riêng hoặc chưa nhóm.
+
+Alias có thể gồm cả biến thể OCR nguồn và dạng đã sửa, nên danh sách alias không tự xác nhận mọi biến thể là cách gọi đúng. Nó giữ dấu vết để analyze/review đối chiếu.
+
+### 3. Tạo nhân vật giả định, chưa gán nhân vật MAGIv2
+
+<img src="../examples/graph/name-reference-only.png" width="1200" alt="Nhóm tên g1 tạo node reference:g1 mang tên Toru Mizushima, reference_only true và magi_ids rỗng; không có liên kết tới một nhân vật MAGIv2 nào" />
+
+Ví dụ output thật:
+
+```json
+{
+  "person_id": "reference:g1",
+  "name": "Toru Mizushima",
+  "magi_ids": [],
+  "reference_only": true
+}
+```
+
+Node này biểu diễn giả định **“các cách gọi trong nhóm đang quy chiếu cùng một người”**, chưa chứng minh người đó ứng với MAGI 2, 3 hay bất kỳ ID thị giác nào. Đây là thực thể tham chiếu bổ sung cho graph, không phải tầng narrative thứ sáu và không phải field `hypotheses` gán speaker.
+
+Trong contract hiện hành, chỉ mention loại `reference` được trỏ vào thực thể chỉ có tên; speaker/addressee phải dùng person thị giác hợp lệ. Analyze tiếp tục đối chiếu text và ảnh trước khi đưa ra attribution. [Dữ liệu nhóm, phép sửa và node giả định](../examples/graph/name-flow.json); [prompt và xử lý tên](../../../src/manga_pipeline/v6/graph_names.py).
+
 ## Kết luận
 
-Graph đặt **text có nguồn gốc rõ ràng vào một cấu trúc truyện có thứ bậc**, vừa giữ tình huống rộng ở scene, vừa chia các cụm trao đổi thành event đủ nhỏ để analyze. [Analyze](06_analyze.md) dùng hierarchy đã freeze và OCR hiện hành để bổ sung speaker, addressee, mention và semantic; mô tả graph hay tên được nhắc trong text chưa phải bằng chứng nhận diện người nói.
+Graph đặt **text có nguồn gốc rõ ràng vào một cấu trúc truyện có thứ bậc**, vừa giữ tình huống rộng ở scene, vừa chia các cụm trao đổi thành event đủ nhỏ để analyze. Luồng tên gọi bổ sung alias và các nhân vật giả định chưa gán MAGI. [Analyze](06_analyze.md) dùng hierarchy đã freeze, OCR hiện hành và bằng chứng nguồn để xác định speaker/addressee cho từng utterance.
 
 [Dữ liệu các node minh họa](../examples/graph/selected-nodes.json) · [Nguồn/checksum hình và packet](../examples/graph/manifest.json) · [Script dựng hình từ artifact, không gọi model](../../../scripts/build_v7_graph_examples.py). Code/prompt: [graph.py](../../../src/manga_pipeline/v6/graph.py), [graph_wire.py](../../../src/manga_pipeline/v6/graph_wire.py), [story_graph.py](../../../src/manga_pipeline/v6/story_graph.py). Xem thêm [workspace review](../review-workspace.md) để mở graph tương tác.

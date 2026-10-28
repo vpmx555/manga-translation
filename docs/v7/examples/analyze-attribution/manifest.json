@@ -1,0 +1,52 @@
+{
+  "source_run": "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40",
+  "source_artifacts": {
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\manifest.json": "9cea9bc0d47a7ef875352d483383c0e279afb1edce6027bae56d5f15662f04d2",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\result.json": "c9d7d68e6c8531f779b9b2cfc1a97f77a4dc8d9b45fb3a13e24732ba6589cb59",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\05_graph\\result.json": "e85cbb7abfdf52bb97fbbb14f1a8cf1de26507b584d330110684ce455eb91f3e",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\04_normalize\\result.json": "1a5839615f29dee56d27eb0e9d545dc7094aca3c1e16d4d70d9c1563665c6c38",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\packets\\e5a83b44eba6b55897e76aa32a5611a7aa59610a724f41050f62c20b8a571f0c.json": "61810e609d7b3a1650be0af3f134e5066f2c1c5ff37aee4a9c1c842139563569",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\images\\8fa9d4819d9be2e6dcaaa21eb09fbd8fd7f774a24c8e1c9ca66737025c509006.jpg": "efe9108cd5fe209970c124885e5669ce882c4ecb9e52bb5936e911d16251b904",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\images\\f5bc1917d5e281185f333c851c034b1af35572004b25eebc9f879505720afb26.jpg": "ae124d62b6ddd8bd6541ec3b92959609ca74954abf2bfa84dd05ea1178ca3fb6",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\images\\4e46bd7ad9c21365d526f0b8cef1051e3a2275e10e976f47ae7dad36410fde9d.jpg": "7b51996de7e463b78612ad4bb9839819a8a2b0211579edaa9c621cc1d4151b3e",
+    "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\06.webp": "0684efc2bb038178f099245491cc07d4ef7342823ab259adfe9e95116a4ce180",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\packets\\808459fc86f7b1aa5a8303247ccc6819d2ac9dcd31133623cb640b04a8cabc90.json": "b49a5bc353a8316faa72ba4b0796cd7c782549880a801d157ca9309b0c1e7794",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\packets\\bc2efed819edb267d2aa0d1e457db3f798ebf4807aa4121c9adbd26a575dadae.json": "17460bcdf3dc88e3a5716020d9e35c1023e3ee499ade54d82f9ac092578bce8d",
+    "D:\\AIP491\\manga-translate-v2\\outputs\\runpod-iris-zero-ch1-storylens-v7-l40s-20261027-r11\\local-verified\\20261027T060405Z-54997d40\\20261027T060405Z-54997d40\\06_analyze\\packets\\d9b1bcf8f3e67bc6f463fe8c3b2387b1c223aa434ddb9aa865c8ca635b698a47.json": "6f331e5b671ed294856ece96f6a4a2e72d6a01e552351398f7597af352c021ca",
+    "D:\\download\\EN-data\\Iris Zero\\EN\\Chapter 1\\17.webp": "bd5de0fddc6a5452c64d59d6b5f56a2d3da5dc7c496cf49e1e3991e2662b8e64"
+  },
+  "generator_sha256": "391d27a6abdc5e4176614c34d432fc77b2af0db94fc7443c5e5863153d4c55d6",
+  "drawing_helper_sha256": "127f357ad81a76a78df0f4665901081a408759bd4c2d067472504aebd8e4ac76",
+  "current_prompt_source": {
+    "path": "D:\\AIP491\\manga-translate-v2\\src\\manga_pipeline\\v6\\event_analysis.py",
+    "sha256": "e7ee3baf8a5d40472dcb30a0e87012a40d238db5e829bd808a81df6aef805e0b"
+  },
+  "model_requests": 0,
+  "note": "Historical decisions are retained verbatim. Policy diagrams are editorial explanations of the current policy.",
+  "assets": {
+    "addressee-detail.png": "c47d6a87546f385f00f0a29993786fcf34c20a67ec4c5df20226bfa7bff450d0",
+    "auxiliary-fields.json": "44d47411b519e5880cb2bd723e4980d7ecbfe51fee80027f8310ee0d6b97d5a1",
+    "auxiliary-labels-example.png": "89927a9f48b6e9d001e4953bd51aaa7230aa57bec02c4f83f779fffa90714705",
+    "dialogue-decisions.json": "a09551028f68f5a3f0b273d56a4a27bc55ddcad47617c3b03e3f84d17cf1b9e4",
+    "event-memory.png": "ce59f6cdd2cc2a0222e84bd1a5b8bf3268bcc7e7659e12beeaf6b7e3c6fca8b4",
+    "input-image-pages.png": "0d86c55d5decfdda78cc88d79442e65d128f80afa46f85866cc235e069b29144",
+    "input-packet.json": "8bf7ccf08078c9dda73f797085f822ad21221082a3297c1afcbf6ed7103e42bc",
+    "input-transcript.png": "df13a3a16c6c5eba1f9cd1e967d95a0d5546b0deffcad406c3986f9e0df599fb",
+    "memory-events.json": "931a2e94747efde665f57658db57a750cd180c968bda98699bfede58955f065d",
+    "memory-inputs.json": "62cd474ad4846653c07c926d778a7f56ab30d850e7b064c87828c2ae65297ba6",
+    "model-page-6.jpg": "efe9108cd5fe209970c124885e5669ce882c4ecb9e52bb5936e911d16251b904",
+    "model-page-7.jpg": "ae124d62b6ddd8bd6541ec3b92959609ca74954abf2bfa84dd05ea1178ca3fb6",
+    "model-page-8.jpg": "7b51996de7e463b78612ad4bb9839819a8a2b0211579edaa9c621cc1d4151b3e",
+    "output-before-after.png": "bffd9ad7491c302ef46f92738c54adb100544989addf75e9b64093108d481693",
+    "portrait-magi-3.png": "a890b73f443aa13c18ff7d736e6c7e10753d320530340bda23cbe4141ffc9046",
+    "portrait-magi-4.png": "dd25a7ab2900f35a10556854a9f7797795f6cc89a02ac55aefa34bc605f9d910",
+    "role-overview.png": "9c944baf2c04614f2d8e3d2a28251a7b509d4332926fd348524bfed79df88e8c",
+    "scene-scheduling.png": "188de60ab9a03cb0a9c3a3306f8e465e0043af645076a890dc9638435493810c",
+    "source-page-6.webp": "0684efc2bb038178f099245491cc07d4ef7342823ab259adfe9e95116a4ce180",
+    "speaker-detail.png": "da7d06287b48c6db59aeb9af0456d183cdc5a72ddf42902d0b483f16512e6e16",
+    "supporting-information.png": "e936dfcc7d48e64a6d302d89f14bcfb5fb855216570dcb143f1f0c696e8f88fd",
+    "text-first-policy.png": "21869a2c9968db5d90e63e74291f705ebe894a81a6ef6be4b8c1ba7d051dc95d",
+    "unresolved-decision.json": "4079af396011b8a5b311fe52f5c6901addccd581022652488fed436fdf3367f3",
+    "unresolved-example.png": "a1cacdf6dc03266b00d47fccc6ee92ed2a9079e0c952aec5b570dd172907ff7f"
+  }
+}

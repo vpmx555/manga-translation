@@ -21,8 +21,81 @@ PROMPT = '''Analyze ONLY the target utterances of this event; other text is cont
 Use the frozen whole-chapter graph, current scene, previous event prose, cumulative
 scene memory, source text and labelled page regions. Silent panels are included.
 Prioritize scene content and textual understanding before interpreting images.
-First read the scene's source dialogue in order and the target event in context.
-Form separate provisional speaker and addressee hypotheses from what is said:
+Read the SUPPLIED target/context dialogue in source order, using the supplied
+scene summaries, previous event and incoming scene memory for context. Do not
+assume the packet contains the complete source dialogue of the entire scene.
+Within this ONE request, analyze auxiliary fields BEFORE selecting speaker and
+addressee person IDs. These are ordered analysis instructions, not separate API
+calls, an extra output object or a request to expose private reasoning.
+First choose provisional content_type, speech_style, and each supplied mention's
+mention_type and supported name components from the text. Then explicitly use
+those choices as constraints/cues for separate speaker/addressee hypotheses.
+Only image-dependent grounding may remain unknown at this text-first step.
+
+Auxiliary fields: use exactly the following schema labels and meanings.
+content_type:
+- dialogue: spoken words in a communicative exchange.
+- thought: a character's unspoken internal words, including thoughts in captions.
+- narration: narrative exposition/commentary rather than an identified character's
+  internal words; a character's explicitly supported narrative voice is still possible.
+- sfx: written sound effects rather than spoken dialogue.
+- action_state: text describing an action, condition or state rather than speech.
+- ui: interface/system text, menus, prompts or similar on-screen labels.
+- watermark: publisher/scanner/branding or ownership marks.
+- unknown: insufficient evidence to choose a content category.
+Classify the actual text function, not only its bubble shape or detector label.
+Use this classification to decide whether a personal voice/intended recipient
+exists. Do not force every sfx/action_state/ui/watermark into a human conversation.
+Do not infer the speaker's identity merely from the content_type.
+
+speech_style:
+- normal: ordinary speaking when raised/quiet delivery is not independently supported.
+- whisper: explicitly supported quiet/whispered delivery, not just small text or ellipses.
+- shout: clear raised-volume delivery; punctuation, uppercase, emotion or a spiky
+  bubble alone do not establish shouting. Follow the conservative shout policy.
+- thought: inner-voice delivery when supported by context.
+- caption: caption-style presentation, which can contain thought OR narration.
+- unknown: delivery/presentation cannot be determined.
+Use style to check the proposed communication situation, not to identify a person
+from emotion, typography or volume. No tail alone does not establish thought.
+
+For EVERY supplied mention candidate preserve candidate_id and choose mention_type:
+- direct_address: a name used to call/address its owner, a cue for the addressee.
+- introduction: an explicit naming/introduction of oneself or another person.
+  Only a supported self-introduction links that name to the speaker; introducing
+  another person does not make that person the speaker or the addressee.
+- reference: talking ABOUT a named person, not necessarily talking TO that person.
+- unknown: insufficient evidence to determine the name's role.
+Infer the role of the name from its use in the utterance, not just a shared alias.
+An empty mentions array means no supplied mention candidates for that utterance;
+do not invent a candidate or an absent name to justify a speaker/addressee.
+components must use only supported parts: given_name, middle_name, surname,
+nickname or full_name, with the corresponding source name in value. Do not expand
+a short name into the canonical full name or invent name parts from group metadata.
+
+After source/image grounding, finalize each mention's target_person_id and
+recipient_cluster_ref (the NAMED person's cluster, not automatically the utterance's
+addressee). Use null when no matching grounded reference applies. Set
+confirmed_person_name=true only when the mention is supported as a person's name
+AND a supported target_person_id is selected; this flag is not a new MAGI identity
+assignment or proof that the utterance's speaker owns the name.
+visual_support=compatible means supplied visual observations support compatibility;
+different_appearance means they show an appearance mismatch; unknown means the
+comparison lacks evidence. Never turn a textual name group into visual support.
+Score mention confidence.mention_type and confidence.target separately, and give
+a concise mention evidence statement tied to supplied sources.
+
+Apply the auxiliary analysis to attribution BEFORE finalizing it:
+- A direct_address proposes the named person as an addressee candidate, not the
+  speaker. A reference alone establishes neither speaker nor addressee.
+- An introduction can suggest a name owner only as its actual wording/context
+  supports; still ground the person with allowed IDs and independent evidence.
+- Dialogue/thought/narration and style constrain the kind of voice and intended
+  recipient; they do not automatically assign a person or force self/audience.
+- Question/reply structure and pronouns help connect the exchange; automatic
+  alternation, repeated summaries and a plausible story do not establish identity.
+Form separate provisional speaker and addressee hypotheses from these auxiliary
+results and what is said:
 explicit address, questions and replies, pronouns, self-reference, knowledge and
 conversational intent. Use graph prose and scene memory only as fallible context;
 check their claims against source text. Do not assume a mentioned person is the
@@ -54,7 +127,9 @@ person/narrator/others and individual/group/self/audience contract. Only a REFER
 mention may target a reference-only named person with no MAGI/crop. Saying Toru
 does not make the speaker Toru. Keep mention type and name-owner confidence separate.
 Graph supplies narrative structure and textual name groups, NOT character or
-speaker hypotheses. Its prose and confidence do not prove who owns a bubble.
+speaker assignments to MAGI. Name groups may create reference-only named entities,
+but those entities have no visual identity. Graph prose and confidence do not
+prove who owns a bubble.
 Bubble tails are ALREADY detected by MAGIv2, not by you. Each target's
 bubble_tail.has_tail and bubble_tail.tails give its source text-to-tail links
 and ORIGINAL PAGE bboxes. Supplied images mark these detections with magenta
@@ -75,6 +150,32 @@ Caption is presentation, NOT narration: caption/narration may be thought. Do not
 reject thought because the source label was caption. Speech dialogue cannot be
 narrator_introduction. Cite supplied source IDs when possible; no proof substring
 or fixed caption-distance requirement. Preserve every target and mention ID.
+Finalize speaker_kind=person for an attributed visual person, narrator for a
+supported impersonal narrative voice, or others when no personal/narrator source
+can be assigned under the contract. Keep the required null IDs for non-person kinds.
+Choose addressee_type from its actual communicative function:
+- individual: one intended visual person; select exactly one addressee_person_id.
+- group: multiple intended people; include only supported visual recipient IDs,
+  without inventing people or treating all people in the panel as recipients.
+- self: genuinely self-directed words; when an identified person addresses themself,
+  the addressee is that speaker. Thought alone does not force self.
+- audience: a general/readership audience, not a particular selected visual person.
+- unknown: there is insufficient support to establish the recipient.
+- not_applicable: the text has no intended recipient, such as a non-communicative
+  sound/state/mark; use its actual function, not an automatic content-type mapping.
+For audience/unknown/not_applicable, do not invent addressee person IDs.
+Before returning JSON, cross-check auxiliary labels, named targets, speaker and
+addressee for consistency. If source/image evidence contradicts a provisional
+auxiliary label or hypothesis, revise the affected fields and their confidence;
+do not keep mutually contradictory choices just to preserve an initial guess.
+In the existing evidence/evidence_refs, briefly state which auxiliary cue mattered
+to speaker/addressee selection and which supplied source/visual evidence grounds it.
+Do not expose step-by-step reasoning or claim the auxiliary labels themselves are
+new independent observations. Judge speaker/addressee confidence from the sources,
+not by copying content_type/speech_style/mention confidence.
+After these decisions, update event/scene prose and outgoing scene_memory. Their
+new summaries support the NEXT event; do not cite a just-generated summary as
+independent proof for this event's own speaker/addressee decisions.
 Score EVERY decision independently 0..10; anchors support the relevant decision
 only. All generated titles, descriptions, evidence, explanations, memory facts
 and unresolved notes MUST be in English; preserve quoted OCR/names. Return concise

@@ -1,0 +1,1543 @@
+{
+  "policy": "chapter-story-graph-v7",
+  "output_language": "en",
+  "event_id": "scene:5:event:1",
+  "scene_id": "scene:5",
+  "chapter_context": {
+    "chapter": {
+      "chapter_id": "b68ed9e490d577e6",
+      "story_id": "iris-zero",
+      "chapter_label": "chapter-001",
+      "scene_ids": [
+        "scene:1",
+        "scene:2",
+        "scene:3",
+        "scene:4",
+        "scene:5",
+        "scene:6",
+        "scene:7",
+        "scene:8",
+        "scene:9",
+        "scene:10",
+        "scene:11",
+        "scene:12",
+        "scene:13",
+        "scene:14",
+        "scene:15",
+        "scene:16",
+        "scene:17",
+        "scene:18",
+        "scene:19",
+        "scene:20",
+        "scene:21",
+        "scene:22"
+      ]
+    },
+    "name_groups": [
+      {
+        "group_id": "g1",
+        "canonical_name": "Toru Mizushima",
+        "aliases": [
+          "MIZU- SHIMA",
+          "MIZU- SHIMA- SA",
+          "MIZU- SHIMA- SAN",
+          "MIZUSHIMA TORU-SAN",
+          "MIZUSHIMA- SA",
+          "MIZUSHIMA- SAN",
+          "MIZUSHIMA-SAN",
+          "Mizushima",
+          "Mizushima Toru-san",
+          "Mizushima- san",
+          "Mizushima-san",
+          "TORU",
+          "TORU-KUN",
+          "Toru",
+          "Toru Mizushima",
+          "Toru-kun"
+        ]
+      },
+      {
+        "group_id": "g2",
+        "canonical_name": "Koyuki Sasamori",
+        "aliases": [
+          "KOYUKI",
+          "KOYUKI- CHAN",
+          "Koyuk",
+          "Koyuki",
+          "Koyuki Sasamori",
+          "Koyuki-chan",
+          "SASA- MORI",
+          "SASA- MORI- SAN",
+          "SASAMORI KOYUKI",
+          "SASAMORI- CHAN",
+          "SASAMORI- SAN",
+          "SASAMORI-CHAN",
+          "SASAMORI-SAN",
+          "SASAMORISAN",
+          "Sasamori",
+          "Sasamori Koyuki",
+          "Sasamori- san",
+          "Sasamori-chan",
+          "Sasamori-san",
+          "YUUKI",
+          "Yuuki",
+          "yuki-chan"
+        ]
+      },
+      {
+        "group_id": "g3",
+        "canonical_name": "Hijiri",
+        "aliases": [
+          "HIJIRI",
+          "HJIJIRI",
+          "Hijiri"
+        ]
+      },
+      {
+        "group_id": "g4",
+        "canonical_name": "Asahi",
+        "aliases": [
+          "ASAHI",
+          "Asahi"
+        ]
+      }
+    ],
+    "scenes": [
+      {
+        "scene_id": "scene:1",
+        "title": "Cover and Back Cover",
+        "description": "Displays ISBN, price, publisher, author credits, and a synopsis of the story involving Toru and Koyuki.",
+        "events": [
+          {
+            "event_id": "scene:1:event:1",
+            "title": "Book Metadata and Synopsis",
+            "initial_description": "Text on the cover and back cover provides publication details and a plot summary about Iris powers and the main characters."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:2",
+        "title": "Character Introductions",
+        "description": "Explanatory text introduces Koyuki Sasamori's Iris ability and Toru Mizushima's personality and background.",
+        "events": [
+          {
+            "event_id": "scene:2:event:1",
+            "title": "Koyuki and Toru Profiles",
+            "initial_description": "Descriptions of Koyuki's power to see qualified people and Toru's pessimistic nature due to bullying."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:3",
+        "title": "Author's Note",
+        "description": "The author thanks the reader for purchasing the first tankoubon.",
+        "events": [
+          {
+            "event_id": "scene:3:event:1",
+            "title": "Author's Greeting",
+            "initial_description": "A brief message from the author expressing hope that the reader enjoys the manga."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:4",
+        "title": "World Building: Iris Powers",
+        "description": "Narration explains the history of Iris powers and how they divided society into those who have them and those who don't.",
+        "events": [
+          {
+            "event_id": "scene:4:event:1",
+            "title": "Origin of Iris 1",
+            "initial_description": "Explanation of how children were born with Iris powers and the resulting social split."
+          },
+          {
+            "event_id": "scene:4:event:2",
+            "title": "Origin of Iris 2",
+            "initial_description": "Explanation of how children were born with Iris powers and the resulting social split."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:5",
+        "title": "Toru's Motto and Bullying",
+        "description": "Toru reflects on his 'Minimal Exposure' policy to avoid bullying, while classmates discuss his lack of power.",
+        "events": [
+          {
+            "event_id": "scene:5:event:1",
+            "title": "Classroom Gossip and Toru's",
+            "initial_description": "Students talk about strange Iris sightings while Toru tries to stay hidden, fearing the consequences of standing out."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:6",
+        "title": "The Confession",
+        "description": "Koyuki Sasamori approaches Toru in the classroom and confesses her feelings, shocking him and the class.",
+        "events": [
+          {
+            "event_id": "scene:6:event:1",
+            "title": "Koyuki's Sudden Confession 1",
+            "initial_description": "Koyuki calls out to Toru and asks him to go out with her, causing a massive reaction from the students."
+          },
+          {
+            "event_id": "scene:6:event:2",
+            "title": "Koyuki's Sudden Confession 2",
+            "initial_description": "Koyuki calls out to Toru and asks him to go out with her, causing a massive reaction from the students."
+          },
+          {
+            "event_id": "scene:6:event:3",
+            "title": "Koyuki's Sudden Confession 3",
+            "initial_description": "Koyuki calls out to Toru and asks him to go out with her, causing a massive reaction from the students."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:7",
+        "title": "Toru's Panic and Escape",
+        "description": "Overwhelmed by the exposure, Toru panics and rushes out of the classroom, leaving Koyuki behind.",
+        "events": [
+          {
+            "event_id": "scene:7:event:1",
+            "title": "Exposure Rate Maxed Out",
+            "initial_description": "Toru feels his exposure rate hit 100% and flees the scene in a panic."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:8",
+        "title": "Koyuki's Explanation",
+        "description": "Koyuki catches up to Toru and explains her Iris ability and why she needs his help finding a student council president.",
+        "events": [
+          {
+            "event_id": "scene:8:event:1",
+            "title": "The Reason for 1",
+            "initial_description": "Koyuki reveals she couldn't find a qualified president and asks Toru to help her, despite his lack of Iris."
+          },
+          {
+            "event_id": "scene:8:event:2",
+            "title": "The Reason for 2",
+            "initial_description": "Koyuki reveals she couldn't find a qualified president and asks Toru to help her, despite his lack of Iris."
+          },
+          {
+            "event_id": "scene:8:event:3",
+            "title": "The Reason for 3",
+            "initial_description": "Koyuki reveals she couldn't find a qualified president and asks Toru to help her, despite his lack of Iris."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:9",
+        "title": "Toru's Rejection",
+        "description": "Toru rejects Koyuki's request, revealing he is an 'Iris Zero' and cannot help her.",
+        "events": [
+          {
+            "event_id": "scene:9:event:1",
+            "title": "The Truth About 1",
+            "initial_description": "Toru admits he has no Iris power, causing Koyuki to realize her expectations were misplaced."
+          },
+          {
+            "event_id": "scene:9:event:2",
+            "title": "The Truth About 2",
+            "initial_description": "Toru admits he has no Iris power, causing Koyuki to realize her expectations were misplaced."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:10",
+        "title": "Rumors Spread",
+        "description": "The next morning, Toru's friends discuss the rumors of Koyuki's confession, while Toru tries to ignore it.",
+        "events": [
+          {
+            "event_id": "scene:10:event:1",
+            "title": "Morning Gossip 1",
+            "initial_description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile."
+          },
+          {
+            "event_id": "scene:10:event:2",
+            "title": "Morning Gossip 2",
+            "initial_description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile."
+          },
+          {
+            "event_id": "scene:10:event:3",
+            "title": "Morning Gossip 3",
+            "initial_description": "Hijiri and others talk about the confession, while Toru tries to maintain his low profile."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:11",
+        "title": "Koyuki at the Gate",
+        "description": "Koyuki stands at the school gate greeting students, drawing attention to herself and Toru.",
+        "events": [
+          {
+            "event_id": "scene:11:event:1",
+            "title": "Greeting at the 1",
+            "initial_description": "Koyuki greets students, and Toru is confused by her continued presence and the attention it draws."
+          },
+          {
+            "event_id": "scene:11:event:2",
+            "title": "Greeting at the 2",
+            "initial_description": "Koyuki greets students, and Toru is confused by her continued presence and the attention it draws."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:12",
+        "title": "Classmates' Suspicion",
+        "description": "Students gossip about Koyuki's closeness to the 'Iris Zero' Toru, questioning her motives.",
+        "events": [
+          {
+            "event_id": "scene:12:event:1",
+            "title": "Whispers About the Iris",
+            "initial_description": "Students speculate on why Koyuki is hanging out with Toru, suggesting he should be left alone."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:13",
+        "title": "Toru's Internal Conflict",
+        "description": "Toru struggles with the idea of raising his exposure rate and the potential danger it brings.",
+        "events": [
+          {
+            "event_id": "scene:13:event:1",
+            "title": "Fear of Standing Out",
+            "initial_description": "Toru thinks about the risks of being associated with Koyuki and his need to protect his minimal exposure."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:14",
+        "title": "Continued Greetings",
+        "description": "Koyuki continues to greet Toru at the gate every day, despite his attempts to avoid her.",
+        "events": [
+          {
+            "event_id": "scene:14:event:1",
+            "title": "Persistent Greetings",
+            "initial_description": "Koyuki stands at the gate daily, greeting Toru as if nothing has changed, while others watch."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:15",
+        "title": "Library Confrontation",
+        "description": "Toru confronts Koyuki in the library, telling her to stop greeting him as it draws too much attention.",
+        "events": [
+          {
+            "event_id": "scene:15:event:1",
+            "title": "Toru's Warning",
+            "initial_description": "Toru tells Koyuki that her actions are dangerous for both of them and asks her to stop."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:16",
+        "title": "Koyuki's Apology and Resolution",
+        "description": "Koyuki apologizes for troubling Toru but states she will only do this until today, the deadline for the election.",
+        "events": [
+          {
+            "event_id": "scene:16:event:1",
+            "title": "The Time Limit 1",
+            "initial_description": "Koyuki explains she is only doing this until today and apologizes for the trouble caused."
+          },
+          {
+            "event_id": "scene:16:event:2",
+            "title": "The Time Limit 2",
+            "initial_description": "Koyuki explains she is only doing this until today and apologizes for the trouble caused."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:17",
+        "title": "The Election Meeting",
+        "description": "The student council election meeting begins, and Koyuki announces she couldn't find a qualified person.",
+        "events": [
+          {
+            "event_id": "scene:17:event:1",
+            "title": "Election Announcement 1",
+            "initial_description": "Koyuki reports her failure to find a qualified president, leading to confusion and suspicion among the students."
+          },
+          {
+            "event_id": "scene:17:event:2",
+            "title": "Election Announcement 2",
+            "initial_description": "Koyuki reports her failure to find a qualified president, leading to confusion and suspicion among the students."
+          },
+          {
+            "event_id": "scene:17:event:3",
+            "title": "Election Announcement 3",
+            "initial_description": "Koyuki reports her failure to find a qualified president, leading to confusion and suspicion among the students."
+          },
+          {
+            "event_id": "scene:17:event:4",
+            "title": "Election Announcement 4",
+            "initial_description": "Koyuki reports her failure to find a qualified president, leading to confusion and suspicion among the students."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:18",
+        "title": "Suspicion and Accusations",
+        "description": "Students accuse Koyuki of lying or being an Iris Zero herself because she was seen with Toru.",
+        "events": [
+          {
+            "event_id": "scene:18:event:1",
+            "title": "Doubting Koyuki's Iris 1",
+            "initial_description": "The class questions Koyuki's honesty and suggests she might be an Iris Zero like Toru."
+          },
+          {
+            "event_id": "scene:18:event:2",
+            "title": "Doubting Koyuki's Iris 2",
+            "initial_description": "The class questions Koyuki's honesty and suggests she might be an Iris Zero like Toru."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:19",
+        "title": "Koyuki's Defense",
+        "description": "Koyuki defends herself, stating she wouldn't lie, and reveals Toru helped her.",
+        "events": [
+          {
+            "event_id": "scene:19:event:1",
+            "title": "Toru's Help Revealed 1",
+            "initial_description": "Koyuki insists she is not lying and mentions that Toru helped her, shifting the focus to him."
+          },
+          {
+            "event_id": "scene:19:event:2",
+            "title": "Toru's Help Revealed 2",
+            "initial_description": "Koyuki insists she is not lying and mentions that Toru helped her, shifting the focus to him."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:20",
+        "title": "The Realization",
+        "description": "Students realize that if Koyuki can't see an O or X above Toru's head, it might mean she is the qualified one.",
+        "events": [
+          {
+            "event_id": "scene:20:event:1",
+            "title": "The Logic of 1",
+            "initial_description": "The class deduces that Koyuki's inability to see a mark on Toru implies she is the qualified person herself."
+          },
+          {
+            "event_id": "scene:20:event:2",
+            "title": "The Logic of 2",
+            "initial_description": "The class deduces that Koyuki's inability to see a mark on Toru implies she is the qualified person herself."
+          },
+          {
+            "event_id": "scene:20:event:3",
+            "title": "The Logic of 3",
+            "initial_description": "The class deduces that Koyuki's inability to see a mark on Toru implies she is the qualified person herself."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:21",
+        "title": "Koyuki is Qualified",
+        "description": "The students conclude that Koyuki is the qualified person for the student council president position.",
+        "events": [
+          {
+            "event_id": "scene:21:event:1",
+            "title": "Conclusion of the 1",
+            "initial_description": "The class agrees that Koyuki is the qualified candidate, and the election is decided."
+          },
+          {
+            "event_id": "scene:21:event:2",
+            "title": "Conclusion of the 2",
+            "initial_description": "The class agrees that Koyuki is the qualified candidate, and the election is decided."
+          }
+        ]
+      },
+      {
+        "scene_id": "scene:22",
+        "title": "Aftermath and New Routine",
+        "description": "Toru tries to re-establish his minimal exposure policy, but Koyuki continues to greet him happily.",
+        "events": [
+          {
+            "event_id": "scene:22:event:1",
+            "title": "Toru's Attempt to 1",
+            "initial_description": "Toru tries to push Koyuki away to maintain his low profile, but she remains cheerful and persistent."
+          },
+          {
+            "event_id": "scene:22:event:2",
+            "title": "Toru's Attempt to 2",
+            "initial_description": "Toru tries to push Koyuki away to maintain his low profile, but she remains cheerful and persistent."
+          },
+          {
+            "event_id": "scene:22:event:3",
+            "title": "Toru's Attempt to 3",
+            "initial_description": "Toru tries to push Koyuki away to maintain his low profile, but she remains cheerful and persistent."
+          }
+        ]
+      }
+    ],
+    "links": []
+  },
+  "scene_initial_description": "Toru reflects on his 'Minimal Exposure' policy to avoid bullying, while classmates discuss his lack of power.",
+  "scene_current_description": "Toru reflects on his 'Minimal Exposure' policy to avoid bullying, while classmates discuss his lack of power.",
+  "previous_event": null,
+  "scene_memory": {
+    "description": "",
+    "facts": [],
+    "characters": [],
+    "unresolved": []
+  },
+  "incomplete_events": [],
+  "incomplete_event_text": [],
+  "targets": [
+    {
+      "id": "b68ed9e490d577e6:p6:g1:u",
+      "text": "NOW THAT YOU MENTION IT, I JUST SAW SOMETHING STRANGE WITH MY IRIS.",
+      "page_id": "b68ed9e490d577e6:p6",
+      "panel_index": 1,
+      "panel_indices": [
+        1,
+        2
+      ],
+      "bbox": [
+        404,
+        539,
+        577,
+        744
+      ],
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:ee78e0e823120ff8ab9e",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t0",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+            "bank_id": 4,
+            "person_id": "person:ee78e0e823120ff8ab9e",
+            "tail_index": 0,
+            "character_index": 6
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t0",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+          "bank_id": 4,
+          "person_id": "person:ee78e0e823120ff8ab9e"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 0,
+            "label": "TAIL 0",
+            "bbox": [
+              391.7149963378906,
+              619.2374877929688,
+              422.6050109863281,
+              647.3875122070312
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t0"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p6:g2:u",
+      "text": "EHH, REALLY?",
+      "page_id": "b68ed9e490d577e6:p6",
+      "panel_index": 3,
+      "panel_indices": [
+        2,
+        3
+      ],
+      "bbox": [
+        84,
+        710,
+        168,
+        874
+      ],
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:e6c6452cb6c395001d3d",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t1",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+            "bank_id": 3,
+            "person_id": "person:e6c6452cb6c395001d3d",
+            "tail_index": 1,
+            "character_index": 3
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t1",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+          "bank_id": 3,
+          "person_id": "person:e6c6452cb6c395001d3d"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 1,
+            "label": "TAIL 1",
+            "bbox": [
+              143.63352966308594,
+              721.1734619140625,
+              168.989501953125,
+              749.6285400390625
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p6:t2:u",
+      "text": "A HA HA",
+      "page_id": "b68ed9e490d577e6:p6",
+      "panel_index": 3,
+      "panel_indices": [
+        3
+      ],
+      "bbox": [
+        170.0718231201172,
+        818.4217529296875,
+        198.5977783203125,
+        864.5900268554688
+      ],
+      "speaker_anchor": {
+        "locked": false,
+        "person_id": null,
+        "sources": [],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": false,
+        "tails": []
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p8:g3:u",
+      "text": "MY FAVORITE MOTTO IS \"MINIMAL EXPOSURE\"...",
+      "page_id": "b68ed9e490d577e6:p8",
+      "panel_index": 0,
+      "panel_indices": [
+        0
+      ],
+      "bbox": [
+        570,
+        42,
+        704,
+        266
+      ],
+      "speaker_anchor": {
+        "locked": false,
+        "person_id": null,
+        "sources": [],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p8:t0",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p8:c6",
+          "bank_id": null,
+          "person_id": "person:545781e03fc92146fc48"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p8",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": false,
+        "tails": []
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p8:t1:u",
+      "text": "NEWSPAPER: THE BULLYING PROBLEM: \"EXTREMELY SERIOUS\"",
+      "page_id": "b68ed9e490d577e6:p8",
+      "panel_index": 0,
+      "panel_indices": [
+        0,
+        2
+      ],
+      "bbox": [
+        457.9884338378906,
+        408.46319580078125,
+        878.7835693359375,
+        431.1066589355469
+      ],
+      "speaker_anchor": {
+        "locked": false,
+        "person_id": null,
+        "sources": [],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p8",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": false,
+        "tails": []
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p8:g2:u",
+      "text": "BECAUSE FOOLISHLY ATTRACTING ATTENTION JUST MAKES MORE ENEMIES.",
+      "page_id": "b68ed9e490d577e6:p8",
+      "panel_index": 2,
+      "panel_indices": [
+        2,
+        3
+      ],
+      "bbox": [
+        372,
+        606,
+        523,
+        815
+      ],
+      "speaker_anchor": {
+        "locked": false,
+        "person_id": null,
+        "sources": [],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p8",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": false,
+        "tails": []
+      }
+    },
+    {
+      "id": "b68ed9e490d577e6:p8:g1:u",
+      "text": "...I FOUND IT...",
+      "page_id": "b68ed9e490d577e6:p8",
+      "panel_index": 5,
+      "panel_indices": [
+        5
+      ],
+      "bbox": [
+        41,
+        1065,
+        143,
+        1240
+      ],
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:bbd1cdc5e54921165151",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p8:t3",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p8:c0",
+            "bank_id": 5,
+            "person_id": "person:bbd1cdc5e54921165151",
+            "tail_index": 0,
+            "character_index": 3
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p8:t3",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p8:c0",
+          "bank_id": 5,
+          "person_id": "person:bbd1cdc5e54921165151"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p8",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 0,
+            "label": "TAIL 0",
+            "bbox": [
+              130.2452850341797,
+              1157.4361572265625,
+              158.24978637695312,
+              1184.29443359375
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p8:t3"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "context": [],
+  "mentions": [],
+  "visual_people": {
+    "people": {
+      "person:a554f852fae47785f4e6": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "1"
+        ]
+      },
+      "person:a2f1956f505cb644a8e8": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c0",
+          "495c61e29838cca9:b68ed9e490d577e6:p7:c0",
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c4",
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c5"
+        ],
+        "magi_ids": [
+          "2"
+        ]
+      },
+      "person:e6c6452cb6c395001d3d": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c1"
+        ],
+        "magi_ids": [
+          "3"
+        ]
+      },
+      "person:ee78e0e823120ff8ab9e": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c3"
+        ],
+        "magi_ids": [
+          "4"
+        ]
+      },
+      "person:bbd1cdc5e54921165151": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p7:c1",
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c0"
+        ],
+        "magi_ids": [
+          "5"
+        ]
+      },
+      "person:80a5420bd659851a965e": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c7"
+        ],
+        "magi_ids": [
+          "6"
+        ]
+      },
+      "person:b75ec33ffdaa9c95dced": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "7"
+        ]
+      },
+      "person:35106fadb6032b851ff6": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "9"
+        ]
+      },
+      "person:7327ca356519c041fe71": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "8"
+        ]
+      },
+      "person:846b71954d7122ffca51": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "10"
+        ]
+      },
+      "person:d834fc060d50112b74ff": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "11"
+        ]
+      },
+      "person:bd9042c2a391a5d2c213": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "12"
+        ]
+      },
+      "person:35eee23ffacd6598bdc9": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "13"
+        ]
+      },
+      "person:c425ce86f45c62db01ef": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "14"
+        ]
+      },
+      "person:11b8722b696eaedd795d": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "15"
+        ]
+      },
+      "person:6b1ab35ca0dcf66773b1": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "16"
+        ]
+      },
+      "person:4b8b41cea680cb06e73b": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "17"
+        ]
+      },
+      "person:e453dc51682a06c0cd2a": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "18"
+        ]
+      },
+      "person:ccfd6d0ffce9658f41d6": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [],
+        "magi_ids": [
+          "19"
+        ]
+      },
+      "person:81128824c04247f39c15": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p6:c2"
+        ],
+        "magi_ids": []
+      },
+      "person:8bc7aecc43ad61047260": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c1"
+        ],
+        "magi_ids": []
+      },
+      "person:36fd5511814f69b6aee2": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c2"
+        ],
+        "magi_ids": []
+      },
+      "person:e5ba6d79cf6a3084e3a2": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c3"
+        ],
+        "magi_ids": []
+      },
+      "person:545781e03fc92146fc48": {
+        "name": null,
+        "reference_only": false,
+        "cluster_refs": [
+          "495c61e29838cca9:b68ed9e490d577e6:p8:c6"
+        ],
+        "magi_ids": []
+      },
+      "reference:g1": {
+        "name": "Toru Mizushima",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      },
+      "reference:g2": {
+        "name": "Koyuki Sasamori",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      },
+      "reference:g3": {
+        "name": "Hijiri",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      },
+      "reference:g4": {
+        "name": "Asahi",
+        "reference_only": true,
+        "cluster_refs": [],
+        "magi_ids": []
+      }
+    },
+    "clusters": {
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c0": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              251.75091552734375,
+              21.216293334960938,
+              771.1380004882812,
+              469.46710205078125
+            ],
+            "character_index": 0,
+            "source_bank_id": 2
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              203.009033203125,
+              836.2789306640625,
+              473.876220703125,
+              1398.122314453125
+            ],
+            "character_index": 1,
+            "source_bank_id": 2
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              687.3160400390625,
+              525.75,
+              975.1154174804688,
+              1317.73828125
+            ],
+            "character_index": 5,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c1": {
+        "person_id": "person:e6c6452cb6c395001d3d",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              503.3237609863281,
+              758.175048828125,
+              625.7492065429688,
+              1322.3272705078125
+            ],
+            "character_index": 2,
+            "source_bank_id": 3
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              97.48128509521484,
+              509.2698669433594,
+              260.93414306640625,
+              782.2921142578125
+            ],
+            "character_index": 3,
+            "source_bank_id": 3
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c2": {
+        "person_id": "person:81128824c04247f39c15",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              500.2949523925781,
+              1054.59326171875,
+              609.4256591796875,
+              1323.6378173828125
+            ],
+            "character_index": 4,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p6:c3": {
+        "person_id": "person:ee78e0e823120ff8ab9e",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              263.3003234863281,
+              542.0048217773438,
+              437.8755798339844,
+              778.1629028320312
+            ],
+            "character_index": 6,
+            "source_bank_id": 4
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p6",
+            "bbox": [
+              562.9090576171875,
+              787.0154418945312,
+              750.8046264648438,
+              1321.27294921875
+            ],
+            "character_index": 7,
+            "source_bank_id": 4
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p7:c0": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p7",
+            "bbox": [
+              504.6697692871094,
+              -0.9484946727752686,
+              962.4888916015625,
+              1393.1680908203125
+            ],
+            "character_index": 0,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p7:c1": {
+        "person_id": "person:bbd1cdc5e54921165151",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p7",
+            "bbox": [
+              2.713438034057617,
+              91.41693878173828,
+              512.5540771484375,
+              1403.845703125
+            ],
+            "character_index": 1,
+            "source_bank_id": 5
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c0": {
+        "person_id": "person:bbd1cdc5e54921165151",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              788.0537719726562,
+              1104.4107666015625,
+              907.6866455078125,
+              1286.97314453125
+            ],
+            "character_index": 0,
+            "source_bank_id": 5
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              149.68043518066406,
+              902.997314453125,
+              604.3402099609375,
+              1398.581298828125
+            ],
+            "character_index": 3,
+            "source_bank_id": 5
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c1": {
+        "person_id": "person:8bc7aecc43ad61047260",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              622.7570190429688,
+              876.51220703125,
+              905.3978271484375,
+              1308.028564453125
+            ],
+            "character_index": 1,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c2": {
+        "person_id": "person:36fd5511814f69b6aee2",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              325.38043212890625,
+              129.6361083984375,
+              494.0829162597656,
+              400.6549377441406
+            ],
+            "character_index": 2,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c3": {
+        "person_id": "person:e5ba6d79cf6a3084e3a2",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              655.4219970703125,
+              183.37197875976562,
+              804.927001953125,
+              407.11737060546875
+            ],
+            "character_index": 4,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c4": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              621.2452392578125,
+              878.5113525390625,
+              793.1347045898438,
+              1310.410400390625
+            ],
+            "character_index": 5,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c5": {
+        "person_id": "person:a2f1956f505cb644a8e8",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              87.39476776123047,
+              437.1585388183594,
+              388.72540283203125,
+              856.3514404296875
+            ],
+            "character_index": 6,
+            "source_bank_id": 2
+          },
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              78.94232940673828,
+              85.91127014160156,
+              275.6936950683594,
+              405.103515625
+            ],
+            "character_index": 8,
+            "source_bank_id": 2
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c6": {
+        "person_id": "person:545781e03fc92146fc48",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              522.9845581054688,
+              152.52670288085938,
+              665.4649658203125,
+              399.82098388671875
+            ],
+            "character_index": 7,
+            "source_bank_id": null
+          }
+        ]
+      },
+      "495c61e29838cca9:b68ed9e490d577e6:p8:c7": {
+        "person_id": "person:80a5420bd659851a965e",
+        "observations": [
+          {
+            "page_id": "b68ed9e490d577e6:p8",
+            "bbox": [
+              772.84765625,
+              117.84574890136719,
+              909.1361694335938,
+              402.2044982910156
+            ],
+            "character_index": 9,
+            "source_bank_id": 6
+          }
+        ]
+      }
+    }
+  },
+  "images": [
+    {
+      "page_id": "b68ed9e490d577e6:p6",
+      "page_index": 5,
+      "bbox": [
+        68,
+        500,
+        975,
+        1400
+      ],
+      "panel_indices": [
+        1,
+        2,
+        3
+      ],
+      "panels": [
+        {
+          "panel_index": 1,
+          "reading_order": 2,
+          "bbox": [
+            499.0,
+            500.0,
+            975.0,
+            1319.0
+          ]
+        },
+        {
+          "panel_index": 2,
+          "reading_order": 3,
+          "bbox": [
+            70.0,
+            503.0,
+            474.0,
+            780.0
+          ]
+        },
+        {
+          "panel_index": 3,
+          "reading_order": 4,
+          "bbox": [
+            68.0,
+            801.0,
+            480.0,
+            1400.0
+          ]
+        }
+      ],
+      "tails": [
+        {
+          "tail_index": 0,
+          "label": "TAIL 0",
+          "bbox": [
+            391.7149963378906,
+            619.2374877929688,
+            422.6050109863281,
+            647.3875122070312
+          ],
+          "render_bbox": [
+            323.7149963378906,
+            119.23748779296875,
+            354.6050109863281,
+            147.38751220703125
+          ]
+        },
+        {
+          "tail_index": 1,
+          "label": "TAIL 1",
+          "bbox": [
+            143.63352966308594,
+            721.1734619140625,
+            168.989501953125,
+            749.6285400390625
+          ],
+          "render_bbox": [
+            75.63352966308594,
+            221.1734619140625,
+            100.989501953125,
+            249.6285400390625
+          ]
+        }
+      ],
+      "context_ids": [],
+      "render_size": [
+        907,
+        900
+      ],
+      "scale": 1.0,
+      "file": "06_analyze/images/8fa9d4819d9be2e6dcaaa21eb09fbd8fd7f774a24c8e1c9ca66737025c509006.jpg",
+      "retained_sha256": "efe9108cd5fe209970c124885e5669ce882c4ecb9e52bb5936e911d16251b904"
+    },
+    {
+      "page_id": "b68ed9e490d577e6:p7",
+      "page_index": 6,
+      "bbox": [
+        0,
+        0,
+        964,
+        1400
+      ],
+      "panel_indices": [],
+      "panels": [],
+      "tails": [],
+      "context_ids": [],
+      "render_size": [
+        964,
+        1400
+      ],
+      "scale": 1.0,
+      "file": "06_analyze/images/f5bc1917d5e281185f333c851c034b1af35572004b25eebc9f879505720afb26.jpg",
+      "retained_sha256": "ae124d62b6ddd8bd6541ec3b92959609ca74954abf2bfa84dd05ea1178ca3fb6"
+    },
+    {
+      "page_id": "b68ed9e490d577e6:p8",
+      "page_index": 7,
+      "bbox": [
+        1,
+        2,
+        911,
+        1398
+      ],
+      "panel_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "panels": [
+        {
+          "panel_index": 0,
+          "reading_order": 1,
+          "bbox": [
+            322.0,
+            2.0,
+            911.0,
+            411.0
+          ]
+        },
+        {
+          "panel_index": 1,
+          "reading_order": 2,
+          "bbox": [
+            83.0,
+            77.0,
+            309.0,
+            408.0
+          ]
+        },
+        {
+          "panel_index": 2,
+          "reading_order": 3,
+          "bbox": [
+            430.0,
+            429.0,
+            911.0,
+            856.0
+          ]
+        },
+        {
+          "panel_index": 3,
+          "reading_order": 4,
+          "bbox": [
+            84.0,
+            429.0,
+            414.0,
+            855.0
+          ]
+        },
+        {
+          "panel_index": 4,
+          "reading_order": 5,
+          "bbox": [
+            623.0,
+            878.0,
+            911.0,
+            1311.0
+          ]
+        },
+        {
+          "panel_index": 5,
+          "reading_order": 6,
+          "bbox": [
+            1.0,
+            877.0,
+            605.0,
+            1398.0
+          ]
+        }
+      ],
+      "tails": [
+        {
+          "tail_index": 0,
+          "label": "TAIL 0",
+          "bbox": [
+            130.2452850341797,
+            1157.4361572265625,
+            158.24978637695312,
+            1184.29443359375
+          ],
+          "render_bbox": [
+            129.2452850341797,
+            1155.4361572265625,
+            157.24978637695312,
+            1182.29443359375
+          ]
+        }
+      ],
+      "context_ids": [],
+      "render_size": [
+        910,
+        1396
+      ],
+      "scale": 1.0,
+      "file": "06_analyze/images/4e46bd7ad9c21365d526f0b8cef1051e3a2275e10e976f47ae7dad36410fde9d.jpg",
+      "retained_sha256": "7b51996de7e463b78612ad4bb9839819a8a2b0211579edaa9c621cc1d4151b3e"
+    }
+  ]
+}

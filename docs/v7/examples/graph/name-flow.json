@@ -1,0 +1,609 @@
+{
+  "group": {
+    "group_id": "g1",
+    "canonical_name": "Toru Mizushima",
+    "evidence": "The protagonist, referred to by full name, given name, and surname in various forms.",
+    "evidence_refs": [
+      "b68ed9e490d577e6:p10:g3:u",
+      "b68ed9e490d577e6:p17:g2:u",
+      "b68ed9e490d577e6:p18:g4:u",
+      "b68ed9e490d577e6:p18:g5:u",
+      "b68ed9e490d577e6:p1:t2:u",
+      "b68ed9e490d577e6:p24:g4:u",
+      "b68ed9e490d577e6:p2:t6:u",
+      "b68ed9e490d577e6:p33:g9:u",
+      "b68ed9e490d577e6:p35:g6:u",
+      "b68ed9e490d577e6:p39:g1:u",
+      "b68ed9e490d577e6:p39:g2:u",
+      "b68ed9e490d577e6:p39:t5:u",
+      "b68ed9e490d577e6:p41:g3:u",
+      "b68ed9e490d577e6:p43:g1:u",
+      "b68ed9e490d577e6:p44:t0:u",
+      "b68ed9e490d577e6:p4:g5:u"
+    ],
+    "aliases": [
+      "MIZU- SHIMA",
+      "MIZU- SHIMA- SA",
+      "MIZU- SHIMA- SAN",
+      "MIZUSHIMA TORU-SAN",
+      "MIZUSHIMA- SA",
+      "MIZUSHIMA- SAN",
+      "MIZUSHIMA-SAN",
+      "Mizushima",
+      "Mizushima Toru-san",
+      "Mizushima- san",
+      "Mizushima-san",
+      "TORU",
+      "TORU-KUN",
+      "Toru",
+      "Toru Mizushima",
+      "Toru-kun"
+    ],
+    "members": [
+      {
+        "candidate_id": "c6d630ae35aedbe3d187",
+        "utterance_id": "b68ed9e490d577e6:p1:t2:u",
+        "start": 100,
+        "end": 104
+      },
+      {
+        "candidate_id": "6d3a7a7219c265117459",
+        "utterance_id": "b68ed9e490d577e6:p2:t6:u",
+        "start": 0,
+        "end": 14
+      },
+      {
+        "candidate_id": "56ce634e31a9ecde203e",
+        "utterance_id": "b68ed9e490d577e6:p4:g5:u",
+        "start": 0,
+        "end": 4
+      },
+      {
+        "candidate_id": "7114679fd0310547adab",
+        "utterance_id": "b68ed9e490d577e6:p10:g3:u",
+        "start": 0,
+        "end": 18
+      },
+      {
+        "candidate_id": "1c5f2cde3e908419abb2",
+        "utterance_id": "b68ed9e490d577e6:p17:g2:u",
+        "start": 0,
+        "end": 8
+      },
+      {
+        "candidate_id": "d08580d552b8dddb00b0",
+        "utterance_id": "b68ed9e490d577e6:p18:g4:u",
+        "start": 0,
+        "end": 4
+      },
+      {
+        "candidate_id": "fe7bba63f579b284ac74",
+        "utterance_id": "b68ed9e490d577e6:p18:g5:u",
+        "start": 18,
+        "end": 32
+      },
+      {
+        "candidate_id": "73716a50425f466fec15",
+        "utterance_id": "b68ed9e490d577e6:p24:g4:u",
+        "start": 0,
+        "end": 15
+      },
+      {
+        "candidate_id": "1e9cd54c492465c0fd9a",
+        "utterance_id": "b68ed9e490d577e6:p33:g9:u",
+        "start": 0,
+        "end": 14
+      },
+      {
+        "candidate_id": "882e2ae592029a40cb7d",
+        "utterance_id": "b68ed9e490d577e6:p35:g6:u",
+        "start": 0,
+        "end": 16
+      },
+      {
+        "candidate_id": "1648b89b5d0b6f1fa2aa",
+        "utterance_id": "b68ed9e490d577e6:p39:g1:u",
+        "start": 4,
+        "end": 17
+      },
+      {
+        "candidate_id": "9d692eb5399d5a024e62",
+        "utterance_id": "b68ed9e490d577e6:p39:g2:u",
+        "start": 0,
+        "end": 4
+      },
+      {
+        "candidate_id": "98bbb6428c8930950ed5",
+        "utterance_id": "b68ed9e490d577e6:p39:t5:u",
+        "start": 0,
+        "end": 13
+      },
+      {
+        "candidate_id": "3dd688ef98dae2da2ae9",
+        "utterance_id": "b68ed9e490d577e6:p41:g3:u",
+        "start": 14,
+        "end": 28
+      },
+      {
+        "candidate_id": "790705d59d51483535e3",
+        "utterance_id": "b68ed9e490d577e6:p43:g1:u",
+        "start": 3,
+        "end": 14
+      },
+      {
+        "candidate_id": "8fbbef7aaabed6e0ebc4",
+        "utterance_id": "b68ed9e490d577e6:p43:g1:u",
+        "start": 18,
+        "end": 22
+      },
+      {
+        "candidate_id": "57ca5391ef97dbd2b527",
+        "utterance_id": "b68ed9e490d577e6:p44:t0:u",
+        "start": 0,
+        "end": 13
+      },
+      {
+        "candidate_id": "0faf7b785882fb566896",
+        "utterance_id": "b68ed9e490d577e6:p44:t0:u",
+        "start": 15,
+        "end": 28
+      }
+    ],
+    "status": "proposed"
+  },
+  "reference": {
+    "person_id": "reference:g1",
+    "name": "Toru Mizushima",
+    "magi_ids": [],
+    "reference_only": true
+  },
+  "applied_corrections": [
+    {
+      "rule_index": 0,
+      "utterance_id": "b68ed9e490d577e6:p1:t2:u",
+      "original": "TORU",
+      "replacement": "Toru",
+      "status": "applied",
+      "matches": [
+        [
+          100,
+          104
+        ]
+      ],
+      "before": "IN A WORLD WHERE IT'S NORMAL FOR YOUNG BOYS AND GIRLS TO POSSESS A SPECIAL POWER KNOWN AS \"IRIS\"... TORU, A BOY WHO \"DOESN'T HAVE ANY POWER\" AND IS THEREFORE THE TARGET OF CONSTANT BULLYING, LIVED BY HIS MOTTO OF 'MINIMAL EXPOSURE' - TO LIVE WITHOUT STANDING OUT. HOWEVER, AFTER RECEIVING A CERTAIN \"CONFESSION\" FROM KOYUKI, A POPULAR GIRL AT SCHOOL, HIS SUPPOSEDLY PEACEFUL SCHOOL LIFE IS SHATTERED. THUS, HIS MOTTO BEGINS TO SHAKE...! THIS IS AN EXCITING SCHOOL FANTASY STORY THAT STARTS FROM THE MEETING OF A BOY AND GIRL.",
+      "after": "IN A WORLD WHERE IT'S NORMAL FOR YOUNG BOYS AND GIRLS TO POSSESS A SPECIAL POWER KNOWN AS \"IRIS\"... Toru, A BOY WHO \"DOESN'T HAVE ANY POWER\" AND IS THEREFORE THE TARGET OF CONSTANT BULLYING, LIVED BY HIS MOTTO OF 'MINIMAL EXPOSURE' - TO LIVE WITHOUT STANDING OUT. HOWEVER, AFTER RECEIVING A CERTAIN \"CONFESSION\" FROM KOYUKI, A POPULAR GIRL AT SCHOOL, HIS SUPPOSEDLY PEACEFUL SCHOOL LIFE IS SHATTERED. THUS, HIS MOTTO BEGINS TO SHAKE...! THIS IS AN EXCITING SCHOOL FANTASY STORY THAT STARTS FROM THE MEETING OF A BOY AND GIRL.",
+      "count": 1
+    },
+    {
+      "rule_index": 19,
+      "utterance_id": "b68ed9e490d577e6:p43:g1:u",
+      "original": "MIZU- SHIMA",
+      "replacement": "Mizushima",
+      "status": "applied",
+      "matches": [
+        [
+          3,
+          14
+        ]
+      ],
+      "before": "...MIZU- SHIMA... Toru...",
+      "after": "...Mizushima... Toru...",
+      "count": 1
+    },
+    {
+      "rule_index": 9,
+      "utterance_id": "b68ed9e490d577e6:p17:g2:u",
+      "original": "TORU-KUN",
+      "replacement": "Toru-kun",
+      "status": "applied",
+      "matches": [
+        [
+          0,
+          8
+        ]
+      ],
+      "before": "TORU-KUN!",
+      "after": "Toru-kun!",
+      "count": 1
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "g1",
+      "canonical_name": "Toru Mizushima",
+      "evidence": "The protagonist, referred to by full name, given name, and surname in various forms.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p10:g3:u",
+        "b68ed9e490d577e6:p17:g2:u",
+        "b68ed9e490d577e6:p18:g4:u",
+        "b68ed9e490d577e6:p18:g5:u",
+        "b68ed9e490d577e6:p1:t2:u",
+        "b68ed9e490d577e6:p24:g4:u",
+        "b68ed9e490d577e6:p2:t6:u",
+        "b68ed9e490d577e6:p33:g9:u",
+        "b68ed9e490d577e6:p35:g6:u",
+        "b68ed9e490d577e6:p39:g1:u",
+        "b68ed9e490d577e6:p39:g2:u",
+        "b68ed9e490d577e6:p39:t5:u",
+        "b68ed9e490d577e6:p41:g3:u",
+        "b68ed9e490d577e6:p43:g1:u",
+        "b68ed9e490d577e6:p44:t0:u",
+        "b68ed9e490d577e6:p4:g5:u"
+      ],
+      "aliases": [
+        "MIZU- SHIMA",
+        "MIZU- SHIMA- SA",
+        "MIZU- SHIMA- SAN",
+        "MIZUSHIMA TORU-SAN",
+        "MIZUSHIMA- SA",
+        "MIZUSHIMA- SAN",
+        "MIZUSHIMA-SAN",
+        "Mizushima",
+        "Mizushima Toru-san",
+        "Mizushima- san",
+        "Mizushima-san",
+        "TORU",
+        "TORU-KUN",
+        "Toru",
+        "Toru Mizushima",
+        "Toru-kun"
+      ],
+      "members": [
+        {
+          "candidate_id": "c6d630ae35aedbe3d187",
+          "utterance_id": "b68ed9e490d577e6:p1:t2:u",
+          "start": 100,
+          "end": 104
+        },
+        {
+          "candidate_id": "6d3a7a7219c265117459",
+          "utterance_id": "b68ed9e490d577e6:p2:t6:u",
+          "start": 0,
+          "end": 14
+        },
+        {
+          "candidate_id": "56ce634e31a9ecde203e",
+          "utterance_id": "b68ed9e490d577e6:p4:g5:u",
+          "start": 0,
+          "end": 4
+        },
+        {
+          "candidate_id": "7114679fd0310547adab",
+          "utterance_id": "b68ed9e490d577e6:p10:g3:u",
+          "start": 0,
+          "end": 18
+        },
+        {
+          "candidate_id": "1c5f2cde3e908419abb2",
+          "utterance_id": "b68ed9e490d577e6:p17:g2:u",
+          "start": 0,
+          "end": 8
+        },
+        {
+          "candidate_id": "d08580d552b8dddb00b0",
+          "utterance_id": "b68ed9e490d577e6:p18:g4:u",
+          "start": 0,
+          "end": 4
+        },
+        {
+          "candidate_id": "fe7bba63f579b284ac74",
+          "utterance_id": "b68ed9e490d577e6:p18:g5:u",
+          "start": 18,
+          "end": 32
+        },
+        {
+          "candidate_id": "73716a50425f466fec15",
+          "utterance_id": "b68ed9e490d577e6:p24:g4:u",
+          "start": 0,
+          "end": 15
+        },
+        {
+          "candidate_id": "1e9cd54c492465c0fd9a",
+          "utterance_id": "b68ed9e490d577e6:p33:g9:u",
+          "start": 0,
+          "end": 14
+        },
+        {
+          "candidate_id": "882e2ae592029a40cb7d",
+          "utterance_id": "b68ed9e490d577e6:p35:g6:u",
+          "start": 0,
+          "end": 16
+        },
+        {
+          "candidate_id": "1648b89b5d0b6f1fa2aa",
+          "utterance_id": "b68ed9e490d577e6:p39:g1:u",
+          "start": 4,
+          "end": 17
+        },
+        {
+          "candidate_id": "9d692eb5399d5a024e62",
+          "utterance_id": "b68ed9e490d577e6:p39:g2:u",
+          "start": 0,
+          "end": 4
+        },
+        {
+          "candidate_id": "98bbb6428c8930950ed5",
+          "utterance_id": "b68ed9e490d577e6:p39:t5:u",
+          "start": 0,
+          "end": 13
+        },
+        {
+          "candidate_id": "3dd688ef98dae2da2ae9",
+          "utterance_id": "b68ed9e490d577e6:p41:g3:u",
+          "start": 14,
+          "end": 28
+        },
+        {
+          "candidate_id": "790705d59d51483535e3",
+          "utterance_id": "b68ed9e490d577e6:p43:g1:u",
+          "start": 3,
+          "end": 14
+        },
+        {
+          "candidate_id": "8fbbef7aaabed6e0ebc4",
+          "utterance_id": "b68ed9e490d577e6:p43:g1:u",
+          "start": 18,
+          "end": 22
+        },
+        {
+          "candidate_id": "57ca5391ef97dbd2b527",
+          "utterance_id": "b68ed9e490d577e6:p44:t0:u",
+          "start": 0,
+          "end": 13
+        },
+        {
+          "candidate_id": "0faf7b785882fb566896",
+          "utterance_id": "b68ed9e490d577e6:p44:t0:u",
+          "start": 15,
+          "end": 28
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "group_id": "g2",
+      "canonical_name": "Koyuki Sasamori",
+      "evidence": "The popular girl with the Iris power, referred to by full name, given name, and surname with honorifics.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p10:g2:u",
+        "b68ed9e490d577e6:p17:g1:u",
+        "b68ed9e490d577e6:p17:g4:u",
+        "b68ed9e490d577e6:p17:g7:u",
+        "b68ed9e490d577e6:p1:t2:u",
+        "b68ed9e490d577e6:p21:g1:u",
+        "b68ed9e490d577e6:p22:t1:u",
+        "b68ed9e490d577e6:p22:t2:u",
+        "b68ed9e490d577e6:p2:t1:u",
+        "b68ed9e490d577e6:p2:t2:u",
+        "b68ed9e490d577e6:p2:t3:u",
+        "b68ed9e490d577e6:p30:g1:u",
+        "b68ed9e490d577e6:p30:g2:u",
+        "b68ed9e490d577e6:p30:g6:u",
+        "b68ed9e490d577e6:p31:g3:u",
+        "b68ed9e490d577e6:p33:g3:u",
+        "b68ed9e490d577e6:p33:g7:u",
+        "b68ed9e490d577e6:p33:g8:u",
+        "b68ed9e490d577e6:p36:g4:u",
+        "b68ed9e490d577e6:p37:g2:u",
+        "b68ed9e490d577e6:p38:g3:u",
+        "b68ed9e490d577e6:p9:g3:u",
+        "b68ed9e490d577e6:p9:g6:u"
+      ],
+      "aliases": [
+        "KOYUKI",
+        "KOYUKI- CHAN",
+        "Koyuk",
+        "Koyuki",
+        "Koyuki Sasamori",
+        "Koyuki-chan",
+        "SASA- MORI",
+        "SASA- MORI- SAN",
+        "SASAMORI KOYUKI",
+        "SASAMORI- CHAN",
+        "SASAMORI- SAN",
+        "SASAMORI-CHAN",
+        "SASAMORI-SAN",
+        "SASAMORISAN",
+        "Sasamori",
+        "Sasamori Koyuki",
+        "Sasamori- san",
+        "Sasamori-chan",
+        "Sasamori-san",
+        "YUUKI",
+        "Yuuki",
+        "yuki-chan"
+      ],
+      "members": [
+        {
+          "candidate_id": "dc568394ba7e71e388b5",
+          "utterance_id": "b68ed9e490d577e6:p1:t2:u",
+          "start": 317,
+          "end": 323
+        },
+        {
+          "candidate_id": "f6662f73e25d037c8dc0",
+          "utterance_id": "b68ed9e490d577e6:p2:t1:u",
+          "start": 0,
+          "end": 15
+        },
+        {
+          "candidate_id": "554c23076d0d3b1b7936",
+          "utterance_id": "b68ed9e490d577e6:p2:t2:u",
+          "start": 192,
+          "end": 198
+        },
+        {
+          "candidate_id": "888e61541b60a3026280",
+          "utterance_id": "b68ed9e490d577e6:p2:t3:u",
+          "start": 249,
+          "end": 255
+        },
+        {
+          "candidate_id": "17b7968fb2137c7cca9d",
+          "utterance_id": "b68ed9e490d577e6:p9:g3:u",
+          "start": 5,
+          "end": 20
+        },
+        {
+          "candidate_id": "4c58cb88d601bb066dc3",
+          "utterance_id": "b68ed9e490d577e6:p9:g6:u",
+          "start": 0,
+          "end": 12
+        },
+        {
+          "candidate_id": "34fd6216c02883fb3c57",
+          "utterance_id": "b68ed9e490d577e6:p10:g2:u",
+          "start": 4,
+          "end": 17
+        },
+        {
+          "candidate_id": "87e04388bd2126df1987",
+          "utterance_id": "b68ed9e490d577e6:p17:g7:u",
+          "start": 37,
+          "end": 51
+        },
+        {
+          "candidate_id": "5a904f009ce4430368a3",
+          "utterance_id": "b68ed9e490d577e6:p17:g1:u",
+          "start": 10,
+          "end": 25
+        },
+        {
+          "candidate_id": "a66fb823eca3a2e1a3d1",
+          "utterance_id": "b68ed9e490d577e6:p17:g4:u",
+          "start": 33,
+          "end": 43
+        },
+        {
+          "candidate_id": "5fd88fb15a547b25a571",
+          "utterance_id": "b68ed9e490d577e6:p21:g1:u",
+          "start": 17,
+          "end": 30
+        },
+        {
+          "candidate_id": "34c55836357591e391db",
+          "utterance_id": "b68ed9e490d577e6:p22:t1:u",
+          "start": 14,
+          "end": 23
+        },
+        {
+          "candidate_id": "3659fcaeed2a368020b5",
+          "utterance_id": "b68ed9e490d577e6:p22:t2:u",
+          "start": 5,
+          "end": 10
+        },
+        {
+          "candidate_id": "8a3a74f26bf127ab7ea6",
+          "utterance_id": "b68ed9e490d577e6:p30:g1:u",
+          "start": 10,
+          "end": 23
+        },
+        {
+          "candidate_id": "21bab758c965023c1269",
+          "utterance_id": "b68ed9e490d577e6:p30:g2:u",
+          "start": 24,
+          "end": 29
+        },
+        {
+          "candidate_id": "73fe3973bd0c5f4f177c",
+          "utterance_id": "b68ed9e490d577e6:p30:g6:u",
+          "start": 0,
+          "end": 13
+        },
+        {
+          "candidate_id": "b1440fba25b4a5d27013",
+          "utterance_id": "b68ed9e490d577e6:p31:g3:u",
+          "start": 4,
+          "end": 10
+        },
+        {
+          "candidate_id": "62046a55cb68c55db431",
+          "utterance_id": "b68ed9e490d577e6:p33:g8:u",
+          "start": 4,
+          "end": 10
+        },
+        {
+          "candidate_id": "1f4d02dd18864b6b3395",
+          "utterance_id": "b68ed9e490d577e6:p33:g3:u",
+          "start": 23,
+          "end": 35
+        },
+        {
+          "candidate_id": "165d89cd2942718dc05a",
+          "utterance_id": "b68ed9e490d577e6:p33:g7:u",
+          "start": 0,
+          "end": 11
+        },
+        {
+          "candidate_id": "20d2df92f2de12c4c679",
+          "utterance_id": "b68ed9e490d577e6:p36:g4:u",
+          "start": 0,
+          "end": 13
+        },
+        {
+          "candidate_id": "c72f533cb88fcc356561",
+          "utterance_id": "b68ed9e490d577e6:p37:g2:u",
+          "start": 3,
+          "end": 16
+        },
+        {
+          "candidate_id": "c9986c4f788a8044acc1",
+          "utterance_id": "b68ed9e490d577e6:p38:g3:u",
+          "start": 0,
+          "end": 13
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "group_id": "g3",
+      "canonical_name": "Hijiri",
+      "evidence": "Toru's friend mentioned in the text.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p17:g8:u",
+        "b68ed9e490d577e6:p2:t0:u"
+      ],
+      "aliases": [
+        "HIJIRI",
+        "HJIJIRI",
+        "Hijiri"
+      ],
+      "members": [
+        {
+          "candidate_id": "e12eb000525594632bec",
+          "utterance_id": "b68ed9e490d577e6:p2:t0:u",
+          "start": 28,
+          "end": 34
+        },
+        {
+          "candidate_id": "8f6cda4beeacdee0153d",
+          "utterance_id": "b68ed9e490d577e6:p17:g8:u",
+          "start": 0,
+          "end": 7
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "group_id": "g4",
+      "canonical_name": "Asahi",
+      "evidence": "Another student mentioned in the class context.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p2:t0:u"
+      ],
+      "aliases": [
+        "ASAHI",
+        "Asahi"
+      ],
+      "members": [
+        {
+          "candidate_id": "a4dfca55b91d5e22f908",
+          "utterance_id": "b68ed9e490d577e6:p2:t0:u",
+          "start": 18,
+          "end": 23
+        }
+      ],
+      "status": "proposed"
+    }
+  ]
+}

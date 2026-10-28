@@ -1,0 +1,308 @@
+{
+  "decision": {
+    "utterance_id": "b68ed9e490d577e6:p17:g7:u",
+    "content_type": "unknown",
+    "speech_style": "unknown",
+    "speaker_person_id": null,
+    "speaker_cluster_ref": null,
+    "addressee_person_ids": [],
+    "mentions": [],
+    "evidence": "Semantic response rejected; source-only unresolved fallback",
+    "semantic_resolution": "unresolved",
+    "semantic_needs_review": true,
+    "semantic_errors": [
+      "vLLM output incomplete; split targets without accepting partial JSON"
+    ],
+    "source_name_candidates": [
+      {
+        "id": "1c5f2cde3e908419abb2",
+        "utterance_id": "b68ed9e490d577e6:p17:g2:u",
+        "name": "Toru-kun",
+        "key": "toru-kun",
+        "raw_surface": "TORU-KUN",
+        "corrected_surface": "Toru-kun",
+        "start": 0,
+        "end": 8,
+        "original_start": 0,
+        "original_end": 8,
+        "source": "llm_graph_v7",
+        "candidate_person_ids": [],
+        "name_suspect": false,
+        "group_id": "g1",
+        "location_status": "mapped",
+        "alias_groups": [
+          {
+            "group_id": "g1",
+            "canonical_name": "Toru Mizushima",
+            "aliases": [
+              "MIZU- SHIMA",
+              "MIZU- SHIMA- SA",
+              "MIZU- SHIMA- SAN",
+              "MIZUSHIMA TORU-SAN",
+              "MIZUSHIMA- SA",
+              "MIZUSHIMA- SAN",
+              "MIZUSHIMA-SAN",
+              "Mizushima",
+              "Mizushima Toru-san",
+              "Mizushima- san",
+              "Mizushima-san",
+              "TORU",
+              "TORU-KUN",
+              "Toru",
+              "Toru Mizushima",
+              "Toru-kun"
+            ],
+            "evidence": "The protagonist, referred to by full name, given name, and surname in various forms.",
+            "status": "proposed"
+          }
+        ]
+      },
+      {
+        "id": "87e04388bd2126df1987",
+        "utterance_id": "b68ed9e490d577e6:p17:g7:u",
+        "name": "Sasamori-chan",
+        "key": "sasamori-chan",
+        "raw_surface": "SASAMORI- CHAN",
+        "corrected_surface": "Sasamori-chan",
+        "start": 37,
+        "end": 50,
+        "original_start": 37,
+        "original_end": 51,
+        "source": "llm_graph_v7",
+        "candidate_person_ids": [],
+        "name_suspect": false,
+        "group_id": "g2",
+        "location_status": "mapped",
+        "alias_groups": [
+          {
+            "group_id": "g2",
+            "canonical_name": "Koyuki Sasamori",
+            "aliases": [
+              "KOYUKI",
+              "KOYUKI- CHAN",
+              "Koyuk",
+              "Koyuki",
+              "Koyuki Sasamori",
+              "Koyuki-chan",
+              "SASA- MORI",
+              "SASA- MORI- SAN",
+              "SASAMORI KOYUKI",
+              "SASAMORI- CHAN",
+              "SASAMORI- SAN",
+              "SASAMORI-CHAN",
+              "SASAMORI-SAN",
+              "SASAMORISAN",
+              "Sasamori",
+              "Sasamori Koyuki",
+              "Sasamori- san",
+              "Sasamori-chan",
+              "Sasamori-san",
+              "YUUKI",
+              "Yuuki",
+              "yuki-chan"
+            ],
+            "evidence": "The popular girl with the Iris power, referred to by full name, given name, and surname with honorifics.",
+            "status": "proposed"
+          }
+        ]
+      },
+      {
+        "id": "8f6cda4beeacdee0153d",
+        "utterance_id": "b68ed9e490d577e6:p17:g8:u",
+        "name": "Hijiri",
+        "key": "hijiri",
+        "raw_surface": "HJIJIRI",
+        "corrected_surface": "Hijiri",
+        "start": 0,
+        "end": 6,
+        "original_start": 0,
+        "original_end": 7,
+        "source": "llm_graph_v7",
+        "candidate_person_ids": [],
+        "name_suspect": false,
+        "group_id": "g3",
+        "location_status": "mapped",
+        "alias_groups": [
+          {
+            "group_id": "g3",
+            "canonical_name": "Hijiri",
+            "aliases": [
+              "HIJIRI",
+              "HJIJIRI",
+              "Hijiri"
+            ],
+            "evidence": "Toru's friend mentioned in the text.",
+            "status": "proposed"
+          }
+        ]
+      },
+      {
+        "id": "5a904f009ce4430368a3",
+        "utterance_id": "b68ed9e490d577e6:p17:g1:u",
+        "name": "Sasamori Koyuki",
+        "key": "sasamori koyuki",
+        "raw_surface": "SASAMORI KOYUKI",
+        "corrected_surface": "Sasamori Koyuki",
+        "start": 10,
+        "end": 25,
+        "original_start": 10,
+        "original_end": 25,
+        "source": "llm_graph_v7",
+        "candidate_person_ids": [],
+        "name_suspect": false,
+        "group_id": "g2",
+        "location_status": "mapped",
+        "alias_groups": [
+          {
+            "group_id": "g2",
+            "canonical_name": "Koyuki Sasamori",
+            "aliases": [
+              "KOYUKI",
+              "KOYUKI- CHAN",
+              "Koyuk",
+              "Koyuki",
+              "Koyuki Sasamori",
+              "Koyuki-chan",
+              "SASA- MORI",
+              "SASA- MORI- SAN",
+              "SASAMORI KOYUKI",
+              "SASAMORI- CHAN",
+              "SASAMORI- SAN",
+              "SASAMORI-CHAN",
+              "SASAMORI-SAN",
+              "SASAMORISAN",
+              "Sasamori",
+              "Sasamori Koyuki",
+              "Sasamori- san",
+              "Sasamori-chan",
+              "Sasamori-san",
+              "YUUKI",
+              "Yuuki",
+              "yuki-chan"
+            ],
+            "evidence": "The popular girl with the Iris power, referred to by full name, given name, and surname with honorifics.",
+            "status": "proposed"
+          }
+        ]
+      },
+      {
+        "id": "a66fb823eca3a2e1a3d1",
+        "utterance_id": "b68ed9e490d577e6:p17:g4:u",
+        "name": "Sasamori",
+        "key": "sasamori",
+        "raw_surface": "SASA- MORI",
+        "corrected_surface": "Sasamori",
+        "start": 33,
+        "end": 41,
+        "original_start": 33,
+        "original_end": 43,
+        "source": "llm_graph_v7",
+        "candidate_person_ids": [],
+        "name_suspect": false,
+        "group_id": "g2",
+        "location_status": "mapped",
+        "alias_groups": [
+          {
+            "group_id": "g2",
+            "canonical_name": "Koyuki Sasamori",
+            "aliases": [
+              "KOYUKI",
+              "KOYUKI- CHAN",
+              "Koyuk",
+              "Koyuki",
+              "Koyuki Sasamori",
+              "Koyuki-chan",
+              "SASA- MORI",
+              "SASA- MORI- SAN",
+              "SASAMORI KOYUKI",
+              "SASAMORI- CHAN",
+              "SASAMORI- SAN",
+              "SASAMORI-CHAN",
+              "SASAMORI-SAN",
+              "SASAMORISAN",
+              "Sasamori",
+              "Sasamori Koyuki",
+              "Sasamori- san",
+              "Sasamori-chan",
+              "Sasamori-san",
+              "YUUKI",
+              "Yuuki",
+              "yuki-chan"
+            ],
+            "evidence": "The popular girl with the Iris power, referred to by full name, given name, and surname with honorifics.",
+            "status": "proposed"
+          }
+        ]
+      }
+    ],
+    "repair_count": 0,
+    "semantic_response_used": false,
+    "speaker_kind": "others",
+    "addressee_type": "unknown",
+    "confidence": {
+      "speaker": 0,
+      "addressee": 0,
+      "content_type": 0,
+      "speech_style": 0
+    },
+    "scene_id": "scene:10",
+    "event_id": "scene:10:event:1",
+    "essential_index": 86,
+    "analysis_branch": "dialogue",
+    "speaker_anchor": {
+      "locked": true,
+      "person_id": "person:a2f1956f505cb644a8e8",
+      "sources": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p17:t2",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p17:c0",
+          "bank_id": 2,
+          "person_id": "person:a2f1956f505cb644a8e8",
+          "tail_index": 1,
+          "character_index": 7
+        }
+      ],
+      "conflicting_person_ids": [],
+      "origin": "MAGIv2_text_tail_character_stable_bank"
+    },
+    "original_speaker": [
+      {
+        "source_text_id": "b68ed9e490d577e6:p17:t2",
+        "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p17:c0",
+        "bank_id": 2,
+        "person_id": "person:a2f1956f505cb644a8e8"
+      },
+      {
+        "source_text_id": "b68ed9e490d577e6:p17:t4",
+        "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p17:c2",
+        "bank_id": 12,
+        "person_id": "person:bd9042c2a391a5d2c213"
+      }
+    ],
+    "bubble_tail": {
+      "source": "MAGIv2",
+      "page_id": "b68ed9e490d577e6:p17",
+      "coordinate_system": "original_page_pixels",
+      "has_tail": true,
+      "tails": [
+        {
+          "tail_index": 1,
+          "label": "TAIL 1",
+          "bbox": [
+            321.5423278808594,
+            317.6952209472656,
+            347.9691467285156,
+            346.513427734375
+          ],
+          "source_text_ids": [
+            "b68ed9e490d577e6:p17:t2"
+          ]
+        }
+      ]
+    }
+  },
+  "event_failure": {
+    "event_id": "scene:10:event:1",
+    "error": "vLLM output incomplete; split targets without accepting partial JSON"
+  }
+}

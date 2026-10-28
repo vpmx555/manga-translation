@@ -1,0 +1,317 @@
+{
+  "dialogue": [
+    {
+      "utterance_id": "b68ed9e490d577e6:p6:g1:u",
+      "content_type": "dialogue",
+      "speech_style": "normal",
+      "speaker_kind": "person",
+      "speaker_person_id": "person:ee78e0e823120ff8ab9e",
+      "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+      "addressee_type": "individual",
+      "addressee_person_ids": [
+        "person:e6c6452cb6c395001d3d"
+      ],
+      "mentions": [],
+      "confidence": {
+        "speaker": 9,
+        "addressee": 8,
+        "content_type": 10,
+        "speech_style": 9
+      },
+      "evidence": "Bubble tail TAIL 0 points to the character in cluster p6:c3 (person:ee78e0e823120ff8ab9e). The speaker anchor is locked to this person. The text 'NOW THAT YOU MENTION IT' implies a response to the other girl in the pair.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p6:t0",
+        "495c61e29838cca9:b68ed9e490d577e6:p6:c3"
+      ],
+      "semantic_resolution": "resolved",
+      "semantic_response_used": true,
+      "repair_count": 0,
+      "semantic_needs_review": false,
+      "semantic_errors": [],
+      "speaker_merge_policy": "inference-first-v1",
+      "scene_id": "scene:5",
+      "event_id": "scene:5:event:1",
+      "essential_index": 27,
+      "analysis_branch": "dialogue",
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:ee78e0e823120ff8ab9e",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t0",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+            "bank_id": 4,
+            "person_id": "person:ee78e0e823120ff8ab9e",
+            "tail_index": 0,
+            "character_index": 6
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t0",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+          "bank_id": 4,
+          "person_id": "person:ee78e0e823120ff8ab9e"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 0,
+            "label": "TAIL 0",
+            "bbox": [
+              391.7149963378906,
+              619.2374877929688,
+              422.6050109863281,
+              647.3875122070312
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t0"
+            ]
+          }
+        ]
+      },
+      "batch_id": "scene:5:event:1",
+      "inferred_speaker": {
+        "speaker_person_id": "person:ee78e0e823120ff8ab9e",
+        "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c3",
+        "speaker_kind": "person"
+      },
+      "speaker_resolution": {
+        "policy": "inference-first-v1",
+        "selected_source": "inference",
+        "source_anchor_person_id": "person:ee78e0e823120ff8ab9e",
+        "conflicts": []
+      }
+    },
+    {
+      "utterance_id": "b68ed9e490d577e6:p6:g2:u",
+      "content_type": "dialogue",
+      "speech_style": "normal",
+      "speaker_kind": "person",
+      "speaker_person_id": "person:e6c6452cb6c395001d3d",
+      "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+      "addressee_type": "individual",
+      "addressee_person_ids": [
+        "person:ee78e0e823120ff8ab9e"
+      ],
+      "mentions": [],
+      "confidence": {
+        "speaker": 9,
+        "addressee": 8,
+        "content_type": 10,
+        "speech_style": 9
+      },
+      "evidence": "Bubble tail TAIL 1 points to the character in cluster p6:c1 (person:e6c6452cb6c395001d3d). The speaker anchor is locked to this person. The text 'EHH, REALLY?' is a reaction to the previous statement.",
+      "evidence_refs": [
+        "b68ed9e490d577e6:p6:t1",
+        "495c61e29838cca9:b68ed9e490d577e6:p6:c1"
+      ],
+      "semantic_resolution": "resolved",
+      "semantic_response_used": true,
+      "repair_count": 0,
+      "semantic_needs_review": false,
+      "semantic_errors": [],
+      "speaker_merge_policy": "inference-first-v1",
+      "scene_id": "scene:5",
+      "event_id": "scene:5:event:1",
+      "essential_index": 28,
+      "analysis_branch": "dialogue",
+      "speaker_anchor": {
+        "locked": true,
+        "person_id": "person:e6c6452cb6c395001d3d",
+        "sources": [
+          {
+            "source_text_id": "b68ed9e490d577e6:p6:t1",
+            "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+            "bank_id": 3,
+            "person_id": "person:e6c6452cb6c395001d3d",
+            "tail_index": 1,
+            "character_index": 3
+          }
+        ],
+        "conflicting_person_ids": [],
+        "origin": "MAGIv2_text_tail_character_stable_bank"
+      },
+      "original_speaker": [
+        {
+          "source_text_id": "b68ed9e490d577e6:p6:t1",
+          "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+          "bank_id": 3,
+          "person_id": "person:e6c6452cb6c395001d3d"
+        }
+      ],
+      "bubble_tail": {
+        "source": "MAGIv2",
+        "page_id": "b68ed9e490d577e6:p6",
+        "coordinate_system": "original_page_pixels",
+        "has_tail": true,
+        "tails": [
+          {
+            "tail_index": 1,
+            "label": "TAIL 1",
+            "bbox": [
+              143.63352966308594,
+              721.1734619140625,
+              168.989501953125,
+              749.6285400390625
+            ],
+            "source_text_ids": [
+              "b68ed9e490d577e6:p6:t1"
+            ]
+          }
+        ]
+      },
+      "batch_id": "scene:5:event:1",
+      "inferred_speaker": {
+        "speaker_person_id": "person:e6c6452cb6c395001d3d",
+        "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p6:c1",
+        "speaker_kind": "person"
+      },
+      "speaker_resolution": {
+        "policy": "inference-first-v1",
+        "selected_source": "inference",
+        "source_anchor_person_id": "person:e6c6452cb6c395001d3d",
+        "conflicts": []
+      }
+    }
+  ],
+  "mention_example": {
+    "utterance_id": "b68ed9e490d577e6:p9:g6:u",
+    "content_type": "dialogue",
+    "speech_style": "shout",
+    "speaker_kind": "person",
+    "speaker_person_id": "person:10f7c7b229e34163b406",
+    "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p9:c14",
+    "addressee_type": "individual",
+    "addressee_person_ids": [
+      "person:cae4225c957b8132e0c8"
+    ],
+    "mentions": [
+      {
+        "candidate_id": "4c58cb88d601bb066dc3",
+        "confirmed_person_name": true,
+        "mention_type": "direct_address",
+        "target_person_id": "person:cae4225c957b8132e0c8",
+        "recipient_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p9:c1",
+        "visual_support": "compatible",
+        "components": [
+          {
+            "kind": "given_name",
+            "value": "Koyuki"
+          }
+        ],
+        "confidence": {
+          "mention_type": 10,
+          "target": 10
+        },
+        "evidence": "Text 'Koyuki-chan' directly addresses the character Koyuki Sasamori.",
+        "name_key": "koyuki-chan",
+        "base_name": "koyuki",
+        "honorific": "chan",
+        "raw_surface": "KOYUKI- CHAN",
+        "start": 0,
+        "end": 11,
+        "original_start": 0,
+        "original_end": 12,
+        "corrected_surface": "Koyuki-chan",
+        "alias_groups": [
+          {
+            "group_id": "g2",
+            "canonical_name": "Koyuki Sasamori",
+            "aliases": [
+              "KOYUKI",
+              "KOYUKI- CHAN",
+              "Koyuk",
+              "Koyuki",
+              "Koyuki Sasamori",
+              "Koyuki-chan",
+              "SASA- MORI",
+              "SASA- MORI- SAN",
+              "SASAMORI KOYUKI",
+              "SASAMORI- CHAN",
+              "SASAMORI- SAN",
+              "SASAMORI-CHAN",
+              "SASAMORI-SAN",
+              "SASAMORISAN",
+              "Sasamori",
+              "Sasamori Koyuki",
+              "Sasamori- san",
+              "Sasamori-chan",
+              "Sasamori-san",
+              "YUUKI",
+              "Yuuki",
+              "yuki-chan"
+            ],
+            "evidence": "The popular girl with the Iris power, referred to by full name, given name, and surname with honorifics.",
+            "status": "proposed"
+          }
+        ],
+        "name_suspect": false
+      }
+    ],
+    "confidence": {
+      "speaker": 8,
+      "addressee": 10,
+      "content_type": 10,
+      "speech_style": 9
+    },
+    "evidence": "Speaker anchor points to person:10f7c7b229e34163b406. The text 'Koyuki-chan!? REALLY!?' is a shocked reaction to the confession, consistent with a classmate's perspective. The exclamation marks and context of shock support 'shout' style.",
+    "evidence_refs": [
+      "b68ed9e490d577e6:p9:g6:u"
+    ],
+    "semantic_resolution": "resolved",
+    "semantic_response_used": true,
+    "repair_count": 0,
+    "semantic_needs_review": false,
+    "semantic_errors": [],
+    "speaker_merge_policy": "inference-first-v1",
+    "scene_id": "scene:6",
+    "event_id": "scene:6:event:2",
+    "essential_index": 42,
+    "analysis_branch": "dialogue",
+    "speaker_anchor": {
+      "locked": false,
+      "person_id": null,
+      "sources": [],
+      "conflicting_person_ids": [],
+      "origin": "MAGIv2_text_tail_character_stable_bank"
+    },
+    "original_speaker": [
+      {
+        "source_text_id": "b68ed9e490d577e6:p9:t8",
+        "cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p9:c14",
+        "bank_id": null,
+        "person_id": "person:10f7c7b229e34163b406"
+      }
+    ],
+    "bubble_tail": {
+      "source": "MAGIv2",
+      "page_id": "b68ed9e490d577e6:p9",
+      "coordinate_system": "original_page_pixels",
+      "has_tail": false,
+      "tails": []
+    },
+    "batch_id": "scene:6:event:2",
+    "inferred_speaker": {
+      "speaker_person_id": "person:10f7c7b229e34163b406",
+      "speaker_cluster_ref": "495c61e29838cca9:b68ed9e490d577e6:p9:c14",
+      "speaker_kind": "person"
+    },
+    "speaker_resolution": {
+      "policy": "inference-first-v1",
+      "selected_source": "inference",
+      "source_anchor_person_id": null,
+      "conflicts": []
+    }
+  },
+  "mention_text": "KOYUKI- CHAN!? REALLY!?",
+  "note": "Retained r11 outputs illustrate field values, not execution of the new auxiliary-first prompt."
+}

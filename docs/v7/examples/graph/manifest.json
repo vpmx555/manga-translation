@@ -13,7 +13,7 @@
     "path": "D:\\AIP491\\manga-translate-v2\\src\\manga_pipeline\\v6\\graph.py",
     "sha256": "7eddfebde96d515ddfe12a2dd46c475e3a9bc54ec66815ba2990be3c57ba3e60"
   },
-  "generator_sha256": "7590adf0bd47164bfcb4b0b3fbdff10e5c75cc26649e492426df1fe357558bf7",
+  "generator_sha256": "127f357ad81a76a78df0f4665901081a408759bd4c2d067472504aebd8e4ac76",
   "model_requests": 0,
   "editorial_notes": {
     "five_level_hierarchy": "Conceptual story/chapter containers plus saved scene/event/utterance nodes.",
@@ -23,6 +23,10 @@
   "assets": {
     "event-continuations.png": "9d2683d456b084871857173b633607e7cae2ccb29ff6e610b1d66e471f467c88",
     "five-level-hierarchy.png": "086c42c88af3fdd2dc747bd19943db65aa04afd814c13bf046c8fa6ed7701db3",
+    "name-corrections-aliases.png": "635b0c6240a57eec1be09894498be2aa05c9b8528b89d0200743f035c7148830",
+    "name-flow.json": "7e6dcb6213e2435ce39516236d64af951f4d030f213cf75fd21b9afa56fbe505",
+    "name-reference-only.png": "ae87208e1296cd61c21eafdccde59390b2a38e5e8c13d5c7436f9fa525ed2edb",
+    "names-flow.png": "132c0925e5cd9211af55feaec9ca78410c4107f47090bceb430f3117e7a5a69b",
     "ocr-current.json": "8e7367ef815e61881f0e8f8753357e7fa445fe1485cb77f178c2ad3f702d071e",
     "output-chapter.png": "9c793e6514314205678442dbdf25cfc7e18884584852db79f955a190165eb084",
     "packet-full.json": "63cdfccfc49d159d1c27d43412fb3484699655717b3f824276acdc83e69ffc17",
